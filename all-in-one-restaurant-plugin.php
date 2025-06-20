@@ -580,9 +580,19 @@ class AIO_Restaurant_Plugin {
             return esc_html( $char );
         } else {
             $sets = array(
-                'default' => array( '☀️', '🌙' ),
-                'alt'     => array( '🌞', '🌜' ),
-                'minimal' => array( '🔆', '🌑' ),
+                'default'  => array( '☀️', '🌙' ),
+                'alt'      => array( '🌞', '🌜' ),
+                'minimal'  => array( '🔆', '🌑' ),
+                'eclipse'  => array( '🌞', '🌚' ),
+                'sunset'   => array( '🌇', '🌃' ),
+                'cloudy'   => array( '⛅', '🌙' ),
+                'simple'   => array( '☼', '☾' ),
+                'twilight' => array( '🌄', '🌌' ),
+                'starry'   => array( '⭐', '🌜' ),
+                'morning'  => array( '🌅', '🌠' ),
+                'bright'   => array( '🔆', '🔅' ),
+                'flower'   => array( '🌻', '🌑' ),
+                'smiley'   => array( '😀', '😴' ),
             );
             if ( isset( $sets[ $set ] ) ) {
                 $index = $type === 'light' ? 0 : 1;
@@ -737,10 +747,20 @@ class AIO_Restaurant_Plugin {
                     $light_img  = intval( get_option( 'aorp_icon_light_img', 0 ) );
                     $dark_img   = intval( get_option( 'aorp_icon_dark_img', 0 ) );
                     $icon_sets  = array(
-                        'default' => array('☀️','🌙'),
-                        'alt'     => array('🌞','🌜'),
-                        'minimal' => array('🔆','🌑'),
-                        'custom'  => array('', '')
+                        'default'  => array('☀️','🌙'),
+                        'alt'      => array('🌞','🌜'),
+                        'minimal'  => array('🔆','🌑'),
+                        'eclipse'  => array('🌞','🌚'),
+                        'sunset'   => array('🌇','🌃'),
+                        'cloudy'   => array('⛅','🌙'),
+                        'simple'   => array('☼','☾'),
+                        'twilight' => array('🌄','🌌'),
+                        'starry'   => array('⭐','🌜'),
+                        'morning'  => array('🌅','🌠'),
+                        'bright'   => array('🔆','🔅'),
+                        'flower'   => array('🌻','🌑'),
+                        'smiley'   => array('😀','😴'),
+                        'custom'   => array('', '')
                     );
                 ?>
                 <table class="form-table">
