@@ -5,10 +5,11 @@ jQuery(document).ready(function($){
 
     function closeOverlay(){
         $('#aorp-search-overlay').hide();
+        $('#aorp-overlay-input').val('');
     }
 
-    $('#aorp-search').on('keyup', function(){
-        var val = $(this).val().toLowerCase();
+    function performSearch(val){
+        val = val.toLowerCase();
         var overlay = $('#aorp-search-overlay');
         var list = $('#aorp-overlay-results');
         list.empty();
@@ -22,10 +23,15 @@ jQuery(document).ready(function($){
             }
         });
         if(list.children().length){
+            $('#aorp-overlay-input').val(val);
             overlay.show();
         }else{
             closeOverlay();
         }
+    }
+
+    $('#aorp-search, #aorp-overlay-input').on('keyup', function(){
+        performSearch($(this).val());
     });
 
     $('#aorp-overlay-close').on('click', closeOverlay);
