@@ -32,17 +32,17 @@ jQuery(document).ready(function($){
     if($('#aorp-toggle').length===0){
         $('body').append('<div id="aorp-toggle" aria-label="Dark Mode umschalten" role="button" tabindex="0">'+aorp_ajax.icon_light+'</div>');
     } else {
-        $('#aorp-toggle').text(aorp_ajax.icon_light);
+        $('#aorp-toggle').html(aorp_ajax.icon_light);
     }
 
     function setDark(active){
         if(active){
             $('body').addClass('aorp-dark');
-            $('#aorp-toggle').text(aorp_ajax.icon_dark);
+            $('#aorp-toggle').html(aorp_ajax.icon_dark);
             localStorage.setItem('aorp-dark-mode','on');
         }else{
             $('body').removeClass('aorp-dark');
-            $('#aorp-toggle').text(aorp_ajax.icon_light);
+            $('#aorp-toggle').html(aorp_ajax.icon_light);
             localStorage.setItem('aorp-dark-mode','off');
         }
         $.post(aorp_ajax.url,{action:'aorp_toggle_dark'});

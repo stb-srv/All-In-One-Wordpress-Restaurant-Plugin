@@ -30,3 +30,9 @@ Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt
 - [restaurant_lightswitcher] – Dark Mode Switcher
 Die Widgets "Speisekarte" und "Lightswitcher" können ebenfalls in Sidebars verwendet werden.
 
+## Dark‑Mode Icons
+
+Unter "Speisekarte → Dark Mode" lassen sich verschiedene Icon-Sets per Dropdown auswählen. 
+Alternativ können eigene Icons (PNG, 32x32 Pixel, transparenter Hintergrund) hochgeladen werden. 
+Kostenlose Icons findest du z.B. auf [flaticon.com](https://www.flaticon.com).
+
