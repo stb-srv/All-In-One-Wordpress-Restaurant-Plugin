@@ -2,7 +2,7 @@
 /*
 Plugin Name: All-In-One WordPress Restaurant Plugin
 Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode, Suchfunktion und Import/Export.
-Version: 1.1.4
+Version: 1.1.5
 Author: stb-srv
 */
 
@@ -608,16 +608,7 @@ class AIO_Restaurant_Plugin {
             wp_die( 'Nicht erlaubt' );
         }
         $format = isset( $_POST['export_format'] ) ? sanitize_text_field( $_POST['export_format'] ) : 'csv';
-        $data   = array();
-        $items  = get_posts( array( 'post_type' => 'aorp_menu_item', 'numberposts' => -1 ) );
-        foreach ( $items as $item ) {
-            $data[] = array(
-                'number'      => get_post_meta( $item->ID, '_aorp_number', true ),
-                'title'       => $item->post_title,
-                'description' => $item->post_content,
-                'price'       => get_post_meta( $item->ID, '_aorp_price', true ),
-            );
-        }
+        $data   = $this->get_export_data();
         $history = get_option( 'aorp_history', array() );
         $history[] = array( 'action' => 'export', 'time' => current_time( 'mysql' ), 'user' => get_current_user_id(), 'format' => $format );
         update_option( 'aorp_history', $history );
@@ -634,9 +625,9 @@ class AIO_Restaurant_Plugin {
             header( 'Content-Type: text/csv' );
             header( 'Content-Disposition: attachment; filename="speisekarte.csv"' );
             $out = fopen( 'php://output', 'w' );
-            fputcsv( $out, array( 'Nummer', 'Titel', 'Beschreibung', 'Preis' ) );
-            foreach ( $data as $row ) {
-                fputcsv( $out, $row );
+            fputcsv( $out, array( 'Nummer', 'Titel', 'Beschreibung', 'Preis', 'Kategorie', 'Inhaltsstoffe', 'Bild-ID' ) );
+            foreach ( $data['items'] as $row ) {
+                fputcsv( $out, array( $row['number'], $row['title'], $row['description'], $row['price'], $row['category'], $row['ingredients'], $row['image_id'] ) );
             }
             fclose( $out );
         }
@@ -649,28 +640,123 @@ class AIO_Restaurant_Plugin {
         }
         if ( ! empty( $_FILES['import_file']['tmp_name'] ) ) {
             $format = isset( $_POST['import_format'] ) ? sanitize_text_field( $_POST['import_format'] ) : 'csv';
-            $rows   = array();
+            $data   = array();
             if ( 'json' === $format ) {
-                $rows = json_decode( file_get_contents( $_FILES['import_file']['tmp_name'] ), true );
+                $data = json_decode( file_get_contents( $_FILES['import_file']['tmp_name'] ), true );
             } elseif ( 'yaml' === $format ) {
-                $rows = $this->yaml_to_array( file_get_contents( $_FILES['import_file']['tmp_name'] ) );
+                $data = $this->yaml_to_array( file_get_contents( $_FILES['import_file']['tmp_name'] ) );
             } else {
                 $handle = fopen( $_FILES['import_file']['tmp_name'], 'r' );
                 if ( $handle ) {
-                    fgetcsv( $handle );
-                    while ( ( $data = fgetcsv( $handle ) ) !== false ) {
-                        $rows[] = array( 'number' => $data[0], 'title' => $data[1], 'description' => $data[2], 'price' => $data[3] );
+                    $header = fgetcsv( $handle );
+                    while ( ( $row = fgetcsv( $handle ) ) !== false ) {
+                        $data[] = array(
+                            'number'      => $row[0],
+                            'title'       => $row[1],
+                            'description' => $row[2],
+                            'price'       => $row[3],
+                            'category'    => isset( $row[4] ) ? $row[4] : '',
+                            'ingredients' => isset( $row[5] ) ? $row[5] : '',
+                            'image_id'    => isset( $row[6] ) ? $row[6] : '',
+                        );
                     }
                     fclose( $handle );
                 }
             }
             $ids = array();
-            if ( is_array( $rows ) ) {
-                foreach ( $rows as $row ) {
-                    $post_id = wp_insert_post( array( 'post_type' => 'aorp_menu_item', 'post_title' => sanitize_text_field( $row['title'] ), 'post_content' => sanitize_textarea_field( $row['description'] ), 'post_status' => 'publish' ) );
+            $items = array();
+            $categories = array();
+            $ingredients = array();
+            if ( $format === 'json' || $format === 'yaml' ) {
+                $categories  = isset( $data['categories'] ) ? $data['categories'] : array();
+                $ingredients = isset( $data['ingredients'] ) ? $data['ingredients'] : array();
+                $items       = isset( $data['items'] ) ? $data['items'] : (array) $data;
+            } else {
+                $items = $data;
+            }
+
+            $cat_map = array();
+            foreach ( $categories as $cat ) {
+                if ( empty( $cat['code'] ) ) {
+                    continue;
+                }
+                $existing = get_terms( array(
+                    'taxonomy'   => 'aorp_menu_category',
+                    'hide_empty' => false,
+                    'meta_query' => array(
+                        array( 'key' => 'aorp_code', 'value' => $cat['code'] ),
+                    ),
+                ) );
+                if ( $existing && ! is_wp_error( $existing ) ) {
+                    $term_id = $existing[0]->term_id;
+                    wp_update_term( $term_id, 'aorp_menu_category', array( 'name' => sanitize_text_field( $cat['name'] ) ) );
+                } else {
+                    $term = wp_insert_term( sanitize_text_field( $cat['name'] ), 'aorp_menu_category' );
+                    $term_id = is_wp_error( $term ) ? 0 : $term['term_id'];
+                }
+                if ( $term_id ) {
+                    $fields = array(
+                        'aorp_code'      => 'code',
+                        'aorp_bg'        => 'bg',
+                        'aorp_color'     => 'color',
+                        'aorp_font_size' => 'font_size',
+                        'aorp_width'     => 'width',
+                        'aorp_height'    => 'height',
+                    );
+                    foreach ( $fields as $meta => $src ) {
+                        if ( isset( $cat[ $src ] ) ) {
+                            update_term_meta( $term_id, $meta, sanitize_text_field( $cat[ $src ] ) );
+                        }
+                    }
+                    $cat_map[ $cat['code'] ] = $term_id;
+                }
+            }
+
+            foreach ( $ingredients as $ing ) {
+                if ( empty( $ing['code'] ) ) {
+                    continue;
+                }
+                $existing = get_posts( array(
+                    'post_type'  => 'aorp_ingredient',
+                    'meta_key'   => '_aorp_ing_code',
+                    'meta_value' => $ing['code'],
+                    'numberposts'=> 1,
+                ) );
+                if ( $existing ) {
+                    $ing_id = $existing[0]->ID;
+                    wp_update_post( array( 'ID' => $ing_id, 'post_title' => sanitize_text_field( $ing['name'] ) ) );
+                } else {
+                    $ing_id = wp_insert_post( array(
+                        'post_type'   => 'aorp_ingredient',
+                        'post_status' => 'publish',
+                        'post_title'  => sanitize_text_field( $ing['name'] ),
+                    ) );
+                }
+                if ( $ing_id && ! is_wp_error( $ing_id ) ) {
+                    update_post_meta( $ing_id, '_aorp_ing_code', sanitize_text_field( $ing['code'] ) );
+                }
+            }
+
+            if ( is_array( $items ) ) {
+                foreach ( $items as $row ) {
+                    $post_id = wp_insert_post( array(
+                        'post_type'   => 'aorp_menu_item',
+                        'post_title'  => sanitize_text_field( $row['title'] ),
+                        'post_content'=> sanitize_textarea_field( $row['description'] ),
+                        'post_status' => 'publish',
+                    ) );
                     if ( $post_id ) {
+                        if ( isset( $row['category'] ) && isset( $cat_map[ $row['category'] ] ) ) {
+                            wp_set_object_terms( $post_id, intval( $cat_map[ $row['category'] ] ), 'aorp_menu_category' );
+                        }
                         update_post_meta( $post_id, '_aorp_number', sanitize_text_field( $row['number'] ) );
                         update_post_meta( $post_id, '_aorp_price', sanitize_text_field( $row['price'] ) );
+                        if ( isset( $row['ingredients'] ) ) {
+                            update_post_meta( $post_id, '_aorp_ingredients', sanitize_textarea_field( $row['ingredients'] ) );
+                        }
+                        if ( ! empty( $row['image_id'] ) ) {
+                            set_post_thumbnail( $post_id, intval( $row['image_id'] ) );
+                        }
                         $ids[] = $post_id;
                     }
                 }
@@ -718,6 +804,55 @@ class AIO_Restaurant_Plugin {
     public function dashboard_widget_output() {
         $count = (int) get_option( 'aorp_dark_count', 0 );
         echo '<p>Gesamtanzahl: <strong>' . $count . '</strong></p>';
+    }
+
+    private function get_export_data() {
+        $data = array(
+            'categories'  => array(),
+            'ingredients' => array(),
+            'items'       => array(),
+        );
+
+        $cats = get_terms( array( 'taxonomy' => 'aorp_menu_category', 'hide_empty' => false ) );
+        foreach ( $cats as $cat ) {
+            $data['categories'][] = array(
+                'code'       => get_term_meta( $cat->term_id, 'aorp_code', true ),
+                'name'       => $cat->name,
+                'bg'         => get_term_meta( $cat->term_id, 'aorp_bg', true ),
+                'color'      => get_term_meta( $cat->term_id, 'aorp_color', true ),
+                'font_size'  => get_term_meta( $cat->term_id, 'aorp_font_size', true ),
+                'width'      => get_term_meta( $cat->term_id, 'aorp_width', true ),
+                'height'     => get_term_meta( $cat->term_id, 'aorp_height', true ),
+            );
+        }
+
+        $ings = get_posts( array( 'post_type' => 'aorp_ingredient', 'numberposts' => -1 ) );
+        foreach ( $ings as $ing ) {
+            $data['ingredients'][] = array(
+                'code' => get_post_meta( $ing->ID, '_aorp_ing_code', true ),
+                'name' => $ing->post_title,
+            );
+        }
+
+        $items = get_posts( array( 'post_type' => 'aorp_menu_item', 'numberposts' => -1 ) );
+        foreach ( $items as $item ) {
+            $term  = get_the_terms( $item->ID, 'aorp_menu_category' );
+            $cat   = '';
+            if ( $term && ! is_wp_error( $term ) ) {
+                $cat = get_term_meta( $term[0]->term_id, 'aorp_code', true );
+            }
+            $data['items'][] = array(
+                'number'      => get_post_meta( $item->ID, '_aorp_number', true ),
+                'title'       => $item->post_title,
+                'description' => $item->post_content,
+                'price'       => get_post_meta( $item->ID, '_aorp_price', true ),
+                'category'    => $cat,
+                'ingredients' => get_post_meta( $item->ID, '_aorp_ingredients', true ),
+                'image_id'    => get_post_thumbnail_id( $item->ID ),
+            );
+        }
+
+        return $data;
     }
 
     private function array_to_yaml( $data ) {
