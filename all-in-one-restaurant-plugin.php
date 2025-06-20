@@ -625,6 +625,25 @@ class AIO_Restaurant_Plugin {
                 </table>
                 <?php submit_button(); ?>
             </form>
+            <?php $this->output_custom_styles(); ?>
+            <h2>Vorschau</h2>
+            <div class="aorp-menu">
+                <h3 class="aorp-category">Beispiel Kategorie</h3>
+                <div class="aorp-items" style="display:block">
+                    <div class="aorp-item">
+                        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAP////8AAAALAAAAAABAAEAAAICRAEAOw==" alt="" />
+                        <div class="aorp-text">
+                            <div class="aorp-header">
+                                <span class="aorp-number">1</span>
+                                <span class="aorp-title">Beispielgericht</span>
+                                <span class="aorp-price">9,90 €</span>
+                            </div>
+                            <div class="aorp-desc">Leckere Beschreibung</div>
+                            <div class="aorp-ingredients"><em>Zutat A, Zutat B</em></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <?php
     }
@@ -965,6 +984,9 @@ class AIO_Restaurant_Plugin {
             wp_enqueue_media();
             wp_enqueue_style( 'aorp-admin-style', plugin_dir_url( __FILE__ ) . 'assets/admin.css' );
             wp_enqueue_script( 'aorp-admin', plugin_dir_url( __FILE__ ) . 'assets/admin.js', array( 'jquery' ), false, true );
+            if ( isset( $_GET['page'] ) && $_GET['page'] === 'aorp_optics' ) {
+                wp_enqueue_style( 'aorp-style', plugin_dir_url( __FILE__ ) . 'assets/style.css' );
+            }
         }
     }
 
