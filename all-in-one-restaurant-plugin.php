@@ -597,7 +597,7 @@ class AIO_Restaurant_Plugin {
         add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
         add_submenu_page( 'aorp_manage', 'Import/Export', 'Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
         add_submenu_page( 'aorp_manage', 'Einstellungen', 'Einstellungen', 'manage_options', 'aorp_settings', array( $this, 'settings_page' ) );
-        add_submenu_page( 'aorp_manage', 'Dark Mode', 'Dark Mode', 'manage_options', 'aorp_dark', array( $this, 'dark_page' ) );
+        add_menu_page( 'Dark Mode', 'Dark Mode', 'manage_options', 'aorp_dark', array( $this, 'dark_page' ), 'dashicons-lightbulb' );
         // Historie wird direkt auf der Import/Export Seite angezeigt
     }
 
