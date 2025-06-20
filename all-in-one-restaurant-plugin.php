@@ -565,7 +565,9 @@ class AIO_Restaurant_Plugin {
     }
 
     public function lightswitcher_shortcode() {
-        return '<div id="aorp-toggle" aria-label="Dark Mode umschalten" role="button" tabindex="0">🌓</div>';
+        $light = get_option( 'aorp_icon_light', '☀️' );
+        $dark  = get_option( 'aorp_icon_dark', '🌙' );
+        return '<div id="aorp-toggle" aria-label="Dark Mode umschalten" role="button" tabindex="0" data-light="' . esc_attr( $light ) . '" data-dark="' . esc_attr( $dark ) . '">' . esc_html( $light ) . '</div>';
     }
 
     public function admin_menu() {
@@ -663,15 +665,31 @@ class AIO_Restaurant_Plugin {
                             </select>
                         </td>
                     </tr>
+                <tr>
+                    <th scope="row"><label for="aorp_size_price">Schriftgröße Preis (1em)</label></th>
+                    <td>
+                        <select name="aorp_size_price" id="aorp_size_price">
+                            <?php foreach ( $sizes as $s ) : ?>
+                                <option value="<?php echo esc_attr( $s ); ?>" <?php selected( $price, $s ); ?>><?php echo $s ? esc_html( $s ) : '--'; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                </tr>
+                </table>
+
+                <h2>Dark Mode</h2>
+                <?php
+                    $icon_light = get_option( 'aorp_icon_light', '☀️' );
+                    $icon_dark  = get_option( 'aorp_icon_dark', '🌙' );
+                ?>
+                <table class="form-table">
                     <tr>
-                        <th scope="row"><label for="aorp_size_price">Schriftgröße Preis (1em)</label></th>
-                        <td>
-                            <select name="aorp_size_price" id="aorp_size_price">
-                                <?php foreach ( $sizes as $s ) : ?>
-                                    <option value="<?php echo esc_attr( $s ); ?>" <?php selected( $price, $s ); ?>><?php echo $s ? esc_html( $s ) : '--'; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </td>
+                        <th scope="row"><label for="aorp_icon_light">Symbol hell</label></th>
+                        <td><input type="text" name="aorp_icon_light" id="aorp_icon_light" value="<?php echo esc_attr( $icon_light ); ?>" class="regular-text" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aorp_icon_dark">Symbol dunkel</label></th>
+                        <td><input type="text" name="aorp_icon_dark" id="aorp_icon_dark" value="<?php echo esc_attr( $icon_dark ); ?>" class="regular-text" /></td>
                     </tr>
                 </table>
                 <?php submit_button(); ?>
@@ -706,6 +724,8 @@ class AIO_Restaurant_Plugin {
         register_setting( 'aorp_settings', 'aorp_size_title', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
         register_setting( 'aorp_settings', 'aorp_size_desc', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
         register_setting( 'aorp_settings', 'aorp_size_price', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+        register_setting( 'aorp_settings', 'aorp_icon_light', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '☀️' ) );
+        register_setting( 'aorp_settings', 'aorp_icon_dark', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '🌙' ) );
     }
 
     private function render_history_table() {
@@ -941,7 +961,11 @@ class AIO_Restaurant_Plugin {
         if ( ! is_admin() ) {
             wp_enqueue_style( 'aorp-style', plugin_dir_url( __FILE__ ) . 'assets/style.css' );
             wp_enqueue_script( 'aorp-script', plugin_dir_url( __FILE__ ) . 'assets/script.js', array('jquery'), false, true );
-            wp_localize_script( 'aorp-script', 'aorp_ajax', array( 'url' => admin_url( 'admin-ajax.php' ) ) );
+            wp_localize_script( 'aorp-script', 'aorp_ajax', array(
+                'url'        => admin_url( 'admin-ajax.php' ),
+                'icon_light' => get_option( 'aorp_icon_light', '☀️' ),
+                'icon_dark'  => get_option( 'aorp_icon_dark', '🌙' ),
+            ) );
         }
     }
 
