@@ -1,19 +1,17 @@
 # All-In-One-WordPress-Restaurant-Plugin
 
-Dieses Plugin bietet eine einfache Verwaltung von Speisekarten sowie einen optionalen Dark‑Mode‑Schalter für das Frontend. Es handelt sich um eine sehr frühe Version, die lediglich die Grundfunktionen demonstriert.
+Dieses Plugin stellt eine komplett deutschsprachige Lösung zur Verwaltung digitaler Speisekarten bereit. Es funktioniert mit jedem Theme, ist responsiv und bietet einen Dark‑Mode‑Schalter.
 
 ## Funktionen
 
-* Custom Post Type für Speisen
-* Taxonomie für Kategorien
-* Meta-Boxen für Speisennummer und Preis
-* Shortcode `[speisekarte]` zur Ausgabe der Speisekarte
-* Einfacher Dark/Light-Switcher, der nur im Frontend erscheint
+* Custom Post Type für Speisen inklusive Inhaltsstoffen und Produktbild
+* Taxonomie für Kategorien mit individuellen Designoptionen
+* Suchfeld für Speisen im Frontend ohne Neuladen
+* Shortcode `[speisekarte]` mit Spalten- und Kategorieparametern
+* Dark-/Light-Switcher im Frontend
 
-Die Dateien befinden sich direkt im Plugin-Verzeichnis:
+Die wichtigsten Dateien befinden sich im Plugin-Verzeichnis:
 
-* `all-in-one-restaurant-plugin.php` – Hauptplugin
-* `assets/style.css` – Minimales Styling
-* `assets/script.js` – Accordion- und Dark-Mode-Funktionen
-
-Das Plugin ist nicht vollständig und dient lediglich als Ausgangsbasis.
+* `all-in-one-restaurant-plugin.php` – komplette Plugin-Logik
+* `assets/style.css` – Basisdesign für Frontend und Accordion
+* `assets/script.js` – Suchfunktion, Accordion und Dark‑Mode
