@@ -93,4 +93,13 @@ jQuery(document).ready(function($){
         });
         aorp_frame.open();
     });
+
+    $('.aorp-select-all').on('click', function(e){
+        e.preventDefault();
+        $($(this).data('target')).prop('checked', true);
+    });
+    $('.aorp-unselect-all').on('click', function(e){
+        e.preventDefault();
+        $($(this).data('target')).prop('checked', false);
+    });
 });
