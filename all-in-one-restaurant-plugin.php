@@ -2,7 +2,7 @@
 /*
 Plugin Name: All-In-One WordPress Restaurant Plugin
 Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode, Suchfunktion und Import/Export.
-Version: 1.1.7
+Version: 1.1.8
 Author: stb-srv
 */
 
@@ -38,6 +38,7 @@ class AIO_Restaurant_Plugin {
         add_action( 'admin_post_aorp_delete_item', array( $this, 'delete_item' ) );
         add_action( 'admin_post_aorp_bulk_delete_item', array( $this, 'bulk_delete_item' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+        add_action( 'wp_head', array( $this, 'output_custom_styles' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
         add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
         add_action( 'wp_ajax_aorp_toggle_dark', array( $this, 'ajax_toggle_dark' ) );
@@ -561,6 +562,7 @@ class AIO_Restaurant_Plugin {
         add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
         add_submenu_page( 'aorp_manage', 'Import/Export', 'Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
         add_submenu_page( 'aorp_manage', 'Einstellungen', 'Einstellungen', 'manage_options', 'aorp_settings', array( $this, 'settings_page' ) );
+        add_submenu_page( 'aorp_manage', 'Optik', 'Optik', 'manage_options', 'aorp_optics', array( $this, 'optics_page' ) );
         // Historie wird direkt auf der Import/Export Seite angezeigt
     }
 
@@ -617,8 +619,48 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+    public function optics_page() {
+        ?>
+        <div class="wrap">
+            <h1>Optik</h1>
+            <form method="post" action="options.php">
+                <?php settings_fields( 'aorp_optics' ); ?>
+                <?php
+                    $num  = get_option( 'aorp_size_number', '' );
+                    $title = get_option( 'aorp_size_title', '' );
+                    $desc = get_option( 'aorp_size_desc', '' );
+                    $price = get_option( 'aorp_size_price', '' );
+                ?>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="aorp_size_number">Schriftgröße Nummer</label></th>
+                        <td><input type="text" name="aorp_size_number" id="aorp_size_number" value="<?php echo esc_attr( $num ); ?>" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aorp_size_title">Schriftgröße Titel</label></th>
+                        <td><input type="text" name="aorp_size_title" id="aorp_size_title" value="<?php echo esc_attr( $title ); ?>" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aorp_size_desc">Schriftgröße Beschreibung</label></th>
+                        <td><input type="text" name="aorp_size_desc" id="aorp_size_desc" value="<?php echo esc_attr( $desc ); ?>" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aorp_size_price">Schriftgröße Preis</label></th>
+                        <td><input type="text" name="aorp_size_price" id="aorp_size_price" value="<?php echo esc_attr( $price ); ?>" /></td>
+                    </tr>
+                </table>
+                <?php submit_button(); ?>
+            </form>
+        </div>
+        <?php
+    }
+
     public function register_settings() {
         register_setting( 'aorp_settings', 'aorp_menu_columns', array( 'type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 1 ) );
+        register_setting( 'aorp_optics', 'aorp_size_number', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+        register_setting( 'aorp_optics', 'aorp_size_title', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+        register_setting( 'aorp_optics', 'aorp_size_desc', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+        register_setting( 'aorp_optics', 'aorp_size_price', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
     }
 
     private function render_history_table() {
@@ -855,6 +897,29 @@ class AIO_Restaurant_Plugin {
             wp_enqueue_style( 'aorp-style', plugin_dir_url( __FILE__ ) . 'assets/style.css' );
             wp_enqueue_script( 'aorp-script', plugin_dir_url( __FILE__ ) . 'assets/script.js', array('jquery'), false, true );
             wp_localize_script( 'aorp-script', 'aorp_ajax', array( 'url' => admin_url( 'admin-ajax.php' ) ) );
+        }
+    }
+
+    public function output_custom_styles() {
+        $num   = trim( get_option( 'aorp_size_number', '' ) );
+        $title = trim( get_option( 'aorp_size_title', '' ) );
+        $desc  = trim( get_option( 'aorp_size_desc', '' ) );
+        $price = trim( get_option( 'aorp_size_price', '' ) );
+        if ( $num || $title || $desc || $price ) {
+            echo '<style type="text/css">';
+            if ( $num ) {
+                echo '.aorp-number{font-size:' . esc_attr( $num ) . ';}';
+            }
+            if ( $title ) {
+                echo '.aorp-title{font-size:' . esc_attr( $title ) . ';}';
+            }
+            if ( $desc ) {
+                echo '.aorp-desc{font-size:' . esc_attr( $desc ) . ';}';
+            }
+            if ( $price ) {
+                echo '.aorp-price{font-size:' . esc_attr( $price ) . ';}';
+            }
+            echo '</style>';
         }
     }
 
