@@ -740,8 +740,7 @@ class AIO_Restaurant_Plugin {
         ?>
         <div class="wrap">
             <h1>Dark Mode</h1>
-            <p class="description">Wähle zunächst ein Icon-Set oder lade eigene Icons hoch. 
-            Das darunterliegende Template bestimmt nur die Farben des Dark Modes – die ausgewählten Icons bleiben erhalten. 
+            <p class="description">Wähle zunächst ein Icon-Set oder lade eigene Icons hoch.
             Nach deinen Anpassungen klicke auf „Änderungen speichern“.</p>
             <form method="post" action="options.php">
                 <?php settings_fields( 'aorp_dark' ); ?>
@@ -749,7 +748,6 @@ class AIO_Restaurant_Plugin {
                     $set        = get_option( 'aorp_icon_set', 'default' );
                     $light_img  = intval( get_option( 'aorp_icon_light_img', 0 ) );
                     $dark_img   = intval( get_option( 'aorp_icon_dark_img', 0 ) );
-                    $template   = intval( get_option( 'aorp_dark_template', 1 ) );
                     $icon_sets  = array(
                         'default'  => array('☀️','🌙'),
                         'alt'      => array('🌞','🌜'),
@@ -802,36 +800,6 @@ class AIO_Restaurant_Plugin {
                             <span class="aorp-image-preview"><?php echo $dark_img ? wp_get_attachment_image( $dark_img, array(32,32) ) : ''; ?></span>
                         </td>
                     </tr>
-                    <tr>
-                        <th scope="row"><label for="aorp_dark_template">Farbvorlage (Template)</label></th>
-                        <td>
-                            <select name="aorp_dark_template" id="aorp_dark_template">
-                                <?php for ( $i = 1; $i <= 10; $i++ ) : ?>
-                                    <option value="<?php echo $i; ?>" <?php selected( $template, $i ); ?>><?php echo $i; ?></option>
-                                <?php endfor; ?>
-                            </select>
-                            <div id="aorp_template_preview">
-                                <?php
-                                    $tpl_colors = array(
-                                        1  => array('bg' => '#222', 'text' => '#eee', 'cat' => '#333'),
-                                        2  => array('bg' => '#111', 'text' => '#ddd', 'cat' => '#222'),
-                                        3  => array('bg' => '#000', 'text' => '#fff', 'cat' => '#444'),
-                                        4  => array('bg' => '#2b2b2b', 'text' => '#f5f5f5', 'cat' => '#3b3b3b'),
-                                        5  => array('bg' => '#1a1a1a', 'text' => '#e0e0e0', 'cat' => '#444'),
-                                        6  => array('bg' => '#121212', 'text' => '#e8e8e8', 'cat' => '#242424'),
-                                        7  => array('bg' => '#191919', 'text' => '#f0f0f0', 'cat' => '#333'),
-                                        8  => array('bg' => '#202020', 'text' => '#fafafa', 'cat' => '#444'),
-                                        9  => array('bg' => '#000', 'text' => '#e6e6e6', 'cat' => '#333'),
-                                        10 => array('bg' => '#141414', 'text' => '#e5e5e5', 'cat' => '#2a2a2a'),
-                                    );
-                                    for ( $i = 1; $i <= 10; $i++ ) {
-                                        $c = $tpl_colors[ $i ];
-                                        echo '<span class="aorp-template-swatch" data-template="' . $i . '" style="background:' . esc_attr( $c['bg'] ) . ';color:' . esc_attr( $c['text'] ) . ';border-color:' . esc_attr( $c['cat'] ) . '">' . $i . '</span> ';
-                                    }
-                                ?>
-                            </div>
-                        </td>
-                    </tr>
                 </table>
                 <?php submit_button(); ?>
             </form>
@@ -853,7 +821,6 @@ class AIO_Restaurant_Plugin {
         register_setting( 'aorp_dark', 'aorp_icon_dark', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '🌙' ) );
         register_setting( 'aorp_dark', 'aorp_icon_light_img', array( 'type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 0 ) );
         register_setting( 'aorp_dark', 'aorp_icon_dark_img', array( 'type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 0 ) );
-        register_setting( 'aorp_dark', 'aorp_dark_template', array( 'type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 1 ) );
     }
 
     private function render_history_table() {
@@ -1093,7 +1060,6 @@ class AIO_Restaurant_Plugin {
                 'url'        => admin_url( 'admin-ajax.php' ),
                 'icon_light' => $this->get_icon_html( 'light' ),
                 'icon_dark'  => $this->get_icon_html( 'dark' ),
-                'template'   => intval( get_option( 'aorp_dark_template', 1 ) ),
             ) );
         }
     }

@@ -54,28 +54,11 @@ Zunächst wählst du ein passendes Icon-Set oder lädst eigene Symbole hoch. Ans
 | smiley    | 😀 / 😴 |
 | custom    | eigene Icons |
 
-### Templates (Farbschemata)
-
-Die Zahl 1–10 wählt jeweils ein vorbereitetes Farbschema. Eine kleine Vorschau zeigt dir die Farben an. Die Icons bleiben dabei unverändert.
-
-| Nr. | Hintergrund | Text | Kategorie |
-|----:|-------------|------|-----------|
-| 1 | `#222` | `#eee` | `#333` |
-| 2 | `#111` | `#ddd` | `#222` |
-| 3 | `#000` | `#fff` | `#444` |
-| 4 | `#2b2b2b` | `#f5f5f5` | `#3b3b3b` |
-| 5 | `#1a1a1a` | `#e0e0e0` | `#444` |
-| 6 | `#121212` | `#e8e8e8` | `#242424` |
-| 7 | `#191919` | `#f0f0f0` | `#333` |
-| 8 | `#202020` | `#fafafa` | `#444` |
-| 9 | `#000` | `#e6e6e6` | `#333` |
-| 10 | `#141414` | `#e5e5e5` | `#2a2a2a` |
-
 ### Eigene Icons hochladen
 
 1. Wähle im Dropdown **Icon Set** den Eintrag **Eigene Icons**.
 2. Klicke bei "Eigenes Icon hell" bzw. "Eigenes Icon dunkel" auf *Bild auswählen* und lade jeweils eine 32x32‑PNG mit transparentem Hintergrund hoch.
-3. Lege ein Template fest und speichere die Einstellungen.
+3. Speichere die Einstellungen.
 
 Kostenlose Icons findest du zum Beispiel auf [flaticon.com](https://www.flaticon.com).
 
