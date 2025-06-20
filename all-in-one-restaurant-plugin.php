@@ -2,7 +2,7 @@
 /*
 Plugin Name: All-In-One WordPress Restaurant Plugin
 Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode, Suchfunktion und Import/Export.
-Version: 1.1.9
+Version: 1.2
 Author: stb-srv
 */
 
@@ -469,7 +469,7 @@ class AIO_Restaurant_Plugin {
 
         ob_start();
         echo '<p class="aorp-note">🔽 Klicke auf eine Kategorie, um die Speisen einzublenden.</p>';
-        echo '<div class="aorp-search-wrapper"><input type="text" id="aorp-search-input" placeholder="Suche nach Speisen …" /><button type="button" id="aorp-close-cats" class="aorp-close-cats">Alle Kategorien schließen</button><div id="aorp-search-overlay"><button type="button" id="aorp-overlay-close">&times;</button><div id="aorp-search-results"></div></div></div>';
+        echo '<div class="aorp-search-wrapper"><div id="aorp-search-overlay" class="closed"><input type="text" id="aorp-search-input" placeholder="Suche nach Speisen …" /><button type="button" id="aorp-overlay-close">&times;</button><div id="aorp-search-results"></div></div><button type="button" id="aorp-close-cats" class="aorp-close-cats">Alle Kategorien schließen</button></div>';
 
         echo '<div class="aorp-menu columns-' . $columns . '">';
 
