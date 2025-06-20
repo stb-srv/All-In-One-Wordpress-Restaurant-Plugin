@@ -1,0 +1,21 @@
+categories:
+  - code: pizza
+    name: Pizzen
+    bg: "#f0f0f0"
+    color: "#000000"
+    font_size: ''
+    width: ''
+    height: ''
+ingredients:
+  - code: A
+    name: Gluten
+  - code: B
+    name: Milch
+items:
+  - number: "1"
+    title: Margherita
+    description: Tomate, Mozzarella
+    price: "7.90"
+    category: pizza
+    ingredients: "A,B"
+    image_id: ''

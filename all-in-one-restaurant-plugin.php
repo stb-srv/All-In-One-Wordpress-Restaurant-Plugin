@@ -615,6 +615,12 @@ class AIO_Restaurant_Plugin {
         ?>
         <div class="wrap">
             <h1>Import/Export</h1>
+            <h2>Mustervorlagen</h2>
+            <ul>
+                <li><a href="<?php echo esc_url( plugin_dir_url( __FILE__ ) . 'samples/import-template.csv' ); ?>">CSV Vorlage</a></li>
+                <li><a href="<?php echo esc_url( plugin_dir_url( __FILE__ ) . 'samples/import-template.json' ); ?>">JSON Vorlage</a></li>
+                <li><a href="<?php echo esc_url( plugin_dir_url( __FILE__ ) . 'samples/import-template.yaml' ); ?>">YAML Vorlage</a></li>
+            </ul>
             <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="aorp_import_csv" />
                 <select name="import_format">

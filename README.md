@@ -62,3 +62,15 @@ Zunächst wählst du ein passendes Icon-Set oder lädst eigene Symbole hoch. Ans
 
 Kostenlose Icons findest du zum Beispiel auf [flaticon.com](https://www.flaticon.com).
 
+
+### Mustervorlagen für den Import
+
+Im Bereich **Import/Export** stehen jetzt Beispieldateien zur Verfügung.
+Sie helfen dir dabei, CSV-, JSON- oder YAML-Dateien korrekt zu strukturieren.
+Du findest die Vorlagen direkt auf der Import/Export-Seite:
+
+- `import-template.csv`
+- `import-template.json`
+- `import-template.yaml`
+
+Lade die gewünschte Datei herunter, trage deine Daten ein und importiere sie anschließend wieder über das Formular.
