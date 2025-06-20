@@ -12,7 +12,7 @@ Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt
 3. Import/Export & Historie
 4. Widgets für Speisekarte und Lightswitcher
 5. Einfache Verwaltung aller Daten auf einer Seite inklusive Bearbeiten und Löschen von Speisen sowie Filterfunktion
-6. Kategorien besitzen Code und Bezeichnung und lassen sich filtern und bearbeiten
+6. Kategorien besitzen eine Bezeichnung und lassen sich filtern und bearbeiten
 7. Import/Export berücksichtigt Kategorien, Inhaltsstoffe und weitere Einstellungen
 8. Spaltenanzahl der Speisekarte (1–3) über Einstellungen wählbar
 9. Schriftgrößen für Nummer, Titel, Beschreibung und Preis über den Einstellungen-Bereich Darstellung per Dropdown anpassbar

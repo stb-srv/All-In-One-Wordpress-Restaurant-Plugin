@@ -1,7 +1,6 @@
 {
   "categories": [
     {
-      "code": "pizza",
       "name": "Pizzen",
       "bg": "#f0f0f0",
       "color": "#000000",
@@ -20,7 +19,7 @@
       "title": "Margherita",
       "description": "Tomate, Mozzarella",
       "price": "7.90",
-      "category": "pizza",
+      "category": "Pizzen",
       "ingredients": "A,B",
       "image_id": ""
     }
