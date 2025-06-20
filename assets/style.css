@@ -1,6 +1,6 @@
 .aorp-menu{margin:1em 0}
 .aorp-note{margin-bottom:0.5em;font-weight:bold}
-#aorp-search-input{width:50%;max-width:400px;padding:0.5em 1em;border-radius:4px;border:1px solid #ccc;font-size:1rem;margin:0 auto;display:block}
+#aorp-search-input{width:50%;max-width:400px;padding:0.5em 1em;border-radius:4px;border:1px solid #ccc;font-size:1rem;margin:0 auto;display:block;background:#fff;color:#000}
 .aorp-search-wrapper{text-align:center;position:relative;margin:2rem 0}
 .aorp-close-cats{padding:0.5em}
 .aorp-category{cursor:pointer;background:#eee;padding:0.5em;margin-bottom:0.5em;display:flex;align-items:center;min-height:40px;box-sizing:border-box;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,0.1)}
@@ -41,9 +41,9 @@ body.aorp-dark .aorp-category{background:#333;color:#fff}
 
 /* Overlay search */
 #aorp-search-overlay{position:relative;text-align:center;margin:2rem auto}
-#aorp-search-results .aorp-item{background:#222;margin:0.5rem 0;padding:0.75rem 1rem;border-radius:4px}
+#aorp-search-results .aorp-item{background:#f9f9f9;margin:0.5rem 0;padding:0.75rem 1rem;border-radius:4px;color:#000}
 #aorp-search-results .aorp-item-title{margin:0;font-size:1.1rem}
 #aorp-search-results .aorp-item-price{float:right;font-size:0.95rem;opacity:0.8}
 
 body.aorp-dark #aorp-search-input{background:#333;color:#fff;border-color:#555}
-body.aorp-dark #aorp-search-results .aorp-item{background:#333}
+body.aorp-dark #aorp-search-results .aorp-item{background:#333;color:#fff}
