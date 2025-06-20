@@ -678,20 +678,29 @@ class AIO_Restaurant_Plugin {
                 </table>
 
                 <h2>Dark Mode</h2>
-                <?php
-                    $icon_light = get_option( 'aorp_icon_light', '☀️' );
-                    $icon_dark  = get_option( 'aorp_icon_dark', '🌙' );
-                ?>
-                <table class="form-table">
-                    <tr>
-                        <th scope="row"><label for="aorp_icon_light">Symbol hell</label></th>
-                        <td><input type="text" name="aorp_icon_light" id="aorp_icon_light" value="<?php echo esc_attr( $icon_light ); ?>" class="regular-text" /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="aorp_icon_dark">Symbol dunkel</label></th>
-                        <td><input type="text" name="aorp_icon_dark" id="aorp_icon_dark" value="<?php echo esc_attr( $icon_dark ); ?>" class="regular-text" /></td>
-                    </tr>
-                </table>
+                <div class="nav-tab-wrapper" id="aorp-dark-tabs">
+                    <a href="#aorp-dark-general" class="nav-tab nav-tab-active">Allgemein</a>
+                    <a href="#aorp-dark-icon" class="nav-tab">Icon</a>
+                </div>
+                <div id="aorp-dark-general" class="aorp-dark-tab" style="display:block;">
+                    <p><?php esc_html_e( 'Keine weiteren Einstellungen.', 'aorp' ); ?></p>
+                </div>
+                <div id="aorp-dark-icon" class="aorp-dark-tab" style="display:none;">
+                    <?php
+                        $icon_light = get_option( 'aorp_icon_light', '☀️' );
+                        $icon_dark  = get_option( 'aorp_icon_dark', '🌙' );
+                    ?>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><label for="aorp_icon_light">Symbol hell</label></th>
+                            <td><input type="text" name="aorp_icon_light" id="aorp_icon_light" value="<?php echo esc_attr( $icon_light ); ?>" class="regular-text" /></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="aorp_icon_dark">Symbol dunkel</label></th>
+                            <td><input type="text" name="aorp_icon_dark" id="aorp_icon_dark" value="<?php echo esc_attr( $icon_dark ); ?>" class="regular-text" /></td>
+                        </tr>
+                    </table>
+                </div>
                 <?php submit_button(); ?>
             </form>
             <?php $this->output_custom_styles(); ?>

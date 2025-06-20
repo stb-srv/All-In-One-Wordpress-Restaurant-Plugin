@@ -7,3 +7,10 @@
 .aorp-section h2 {
     margin-top: 0;
 }
+
+#aorp-dark-tabs .nav-tab {
+    cursor: pointer;
+}
+.aorp-dark-tab {
+    padding: 10px 0;
+}
