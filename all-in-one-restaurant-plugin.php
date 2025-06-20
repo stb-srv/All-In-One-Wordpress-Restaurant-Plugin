@@ -35,6 +35,7 @@ class AIO_Restaurant_Plugin {
         add_action( 'admin_post_aorp_bulk_delete_ingredient', array( $this, 'bulk_delete_ingredient' ) );
         add_action( 'admin_post_aorp_update_item', array( $this, 'update_item' ) );
         add_action( 'admin_post_aorp_delete_item', array( $this, 'delete_item' ) );
+        add_action( 'admin_post_aorp_bulk_delete_item', array( $this, 'bulk_delete_item' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
         add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
@@ -114,6 +115,240 @@ class AIO_Restaurant_Plugin {
             <label for="aorp_height">Kachelhöhe</label>
             <input type="text" name="aorp_height" id="aorp_height" value="" />
         </div>
+        <?php
+    }
+
+    private function render_category_form( $categories, $current_cat ) {
+        ?>
+        <h2>Kategorien</h2>
+        <?php if ( $current_cat ) : ?>
+        <h3>Kategorie bearbeiten</h3>
+        <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+            <input type="hidden" name="action" value="aorp_update_category" />
+            <?php wp_nonce_field( 'aorp_edit_category_' . $current_cat->term_id ); ?>
+            <input type="hidden" name="cat_id" value="<?php echo esc_attr( $current_cat->term_id ); ?>" />
+            <p><input type="text" name="cat_code" value="<?php echo esc_attr( get_term_meta( $current_cat->term_id, 'aorp_code', true ) ); ?>" placeholder="Code" required /></p>
+            <p><input type="text" name="cat_name" value="<?php echo esc_attr( $current_cat->name ); ?>" placeholder="Bezeichnung" required /></p>
+            <?php submit_button( 'Kategorie speichern' ); ?>
+            <a href="<?php echo admin_url( 'admin.php?page=aorp_manage' ); ?>">Abbrechen</a>
+        </form>
+        <?php else : ?>
+        <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+            <input type="hidden" name="action" value="aorp_add_category" />
+            <?php wp_nonce_field( 'aorp_add_category' ); ?>
+            <p><input type="text" name="cat_code" placeholder="Code" required /></p>
+            <p><input type="text" name="cat_name" placeholder="Bezeichnung" required /></p>
+            <?php submit_button( 'Anlegen' ); ?>
+        </form>
+        <?php endif; ?>
+        <?php if ( $categories ) : ?>
+            <input type="text" id="aorp-cat-filter" placeholder="Suche" />
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                <input type="hidden" name="action" value="aorp_bulk_delete_category" />
+                <?php wp_nonce_field( 'aorp_bulk_delete_category' ); ?>
+                <table class="widefat" id="aorp-cat-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Code</th>
+                            <th>Bezeichnung</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ( $categories as $cat ) : ?>
+                            <tr>
+                                <td><input type="checkbox" name="cat_ids[]" value="<?php echo esc_attr( $cat->term_id ); ?>" /></td>
+                                <td><?php echo esc_html( get_term_meta( $cat->term_id, 'aorp_code', true ) ); ?></td>
+                                <td><?php echo esc_html( $cat->name ); ?></td>
+                                <td>
+                                    <a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit_cat=' . $cat->term_id ); ?>">Bearbeiten</a> |
+                                    <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_category&cat_id=' . $cat->term_id ), 'aorp_delete_category_' . $cat->term_id ); ?>" onclick="return confirm('Kategorie löschen?');">Löschen</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
+            </form>
+        <?php endif; ?>
+        <?php
+    }
+
+    private function render_ingredient_form( $ingredients_posts, $current_ing ) {
+        ?>
+        <h2>Inhaltsstoffe</h2>
+        <?php if ( $current_ing ) : ?>
+        <h3>Inhaltsstoff bearbeiten</h3>
+        <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+        <input type="hidden" name="action" value="aorp_update_ingredient" />
+        <?php wp_nonce_field( 'aorp_edit_ingredient_' . $current_ing->ID ); ?>
+        <input type="hidden" name="ing_id" value="<?php echo esc_attr( $current_ing->ID ); ?>" />
+        <p><input type="text" name="ing_code" value="<?php echo esc_attr( get_post_meta( $current_ing->ID, '_aorp_ing_code', true ) ); ?>" placeholder="Code" required /></p>
+        <p><input type="text" name="ing_name" value="<?php echo esc_attr( $current_ing->post_title ); ?>" placeholder="Bezeichnung" required /></p>
+        <?php submit_button( 'Inhaltsstoff speichern' ); ?>
+        <a href="<?php echo admin_url( 'admin.php?page=aorp_manage' ); ?>">Abbrechen</a>
+        </form>
+        <?php else : ?>
+        <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+        <input type="hidden" name="action" value="aorp_add_ingredient" />
+        <?php wp_nonce_field( 'aorp_add_ingredient' ); ?>
+        <p><input type="text" name="ing_code" placeholder="Code" required /></p>
+        <p><input type="text" name="ing_name" placeholder="Bezeichnung" required /></p>
+        <?php submit_button( 'Anlegen' ); ?>
+        </form>
+        <?php endif; ?>
+        <?php if ( $ingredients_posts ) : ?>
+        <input type="text" id="aorp-ing-filter" placeholder="Suche" />
+        <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+        <input type="hidden" name="action" value="aorp_bulk_delete_ingredient" />
+        <?php wp_nonce_field( 'aorp_bulk_delete_ingredient' ); ?>
+        <table class="widefat" id="aorp-ing-table">
+        <thead>
+        <tr>
+        <th></th>
+        <th>Code</th>
+        <th>Bezeichnung</th>
+        <th>Aktionen</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ( $ingredients_posts as $ing ) : ?>
+        <tr>
+        <td><input type="checkbox" name="ing_ids[]" value="<?php echo esc_attr( $ing->ID ); ?>" /></td>
+        <td><?php echo esc_html( get_post_meta( $ing->ID, '_aorp_ing_code', true ) ); ?></td>
+        <td><?php echo esc_html( $ing->post_title ); ?></td>
+        <td>
+        <a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit_ing=' . $ing->ID ); ?>">Bearbeiten</a> |
+        <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_ingredient&ing_id=' . $ing->ID ), 'aorp_delete_ingredient_' . $ing->ID ); ?>" onclick="return confirm('Inhaltsstoff löschen?');">Löschen</a>
+        </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+        </table>
+        <?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
+        </form>
+        <?php endif; ?>
+        <?php
+    }
+
+    private function render_item_form( $items, $categories, $ingredients_list, $current ) {
+        ?>
+        <h2>Speisen</h2>
+        <?php if ( $current ) : ?>
+        <h3>Speise bearbeiten</h3>
+        <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+            <input type="hidden" name="action" value="aorp_update_item" />
+            <?php wp_nonce_field( 'aorp_edit_item' ); ?>
+            <input type="hidden" name="item_id" value="<?php echo esc_attr( $current->ID ); ?>" />
+            <p><input type="text" name="item_title" value="<?php echo esc_attr( $current->post_title ); ?>" placeholder="Name" required /></p>
+            <p><textarea name="item_description" placeholder="Beschreibung" rows="3" class="aorp-ing-text"><?php echo esc_textarea( $current->post_content ); ?></textarea></p>
+            <p><input type="text" name="item_price" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_price', true ) ); ?>" placeholder="Preis" /></p>
+            <p><input type="text" name="item_number" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_number', true ) ); ?>" placeholder="Nummer" /></p>
+            <p>
+                <input type="hidden" id="aorp_image_id" name="item_image_id" value="<?php echo esc_attr( get_post_thumbnail_id( $current->ID ) ); ?>" />
+                <button type="button" class="button aorp-image-upload">Bild auswählen</button>
+                <span class="aorp-image-preview"><?php echo get_the_post_thumbnail( $current->ID, array(80,80) ); ?></span>
+            </p>
+            <p>
+                <select name="item_category">
+                    <option value="">Kategorie wählen</option>
+                    <?php foreach ( $categories as $cat ) : ?>
+                        <option value="<?php echo esc_attr( $cat->term_id ); ?>" <?php selected( has_term( $cat->term_id, 'aorp_menu_category', $current->ID ) ); ?>><?php echo esc_html( $cat->name ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </p>
+            <p>
+                <select class="aorp-ing-select">
+                    <option value="">Inhaltsstoff wählen</option>
+                    <?php foreach ( $ingredients_list as $ing ) : ?>
+                        <option value="<?php echo esc_attr( $ing['code'] ); ?>"><?php echo esc_html( $ing['name'] . ' (' . $ing['code'] . ')' ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </p>
+            <div class="aorp-selected"></div>
+            <input type="hidden" name="item_ingredients" id="aorp_ingredients" class="aorp-ing-text" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_ingredients', true ) ); ?>" />
+            <?php submit_button( 'Speise speichern' ); ?>
+            <a href="<?php echo admin_url( 'admin.php?page=aorp_manage' ); ?>">Abbrechen</a>
+        </form>
+        <?php else : ?>
+        <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+            <input type="hidden" name="action" value="aorp_add_item" />
+            <?php wp_nonce_field( 'aorp_add_item' ); ?>
+            <p><input type="text" name="item_title" placeholder="Name" required /></p>
+            <p><textarea name="item_description" placeholder="Beschreibung" rows="3" class="aorp-ing-text"></textarea></p>
+            <p><input type="text" name="item_price" placeholder="Preis" /></p>
+            <p><input type="text" name="item_number" placeholder="Nummer" /></p>
+            <p>
+                <input type="hidden" id="aorp_image_id" name="item_image_id" value="" />
+                <button type="button" class="button aorp-image-upload">Bild auswählen</button>
+                <span class="aorp-image-preview"></span>
+            </p>
+            <p>
+                <select name="item_category">
+                    <option value="">Kategorie wählen</option>
+                    <?php foreach ( $categories as $cat ) : ?>
+                        <option value="<?php echo esc_attr( $cat->term_id ); ?>"><?php echo esc_html( $cat->name ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </p>
+            <p>
+                <select class="aorp-ing-select">
+                    <option value="">Inhaltsstoff wählen</option>
+                    <?php foreach ( $ingredients_list as $ing ) : ?>
+                        <option value="<?php echo esc_attr( $ing['code'] ); ?>"><?php echo esc_html( $ing['name'] . ' (' . $ing['code'] . ')' ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </p>
+            <div class="aorp-selected"></div>
+            <input type="hidden" name="item_ingredients" id="aorp_ingredients" class="aorp-ing-text" value="" />
+            <?php submit_button( 'Speise anlegen' ); ?>
+        </form>
+        <?php endif; ?>
+
+        <?php if ( $items ) : ?>
+            <h3>Alle Speisen</h3>
+            <input type="text" id="aorp-item-filter" placeholder="Suche" />
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                <input type="hidden" name="action" value="aorp_bulk_delete_item" />
+                <?php wp_nonce_field( 'aorp_bulk_delete_item' ); ?>
+                <table class="widefat" id="aorp-items-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Preis</th>
+                            <th>Nummer</th>
+                            <th>Kategorie</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ( $items as $item ) : ?>
+                            <tr>
+                                <td><input type="checkbox" name="item_ids[]" value="<?php echo esc_attr( $item->ID ); ?>" /></td>
+                                <td><?php echo esc_html( $item->post_title ); ?></td>
+                                <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_price', true ) ); ?></td>
+                                <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_number', true ) ); ?></td>
+                                <td>
+                                    <?php
+                                        $terms = get_the_terms( $item->ID, 'aorp_menu_category' );
+                                        if ( $terms && ! is_wp_error( $terms ) ) {
+                                            echo esc_html( $terms[0]->name );
+                                        }
+                                    ?>
+                                </td>
+                                <td>
+                                    <a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit=' . $item->ID ); ?>">Bearbeiten</a> |
+                                    <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_item&item_id=' . $item->ID ), 'aorp_delete_item_' . $item->ID ); ?>" onclick="return confirm('Speise löschen?');">Löschen</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
+            </form>
+        <?php endif; ?>
         <?php
     }
 
@@ -337,8 +572,14 @@ class AIO_Restaurant_Plugin {
         $items      = get_posts( array( 'post_type' => 'aorp_menu_item', 'numberposts' => -1 ) );
         $ingredients_posts = get_posts( array( 'post_type' => 'aorp_ingredient', 'numberposts' => -1 ) );
 
-        $ingredients_list = wp_list_pluck( $ingredients_posts, 'post_title' );
-        sort( $ingredients_list );
+        $ingredients_list = array();
+        foreach ( $ingredients_posts as $ing ) {
+            $ingredients_list[] = array(
+                'code' => get_post_meta( $ing->ID, '_aorp_ing_code', true ),
+                'name' => $ing->post_title,
+            );
+        }
+        usort( $ingredients_list, function ( $a, $b ) { return strcasecmp( $a['name'], $b['name'] ); } );
 
         $edit_item = isset( $_GET['edit'] ) ? intval( $_GET['edit'] ) : 0;
         $current   = $edit_item ? get_post( $edit_item ) : null;
@@ -349,217 +590,9 @@ class AIO_Restaurant_Plugin {
         ?>
         <div class="wrap">
             <h1>Speisekarte Verwaltung</h1>
-
-            <h2>Kategorien</h2>
-            <?php if ( $current_cat ) : ?>
-            <h3>Kategorie bearbeiten</h3>
-            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
-                <input type="hidden" name="action" value="aorp_update_category" />
-                <?php wp_nonce_field( 'aorp_edit_category_' . $current_cat->term_id ); ?>
-                <input type="hidden" name="cat_id" value="<?php echo esc_attr( $current_cat->term_id ); ?>" />
-                <p><input type="text" name="cat_code" value="<?php echo esc_attr( get_term_meta( $current_cat->term_id, 'aorp_code', true ) ); ?>" placeholder="Code" required /></p>
-                <p><input type="text" name="cat_name" value="<?php echo esc_attr( $current_cat->name ); ?>" placeholder="Bezeichnung" required /></p>
-                <?php submit_button( 'Kategorie speichern' ); ?>
-                <a href="<?php echo admin_url( 'admin.php?page=aorp_manage' ); ?>">Abbrechen</a>
-            </form>
-            <?php else : ?>
-            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
-                <input type="hidden" name="action" value="aorp_add_category" />
-                <?php wp_nonce_field( 'aorp_add_category' ); ?>
-                <p><input type="text" name="cat_code" placeholder="Code" required /></p>
-                <p><input type="text" name="cat_name" placeholder="Bezeichnung" required /></p>
-                <?php submit_button( 'Anlegen' ); ?>
-            </form>
-            <?php endif; ?>
-            <?php if ( $categories ) : ?>
-                <input type="text" id="aorp-cat-filter" placeholder="Suche" />
-                <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
-                    <input type="hidden" name="action" value="aorp_bulk_delete_category" />
-                    <?php wp_nonce_field( 'aorp_bulk_delete_category' ); ?>
-                    <table class="widefat" id="aorp-cat-table">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Code</th>
-                                <th>Bezeichnung</th>
-                                <th>Aktionen</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ( $categories as $cat ) : ?>
-                                <tr>
-                                    <td><input type="checkbox" name="cat_ids[]" value="<?php echo esc_attr( $cat->term_id ); ?>" /></td>
-                                    <td><?php echo esc_html( get_term_meta( $cat->term_id, 'aorp_code', true ) ); ?></td>
-                                    <td><?php echo esc_html( $cat->name ); ?></td>
-                                    <td>
-                                        <a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit_cat=' . $cat->term_id ); ?>">Bearbeiten</a> |
-                                        <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_category&cat_id=' . $cat->term_id ), 'aorp_delete_category_' . $cat->term_id ); ?>" onclick="return confirm('Kategorie löschen?');">Löschen</a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    <?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
-</form>
-<?php endif; ?>
-
-<h2>Inhaltsstoffe</h2>
-<?php if ( $current_ing ) : ?>
-<h3>Inhaltsstoff bearbeiten</h3>
-<form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
-<input type="hidden" name="action" value="aorp_update_ingredient" />
-<?php wp_nonce_field( 'aorp_edit_ingredient_' . $current_ing->ID ); ?>
-<input type="hidden" name="ing_id" value="<?php echo esc_attr( $current_ing->ID ); ?>" />
-<p><input type="text" name="ing_name" value="<?php echo esc_attr( $current_ing->post_title ); ?>" placeholder="Bezeichnung" required /></p>
-<?php submit_button( 'Inhaltsstoff speichern' ); ?>
-<a href="<?php echo admin_url( 'admin.php?page=aorp_manage' ); ?>">Abbrechen</a>
-</form>
-<?php else : ?>
-<form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
-<input type="hidden" name="action" value="aorp_add_ingredient" />
-<?php wp_nonce_field( 'aorp_add_ingredient' ); ?>
-<p><input type="text" name="ing_name" placeholder="Bezeichnung" required /></p>
-<?php submit_button( 'Anlegen' ); ?>
-</form>
-<?php endif; ?>
-<?php if ( $ingredients_posts ) : ?>
-<input type="text" id="aorp-ing-filter" placeholder="Suche" />
-<form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
-<input type="hidden" name="action" value="aorp_bulk_delete_ingredient" />
-<?php wp_nonce_field( 'aorp_bulk_delete_ingredient' ); ?>
-<table class="widefat" id="aorp-ing-table">
-<thead>
-<tr>
-<th></th>
-<th>Bezeichnung</th>
-<th>Aktionen</th>
-</tr>
-</thead>
-<tbody>
-<?php foreach ( $ingredients_posts as $ing ) : ?>
-<tr>
-<td><input type="checkbox" name="ing_ids[]" value="<?php echo esc_attr( $ing->ID ); ?>" /></td>
-<td><?php echo esc_html( $ing->post_title ); ?></td>
-<td>
-<a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit_ing=' . $ing->ID ); ?>">Bearbeiten</a> |
-<a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_ingredient&ing_id=' . $ing->ID ), 'aorp_delete_ingredient_' . $ing->ID ); ?>" onclick="return confirm('Inhaltsstoff löschen?');">Löschen</a>
-</td>
-</tr>
-<?php endforeach; ?>
-</tbody>
-</table>
-<?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
-</form>
-<?php endif; ?>
-
-            <h2>Speisen</h2>
-            <?php if ( $current ) : ?>
-            <h3>Speise bearbeiten</h3>
-            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
-                <input type="hidden" name="action" value="aorp_update_item" />
-                <?php wp_nonce_field( 'aorp_edit_item' ); ?>
-                <input type="hidden" name="item_id" value="<?php echo esc_attr( $current->ID ); ?>" />
-                <p><input type="text" name="item_title" value="<?php echo esc_attr( $current->post_title ); ?>" placeholder="Name" required /></p>
-                <p><textarea name="item_description" placeholder="Beschreibung" rows="3" class="aorp-ing-text"><?php echo esc_textarea( $current->post_content ); ?></textarea></p>
-                <p><input type="text" name="item_price" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_price', true ) ); ?>" placeholder="Preis" /></p>
-                <p><input type="text" name="item_number" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_number', true ) ); ?>" placeholder="Nummer" /></p>
-                <p>
-                    <input type="hidden" id="aorp_image_id" name="item_image_id" value="<?php echo esc_attr( get_post_thumbnail_id( $current->ID ) ); ?>" />
-                    <button type="button" class="button aorp-image-upload">Bild auswählen</button>
-                    <span class="aorp-image-preview"><?php echo get_the_post_thumbnail( $current->ID, array(80,80) ); ?></span>
-                </p>
-                <p>
-                    <select name="item_category">
-                        <option value="">Kategorie wählen</option>
-                        <?php foreach ( $categories as $cat ) : ?>
-                            <option value="<?php echo esc_attr( $cat->term_id ); ?>" <?php selected( has_term( $cat->term_id, 'aorp_menu_category', $current->ID ) ); ?>><?php echo esc_html( $cat->name ); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </p>
-                <p>
-                    <select class="aorp-ing-select">
-                        <option value="">Inhaltsstoff wählen</option>
-                        <?php foreach ( $ingredients_list as $ing ) : ?>
-                            <option value="<?php echo esc_attr( $ing ); ?>"><?php echo esc_html( $ing ); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </p>
-                <div class="aorp-selected"></div>
-                <input type="hidden" name="item_ingredients" id="aorp_ingredients" class="aorp-ing-text" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_ingredients', true ) ); ?>" />
-                <?php submit_button( 'Speise speichern' ); ?>
-                <a href="<?php echo admin_url( 'admin.php?page=aorp_manage' ); ?>">Abbrechen</a>
-            </form>
-            <?php else : ?>
-            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
-                <input type="hidden" name="action" value="aorp_add_item" />
-                <?php wp_nonce_field( 'aorp_add_item' ); ?>
-                <p><input type="text" name="item_title" placeholder="Name" required /></p>
-                <p><textarea name="item_description" placeholder="Beschreibung" rows="3" class="aorp-ing-text"></textarea></p>
-                <p><input type="text" name="item_price" placeholder="Preis" /></p>
-                <p><input type="text" name="item_number" placeholder="Nummer" /></p>
-                <p>
-                    <input type="hidden" id="aorp_image_id" name="item_image_id" value="" />
-                    <button type="button" class="button aorp-image-upload">Bild auswählen</button>
-                    <span class="aorp-image-preview"></span>
-                </p>
-                <p>
-                    <select name="item_category">
-                        <option value="">Kategorie wählen</option>
-                        <?php foreach ( $categories as $cat ) : ?>
-                            <option value="<?php echo esc_attr( $cat->term_id ); ?>"><?php echo esc_html( $cat->name ); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </p>
-                <p>
-                    <select class="aorp-ing-select">
-                        <option value="">Inhaltsstoff wählen</option>
-                        <?php foreach ( $ingredients_list as $ing ) : ?>
-                            <option value="<?php echo esc_attr( $ing ); ?>"><?php echo esc_html( $ing ); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </p>
-                <div class="aorp-selected"></div>
-                <input type="hidden" name="item_ingredients" id="aorp_ingredients" class="aorp-ing-text" value="" />
-                <?php submit_button( 'Speise anlegen' ); ?>
-            </form>
-            <?php endif; ?>
-
-            <?php if ( $items ) : ?>
-                <h3>Alle Speisen</h3>
-                <input type="text" id="aorp-item-filter" placeholder="Suche" />
-                <table class="widefat" id="aorp-items-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Preis</th>
-                            <th>Nummer</th>
-                            <th>Kategorie</th>
-                            <th>Aktionen</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ( $items as $item ) : ?>
-                            <tr>
-                                <td><?php echo esc_html( $item->post_title ); ?></td>
-                                <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_price', true ) ); ?></td>
-                                <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_number', true ) ); ?></td>
-                                <td>
-                                    <?php
-                                        $terms = get_the_terms( $item->ID, 'aorp_menu_category' );
-                                        if ( $terms && ! is_wp_error( $terms ) ) {
-                                            echo esc_html( $terms[0]->name );
-                                        }
-                                    ?>
-                                </td>
-                                <td>
-                                    <a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit=' . $item->ID ); ?>">Bearbeiten</a> |
-                                    <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_item&item_id=' . $item->ID ), 'aorp_delete_item_' . $item->ID ); ?>" onclick="return confirm('Speise löschen?');">Löschen</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
+            <?php $this->render_category_form( $categories, $current_cat ); ?>
+            <?php $this->render_ingredient_form( $ingredients_posts, $current_ing ); ?>
+            <?php $this->render_item_form( $items, $categories, $ingredients_list, $current ); ?>
         </div>
         <?php
     }
@@ -855,6 +888,20 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+    public function bulk_delete_item() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_bulk_delete_item' );
+        if ( ! empty( $_POST['item_ids'] ) && is_array( $_POST['item_ids'] ) ) {
+            foreach ( $_POST['item_ids'] as $id ) {
+                wp_delete_post( intval( $id ), true );
+            }
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        exit;
+    }
+
     public function add_ingredient() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -865,6 +912,9 @@ class AIO_Restaurant_Plugin {
             'post_status' => 'publish',
             'post_title'  => sanitize_text_field( $_POST['ing_name'] )
         ) );
+        if ( $post_id && isset( $_POST['ing_code'] ) ) {
+            update_post_meta( $post_id, '_aorp_ing_code', sanitize_text_field( $_POST['ing_code'] ) );
+        }
         wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
         exit;
     }
@@ -877,6 +927,9 @@ class AIO_Restaurant_Plugin {
         check_admin_referer( 'aorp_edit_ingredient_' . $ing_id );
         if ( $ing_id && ! empty( $_POST['ing_name'] ) ) {
             wp_update_post( array( 'ID' => $ing_id, 'post_title' => sanitize_text_field( $_POST['ing_name'] ) ) );
+            if ( isset( $_POST['ing_code'] ) ) {
+                update_post_meta( $ing_id, '_aorp_ing_code', sanitize_text_field( $_POST['ing_code'] ) );
+            }
         }
         wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
         exit;

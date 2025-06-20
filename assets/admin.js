@@ -33,10 +33,11 @@ jQuery(document).ready(function($){
 
     $('.aorp-ing-select').on('change', function(){
         var ing = $(this).val();
+        var label = $(this).find('option:selected').text();
         if(ing){
             var form = $(this).closest('form');
-            form.find('.aorp-selected').append('<span class="aorp-ing-chip" data-val="'+ing+'">'+ing+' <a href="#" class="aorp-remove-ing">x</a></span> ');
-            $(this).find('option[value="'+ing+'"]').remove();
+            form.find('.aorp-selected').append('<span class="aorp-ing-chip" data-val="'+ing+'" data-label="'+label+'">'+label+' <a href="#" class="aorp-remove-ing">x</a></span> ');
+            $(this).find('option:selected').remove();
             $(this).val('');
             updateInput(form);
         }
@@ -46,8 +47,9 @@ jQuery(document).ready(function($){
         e.preventDefault();
         var chip = $(this).closest('.aorp-ing-chip');
         var ing = chip.data('val');
+        var label = chip.data('label');
         var form = chip.closest('form');
-        form.find('.aorp-ing-select').append('<option value="'+ing+'">'+ing+'</option>');
+        form.find('.aorp-ing-select').append('<option value="'+ing+'">'+label+'</option>');
         chip.remove();
         updateInput(form);
     });
@@ -56,11 +58,16 @@ jQuery(document).ready(function($){
         var form = $(this).closest('form');
         var val = $(this).val();
         if(val){
+            var map = {};
+            form.find('.aorp-ing-select option').each(function(){
+                map[$(this).val()] = $(this).text();
+            });
             var arr = val.split(',');
             for(var i=0;i<arr.length;i++){
                 var ing = $.trim(arr[i]);
                 if(!ing) continue;
-                form.find('.aorp-selected').append('<span class="aorp-ing-chip" data-val="'+ing+'">'+ing+' <a href="#" class="aorp-remove-ing">x</a></span> ');
+                var label = map[ing] || ing;
+                form.find('.aorp-selected').append('<span class="aorp-ing-chip" data-val="'+ing+'" data-label="'+label+'">'+label+' <a href="#" class="aorp-remove-ing">x</a></span> ');
                 form.find('.aorp-ing-select option[value="'+ing+'"]').remove();
             }
         }
