@@ -15,13 +15,10 @@ class AIO_Restaurant_Plugin {
     public function __construct() {
         add_action( 'init', array( $this, 'register_post_type' ) );
         add_action( 'init', array( $this, 'register_taxonomy' ) );
-        add_action( 'init', array( $this, 'register_legend_type' ) );
+        add_action( 'init', array( $this, 'register_ingredient_type' ) );
         add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
-        add_action( 'add_meta_boxes', array( $this, 'add_legend_meta_box' ) );
         add_action( 'save_post', array( $this, 'save_meta_boxes' ) );
-        add_action( 'save_post', array( $this, 'save_legend_meta' ) );
         add_shortcode( 'speisekarte', array( $this, 'speisekarte_shortcode' ) );
-        add_shortcode( 'speisekarte_legende', array( $this, 'legend_shortcode' ) );
         add_shortcode( 'restaurant_lightswitcher', array( $this, 'lightswitcher_shortcode' ) );
         add_action( 'admin_menu', array( $this, 'admin_menu' ) );
         add_action( 'admin_post_aorp_export_csv', array( $this, 'export_csv' ) );
@@ -30,8 +27,12 @@ class AIO_Restaurant_Plugin {
         add_action( 'admin_post_aorp_add_category', array( $this, 'add_category' ) );
         add_action( 'admin_post_aorp_update_category', array( $this, 'update_category' ) );
         add_action( 'admin_post_aorp_delete_category', array( $this, 'delete_category' ) );
+        add_action( 'admin_post_aorp_bulk_delete_category', array( $this, 'bulk_delete_category' ) );
         add_action( 'admin_post_aorp_add_item', array( $this, 'add_item' ) );
-        add_action( 'admin_post_aorp_add_legend', array( $this, 'add_legend' ) );
+        add_action( 'admin_post_aorp_add_ingredient', array( $this, 'add_ingredient' ) );
+        add_action( 'admin_post_aorp_update_ingredient', array( $this, 'update_ingredient' ) );
+        add_action( 'admin_post_aorp_delete_ingredient', array( $this, 'delete_ingredient' ) );
+        add_action( 'admin_post_aorp_bulk_delete_ingredient', array( $this, 'bulk_delete_ingredient' ) );
         add_action( 'admin_post_aorp_update_item', array( $this, 'update_item' ) );
         add_action( 'admin_post_aorp_delete_item', array( $this, 'delete_item' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
@@ -56,16 +57,16 @@ class AIO_Restaurant_Plugin {
         ) );
     }
 
-    public function register_legend_type() {
+    public function register_ingredient_type() {
         $labels = array(
-            'name' => __( 'Legende', 'aorp' ),
-            'singular_name' => __( 'Legenden-Item', 'aorp' )
+            'name' => __( 'Inhaltsstoffe', 'aorp' ),
+            'singular_name' => __( 'Inhaltsstoff', 'aorp' )
         );
-        register_post_type( 'aorp_legend', array(
+        register_post_type( 'aorp_ingredient', array(
             'labels' => $labels,
             'public' => false,
             'show_ui' => false,
-            'supports' => array( 'title', 'page-attributes' )
+            'supports' => array( 'title' )
         ) );
     }
 
@@ -164,9 +165,6 @@ class AIO_Restaurant_Plugin {
         add_meta_box( 'aorp_meta', __( 'Speise Details', 'aorp' ), array( $this, 'render_meta_box' ), 'aorp_menu_item', 'normal', 'default' );
     }
 
-    public function add_legend_meta_box() {
-        add_meta_box( 'aorp_legend_meta', __( 'Legenden-Details', 'aorp' ), array( $this, 'render_legend_meta' ), 'aorp_legend', 'normal', 'default' );
-    }
 
     public function render_meta_box( $post ) {
         wp_nonce_field( basename( __FILE__ ), 'aorp_nonce' );
@@ -189,21 +187,6 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
-    public function render_legend_meta( $post ) {
-        wp_nonce_field( 'aorp_legend_meta', 'aorp_legend_nonce' );
-        $symbol = get_post_meta( $post->ID, '_aorp_symbol', true );
-        $color  = get_post_meta( $post->ID, '_aorp_color', true );
-        ?>
-        <p>
-            <label for="aorp_symbol"><?php _e( 'Symbol', 'aorp' ); ?></label>
-            <input type="text" name="aorp_symbol" id="aorp_symbol" value="<?php echo esc_attr( $symbol ); ?>" style="width:100%;" />
-        </p>
-        <p>
-            <label for="aorp_color"><?php _e( 'Farbe', 'aorp' ); ?></label>
-            <input type="text" name="aorp_color" id="aorp_color" value="<?php echo esc_attr( $color ); ?>" class="aorp-color" />
-        </p>
-        <?php
-    }
 
     public function save_meta_boxes( $post_id ) {
         if ( ! isset( $_POST['aorp_nonce'] ) || ! wp_verify_nonce( $_POST['aorp_nonce'], basename( __FILE__ ) ) ) {
@@ -223,20 +206,6 @@ class AIO_Restaurant_Plugin {
         }
     }
 
-    public function save_legend_meta( $post_id ) {
-        if ( ! isset( $_POST['aorp_legend_nonce'] ) || ! wp_verify_nonce( $_POST['aorp_legend_nonce'], 'aorp_legend_meta' ) ) {
-            return $post_id;
-        }
-        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-            return $post_id;
-        }
-        if ( isset( $_POST['aorp_symbol'] ) ) {
-            update_post_meta( $post_id, '_aorp_symbol', sanitize_text_field( $_POST['aorp_symbol'] ) );
-        }
-        if ( isset( $_POST['aorp_color'] ) ) {
-            update_post_meta( $post_id, '_aorp_color', sanitize_text_field( $_POST['aorp_color'] ) );
-        }
-    }
 
     public function speisekarte_shortcode( $atts ) {
         $atts = shortcode_atts( array( 'columns' => 1, 'kategorien' => '' ), $atts, 'speisekarte' );
@@ -300,24 +269,6 @@ class AIO_Restaurant_Plugin {
         return ob_get_clean();
     }
 
-    public function legend_shortcode() {
-        $items = get_posts( array( 'post_type' => 'aorp_legend', 'numberposts' => -1, 'orderby' => 'menu_order', 'order' => 'ASC' ) );
-        if ( ! $items ) {
-            return '';
-        }
-        ob_start();
-        echo '<div class="aorp-legende">';
-        foreach ( $items as $item ) {
-            $symbol = get_post_meta( $item->ID, '_aorp_symbol', true );
-            $color  = get_post_meta( $item->ID, '_aorp_color', true );
-            echo '<div class="aorp-legende-item" style="color:' . esc_attr( $color ) . '">';
-            echo '<span class="aorp-legend-symbol">' . esc_html( $symbol ) . '</span> ';
-            echo '<span class="aorp-legend-desc">' . esc_html( $item->post_title ) . '</span>';
-            echo '</div>';
-        }
-        echo '</div>';
-        return ob_get_clean();
-    }
 
     private function render_menu_item() {
         $price = get_post_meta( get_the_ID(), '_aorp_price', true );
@@ -384,22 +335,17 @@ class AIO_Restaurant_Plugin {
         }
         $categories = get_terms( array( 'taxonomy' => 'aorp_menu_category', 'hide_empty' => false ) );
         $items      = get_posts( array( 'post_type' => 'aorp_menu_item', 'numberposts' => -1 ) );
-        $legend     = get_posts( array( 'post_type' => 'aorp_legend', 'numberposts' => -1, 'orderby' => 'menu_order', 'order' => 'ASC' ) );
+        $ingredients_posts = get_posts( array( 'post_type' => 'aorp_ingredient', 'numberposts' => -1 ) );
 
-        $ingredients_list = array();
-        foreach ( $items as $itm ) {
-            $ing = get_post_meta( $itm->ID, '_aorp_ingredients', true );
-            if ( '' !== $ing ) {
-                $ingredients_list[] = $ing;
-            }
-        }
-        $ingredients_list = array_unique( $ingredients_list );
+        $ingredients_list = wp_list_pluck( $ingredients_posts, 'post_title' );
         sort( $ingredients_list );
 
         $edit_item = isset( $_GET['edit'] ) ? intval( $_GET['edit'] ) : 0;
         $current   = $edit_item ? get_post( $edit_item ) : null;
         $edit_cat     = isset( $_GET['edit_cat'] ) ? intval( $_GET['edit_cat'] ) : 0;
         $current_cat  = $edit_cat ? get_term( $edit_cat, 'aorp_menu_category' ) : null;
+        $edit_ing     = isset( $_GET['edit_ing'] ) ? intval( $_GET['edit_ing'] ) : 0;
+        $current_ing  = $edit_ing ? get_post( $edit_ing ) : null;
         ?>
         <div class="wrap">
             <h1>Speisekarte Verwaltung</h1>
@@ -427,28 +373,84 @@ class AIO_Restaurant_Plugin {
             <?php endif; ?>
             <?php if ( $categories ) : ?>
                 <input type="text" id="aorp-cat-filter" placeholder="Suche" />
-                <table class="widefat" id="aorp-cat-table">
-                    <thead>
-                        <tr>
-                            <th>Code</th>
-                            <th>Bezeichnung</th>
-                            <th>Aktionen</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ( $categories as $cat ) : ?>
+                <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                    <input type="hidden" name="action" value="aorp_bulk_delete_category" />
+                    <?php wp_nonce_field( 'aorp_bulk_delete_category' ); ?>
+                    <table class="widefat" id="aorp-cat-table">
+                        <thead>
                             <tr>
-                                <td><?php echo esc_html( get_term_meta( $cat->term_id, 'aorp_code', true ) ); ?></td>
-                                <td><?php echo esc_html( $cat->name ); ?></td>
-                                <td>
-                                    <a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit_cat=' . $cat->term_id ); ?>">Bearbeiten</a> |
-                                    <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_category&cat_id=' . $cat->term_id ), 'aorp_delete_category_' . $cat->term_id ); ?>" onclick="return confirm('Kategorie löschen?');">Löschen</a>
-                                </td>
+                                <th></th>
+                                <th>Code</th>
+                                <th>Bezeichnung</th>
+                                <th>Aktionen</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
+                        </thead>
+                        <tbody>
+                            <?php foreach ( $categories as $cat ) : ?>
+                                <tr>
+                                    <td><input type="checkbox" name="cat_ids[]" value="<?php echo esc_attr( $cat->term_id ); ?>" /></td>
+                                    <td><?php echo esc_html( get_term_meta( $cat->term_id, 'aorp_code', true ) ); ?></td>
+                                    <td><?php echo esc_html( $cat->name ); ?></td>
+                                    <td>
+                                        <a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit_cat=' . $cat->term_id ); ?>">Bearbeiten</a> |
+                                        <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_category&cat_id=' . $cat->term_id ), 'aorp_delete_category_' . $cat->term_id ); ?>" onclick="return confirm('Kategorie löschen?');">Löschen</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
+</form>
+<?php endif; ?>
+
+<h2>Inhaltsstoffe</h2>
+<?php if ( $current_ing ) : ?>
+<h3>Inhaltsstoff bearbeiten</h3>
+<form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+<input type="hidden" name="action" value="aorp_update_ingredient" />
+<?php wp_nonce_field( 'aorp_edit_ingredient_' . $current_ing->ID ); ?>
+<input type="hidden" name="ing_id" value="<?php echo esc_attr( $current_ing->ID ); ?>" />
+<p><input type="text" name="ing_name" value="<?php echo esc_attr( $current_ing->post_title ); ?>" placeholder="Bezeichnung" required /></p>
+<?php submit_button( 'Inhaltsstoff speichern' ); ?>
+<a href="<?php echo admin_url( 'admin.php?page=aorp_manage' ); ?>">Abbrechen</a>
+</form>
+<?php else : ?>
+<form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+<input type="hidden" name="action" value="aorp_add_ingredient" />
+<?php wp_nonce_field( 'aorp_add_ingredient' ); ?>
+<p><input type="text" name="ing_name" placeholder="Bezeichnung" required /></p>
+<?php submit_button( 'Anlegen' ); ?>
+</form>
+<?php endif; ?>
+<?php if ( $ingredients_posts ) : ?>
+<input type="text" id="aorp-ing-filter" placeholder="Suche" />
+<form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+<input type="hidden" name="action" value="aorp_bulk_delete_ingredient" />
+<?php wp_nonce_field( 'aorp_bulk_delete_ingredient' ); ?>
+<table class="widefat" id="aorp-ing-table">
+<thead>
+<tr>
+<th></th>
+<th>Bezeichnung</th>
+<th>Aktionen</th>
+</tr>
+</thead>
+<tbody>
+<?php foreach ( $ingredients_posts as $ing ) : ?>
+<tr>
+<td><input type="checkbox" name="ing_ids[]" value="<?php echo esc_attr( $ing->ID ); ?>" /></td>
+<td><?php echo esc_html( $ing->post_title ); ?></td>
+<td>
+<a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit_ing=' . $ing->ID ); ?>">Bearbeiten</a> |
+<a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_ingredient&ing_id=' . $ing->ID ), 'aorp_delete_ingredient_' . $ing->ID ); ?>" onclick="return confirm('Inhaltsstoff löschen?');">Löschen</a>
+</td>
+</tr>
+<?php endforeach; ?>
+</tbody>
+</table>
+<?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
+</form>
+<?php endif; ?>
 
             <h2>Speisen</h2>
             <?php if ( $current ) : ?>
@@ -482,7 +484,8 @@ class AIO_Restaurant_Plugin {
                         <?php endforeach; ?>
                     </select>
                 </p>
-                <p><textarea name="item_ingredients" id="aorp_ingredients" class="aorp-ing-text" rows="2"><?php echo esc_textarea( get_post_meta( $current->ID, '_aorp_ingredients', true ) ); ?></textarea></p>
+                <div class="aorp-selected"></div>
+                <input type="hidden" name="item_ingredients" id="aorp_ingredients" class="aorp-ing-text" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_ingredients', true ) ); ?>" />
                 <?php submit_button( 'Speise speichern' ); ?>
                 <a href="<?php echo admin_url( 'admin.php?page=aorp_manage' ); ?>">Abbrechen</a>
             </form>
@@ -515,7 +518,8 @@ class AIO_Restaurant_Plugin {
                         <?php endforeach; ?>
                     </select>
                 </p>
-                <p><textarea name="item_ingredients" id="aorp_ingredients" class="aorp-ing-text" rows="2"></textarea></p>
+                <div class="aorp-selected"></div>
+                <input type="hidden" name="item_ingredients" id="aorp_ingredients" class="aorp-ing-text" value="" />
                 <?php submit_button( 'Speise anlegen' ); ?>
             </form>
             <?php endif; ?>
@@ -555,23 +559,6 @@ class AIO_Restaurant_Plugin {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-            <?php endif; ?>
-
-            <h2>Legende</h2>
-            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
-                <input type="hidden" name="action" value="aorp_add_legend" />
-                <?php wp_nonce_field( 'aorp_add_legend' ); ?>
-                <p><input type="text" name="legend_title" placeholder="Beschreibung" required /></p>
-                <p><input type="text" name="legend_symbol" placeholder="Symbol" /></p>
-                <p><input type="text" name="legend_color" placeholder="Farbe" class="aorp-color" /></p>
-                <?php submit_button( 'Item anlegen' ); ?>
-            </form>
-            <?php if ( $legend ) : ?>
-                <ul>
-                    <?php foreach ( $legend as $l ) : ?>
-                        <li><?php echo esc_html( $l->post_title ); ?></li>
-                    <?php endforeach; ?>
-                </ul>
             <?php endif; ?>
         </div>
         <?php
@@ -777,6 +764,20 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+    public function bulk_delete_category() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_bulk_delete_category' );
+        if ( ! empty( $_POST['cat_ids'] ) && is_array( $_POST['cat_ids'] ) ) {
+            foreach ( $_POST['cat_ids'] as $id ) {
+                wp_delete_term( intval( $id ), 'aorp_menu_category' );
+            }
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        exit;
+    }
+
     public function add_item() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -854,22 +855,54 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
-    public function add_legend() {
+    public function add_ingredient() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
         }
-        check_admin_referer( 'aorp_add_legend' );
+        check_admin_referer( 'aorp_add_ingredient' );
         $post_id = wp_insert_post( array(
-            'post_type'   => 'aorp_legend',
+            'post_type'   => 'aorp_ingredient',
             'post_status' => 'publish',
-            'post_title'  => sanitize_text_field( $_POST['legend_title'] )
+            'post_title'  => sanitize_text_field( $_POST['ing_name'] )
         ) );
-        if ( $post_id ) {
-            if ( isset( $_POST['legend_symbol'] ) ) {
-                update_post_meta( $post_id, '_aorp_symbol', sanitize_text_field( $_POST['legend_symbol'] ) );
-            }
-            if ( isset( $_POST['legend_color'] ) ) {
-                update_post_meta( $post_id, '_aorp_color', sanitize_text_field( $_POST['legend_color'] ) );
+        wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        exit;
+    }
+
+    public function update_ingredient() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        $ing_id = intval( $_POST['ing_id'] );
+        check_admin_referer( 'aorp_edit_ingredient_' . $ing_id );
+        if ( $ing_id && ! empty( $_POST['ing_name'] ) ) {
+            wp_update_post( array( 'ID' => $ing_id, 'post_title' => sanitize_text_field( $_POST['ing_name'] ) ) );
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        exit;
+    }
+
+    public function delete_ingredient() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        $ing_id = isset( $_GET['ing_id'] ) ? intval( $_GET['ing_id'] ) : 0;
+        check_admin_referer( 'aorp_delete_ingredient_' . $ing_id );
+        if ( $ing_id ) {
+            wp_delete_post( $ing_id, true );
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        exit;
+    }
+
+    public function bulk_delete_ingredient() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_bulk_delete_ingredient' );
+        if ( ! empty( $_POST['ing_ids'] ) && is_array( $_POST['ing_ids'] ) ) {
+            foreach ( $_POST['ing_ids'] as $id ) {
+                wp_delete_post( intval( $id ), true );
             }
         }
         wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
