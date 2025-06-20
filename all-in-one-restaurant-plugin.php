@@ -338,6 +338,7 @@ class AIO_Restaurant_Plugin {
                             <th>Name</th>
                             <th>Preis</th>
                             <th>Nummer</th>
+                            <th>Inhaltsstoffe</th>
                             <th>Kategorie</th>
                             <th>Aktionen</th>
                         </tr>
@@ -349,6 +350,7 @@ class AIO_Restaurant_Plugin {
                                 <td><?php echo esc_html( $item->post_title ); ?></td>
                                 <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_price', true ) ); ?></td>
                                 <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_number', true ) ); ?></td>
+                                <td><?php echo esc_html( $this->get_ingredient_labels( get_post_meta( $item->ID, '_aorp_ingredients', true ) ) ); ?></td>
                                 <td>
                                     <?php
                                         $terms = get_the_terms( $item->ID, 'aorp_menu_category' );
@@ -469,7 +471,7 @@ class AIO_Restaurant_Plugin {
 
         ob_start();
         echo '<p class="aorp-note">🔽 Klicke auf eine Kategorie, um die Speisen einzublenden.</p>';
-        echo '<input type="text" id="aorp-search" placeholder="Suche nach Speisen …" />';
+        echo '<div class="aorp-search-wrap columns-' . $columns . '"><input type="text" id="aorp-search" placeholder="Suche nach Speisen …" /></div>';
 
         echo '<div class="aorp-menu columns-' . $columns . '">';
 
@@ -978,6 +980,32 @@ class AIO_Restaurant_Plugin {
             $rows[] = $current;
         }
         return $rows;
+    }
+
+    private $ingredient_lookup = null;
+
+    private function get_ingredient_labels( $codes ) {
+        $codes = array_filter( array_map( 'trim', explode( ',', $codes ) ) );
+        if ( empty( $codes ) ) {
+            return '';
+        }
+        if ( null === $this->ingredient_lookup ) {
+            $this->ingredient_lookup = array();
+            $ings = get_posts( array( 'post_type' => 'aorp_ingredient', 'numberposts' => -1 ) );
+            foreach ( $ings as $ing ) {
+                $code = get_post_meta( $ing->ID, '_aorp_ing_code', true );
+                $this->ingredient_lookup[ $code ] = $ing->post_title;
+            }
+        }
+        $labels = array();
+        foreach ( $codes as $code ) {
+            if ( isset( $this->ingredient_lookup[ $code ] ) ) {
+                $labels[] = $this->ingredient_lookup[ $code ] . ' (' . $code . ')';
+            } else {
+                $labels[] = $code;
+            }
+        }
+        return implode( ', ', $labels );
     }
 
     public function add_category() {
