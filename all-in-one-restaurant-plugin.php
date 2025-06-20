@@ -2,7 +2,7 @@
 /*
 Plugin Name: All-In-One WordPress Restaurant Plugin
 Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode, Suchfunktion und Import/Export.
-Version: 1.1.5
+Version: 1.1.6
 Author: stb-srv
 */
 
@@ -42,6 +42,7 @@ class AIO_Restaurant_Plugin {
         add_action( 'wp_ajax_aorp_toggle_dark', array( $this, 'ajax_toggle_dark' ) );
         add_action( 'wp_ajax_nopriv_aorp_toggle_dark', array( $this, 'ajax_toggle_dark' ) );
         add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widgets' ) );
+        add_action( 'admin_notices', array( $this, 'admin_notices' ) );
     }
 
     public function register_post_type() {
@@ -658,9 +659,21 @@ class AIO_Restaurant_Plugin {
             $format = isset( $_POST['import_format'] ) ? sanitize_text_field( $_POST['import_format'] ) : 'csv';
             $data   = array();
             if ( 'json' === $format ) {
-                $data = json_decode( file_get_contents( $_FILES['import_file']['tmp_name'] ), true );
+                $json = file_get_contents( $_FILES['import_file']['tmp_name'] );
+                $data = json_decode( $json, true );
+                if ( json_last_error() !== JSON_ERROR_NONE ) {
+                    set_transient( 'aorp_import_msg', array( 'type' => 'notice-error', 'text' => 'Ungültiges JSON: ' . json_last_error_msg() ), 30 );
+                    wp_redirect( admin_url( 'admin.php?page=aorp_export' ) );
+                    exit;
+                }
             } elseif ( 'yaml' === $format ) {
-                $data = $this->yaml_to_array( file_get_contents( $_FILES['import_file']['tmp_name'] ) );
+                $yaml = file_get_contents( $_FILES['import_file']['tmp_name'] );
+                $data = $this->yaml_to_array( $yaml );
+                if ( ! is_array( $data ) || empty( $data ) ) {
+                    set_transient( 'aorp_import_msg', array( 'type' => 'notice-error', 'text' => 'YAML konnte nicht gelesen werden.' ), 30 );
+                    wp_redirect( admin_url( 'admin.php?page=aorp_export' ) );
+                    exit;
+                }
             } else {
                 $handle = fopen( $_FILES['import_file']['tmp_name'], 'r' );
                 if ( $handle ) {
@@ -780,6 +793,9 @@ class AIO_Restaurant_Plugin {
             $history = get_option( 'aorp_history', array() );
             $history[] = array( 'action' => 'import', 'time' => current_time( 'mysql' ), 'user' => get_current_user_id(), 'ids' => $ids, 'format' => $format );
             update_option( 'aorp_history', $history );
+            set_transient( 'aorp_import_msg', array( 'type' => 'notice-success', 'text' => 'Import abgeschlossen: ' . count( $ids ) . ' Einträge' ), 30 );
+        } else {
+            set_transient( 'aorp_import_msg', array( 'type' => 'notice-error', 'text' => 'Keine Datei übermittelt.' ), 30 );
         }
         wp_redirect( admin_url( 'admin.php?page=aorp_export' ) );
         exit;
@@ -820,6 +836,15 @@ class AIO_Restaurant_Plugin {
     public function dashboard_widget_output() {
         $count = (int) get_option( 'aorp_dark_count', 0 );
         echo '<p>Gesamtanzahl: <strong>' . $count . '</strong></p>';
+    }
+
+    public function admin_notices() {
+        $msg = get_transient( 'aorp_import_msg' );
+        if ( $msg ) {
+            $type = isset( $msg['type'] ) ? $msg['type'] : 'notice-success';
+            printf( '<div class="%s notice is-dismissible"><p>%s</p></div>', esc_attr( $type ), esc_html( $msg['text'] ) );
+            delete_transient( 'aorp_import_msg' );
+        }
     }
 
     private function get_export_data() {
