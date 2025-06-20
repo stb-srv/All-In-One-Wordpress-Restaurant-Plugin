@@ -565,15 +565,39 @@ class AIO_Restaurant_Plugin {
     }
 
     public function lightswitcher_shortcode() {
-        $light = get_option( 'aorp_icon_light', '☀️' );
-        $dark  = get_option( 'aorp_icon_dark', '🌙' );
-        return '<div id="aorp-toggle" aria-label="Dark Mode umschalten" role="button" tabindex="0" data-light="' . esc_attr( $light ) . '" data-dark="' . esc_attr( $dark ) . '">' . esc_html( $light ) . '</div>';
+        $light = $this->get_icon_html( 'light' );
+        return '<div id="aorp-toggle" aria-label="Dark Mode umschalten" role="button" tabindex="0">' . $light . '</div>';
+    }
+
+    private function get_icon_html( $type = 'light' ) {
+        $set = get_option( 'aorp_icon_set', 'default' );
+        if ( 'custom' === $set ) {
+            $img_id = intval( get_option( 'aorp_icon_' . $type . '_img', 0 ) );
+            if ( $img_id ) {
+                return wp_get_attachment_image( $img_id, array( 24, 24 ) );
+            }
+            $char = get_option( 'aorp_icon_' . $type, $type === 'light' ? '☀️' : '🌙' );
+            return esc_html( $char );
+        } else {
+            $sets = array(
+                'default' => array( '☀️', '🌙' ),
+                'alt'     => array( '🌞', '🌜' ),
+                'minimal' => array( '🔆', '🌑' ),
+            );
+            if ( isset( $sets[ $set ] ) ) {
+                $index = $type === 'light' ? 0 : 1;
+                return esc_html( $sets[ $set ][ $index ] );
+            }
+            $char = $type === 'light' ? '☀️' : '🌙';
+            return esc_html( $char );
+        }
     }
 
     public function admin_menu() {
         add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
         add_submenu_page( 'aorp_manage', 'Import/Export', 'Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
         add_submenu_page( 'aorp_manage', 'Einstellungen', 'Einstellungen', 'manage_options', 'aorp_settings', array( $this, 'settings_page' ) );
+        add_submenu_page( 'aorp_manage', 'Dark Mode', 'Dark Mode', 'manage_options', 'aorp_dark', array( $this, 'dark_page' ) );
         // Historie wird direkt auf der Import/Export Seite angezeigt
     }
 
@@ -677,30 +701,6 @@ class AIO_Restaurant_Plugin {
                 </tr>
                 </table>
 
-                <h2>Dark Mode</h2>
-                <div class="nav-tab-wrapper" id="aorp-dark-tabs">
-                    <a href="#aorp-dark-general" class="nav-tab nav-tab-active">Allgemein</a>
-                    <a href="#aorp-dark-icon" class="nav-tab">Icon</a>
-                </div>
-                <div id="aorp-dark-general" class="aorp-dark-tab" style="display:block;">
-                    <p><?php esc_html_e( 'Keine weiteren Einstellungen.', 'aorp' ); ?></p>
-                </div>
-                <div id="aorp-dark-icon" class="aorp-dark-tab" style="display:none;">
-                    <?php
-                        $icon_light = get_option( 'aorp_icon_light', '☀️' );
-                        $icon_dark  = get_option( 'aorp_icon_dark', '🌙' );
-                    ?>
-                    <table class="form-table">
-                        <tr>
-                            <th scope="row"><label for="aorp_icon_light">Symbol hell</label></th>
-                            <td><input type="text" name="aorp_icon_light" id="aorp_icon_light" value="<?php echo esc_attr( $icon_light ); ?>" class="regular-text" /></td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><label for="aorp_icon_dark">Symbol dunkel</label></th>
-                            <td><input type="text" name="aorp_icon_dark" id="aorp_icon_dark" value="<?php echo esc_attr( $icon_dark ); ?>" class="regular-text" /></td>
-                        </tr>
-                    </table>
-                </div>
                 <?php submit_button(); ?>
             </form>
             <?php $this->output_custom_styles(); ?>
@@ -726,6 +726,65 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+    public function dark_page() {
+        ?>
+        <div class="wrap">
+            <h1>Dark Mode</h1>
+            <form method="post" action="options.php">
+                <?php settings_fields( 'aorp_dark' ); ?>
+                <?php
+                    $set        = get_option( 'aorp_icon_set', 'default' );
+                    $light_img  = intval( get_option( 'aorp_icon_light_img', 0 ) );
+                    $dark_img   = intval( get_option( 'aorp_icon_dark_img', 0 ) );
+                    $icon_sets  = array(
+                        'default' => array('☀️','🌙'),
+                        'alt'     => array('🌞','🌜'),
+                        'minimal' => array('🔆','🌑'),
+                        'custom'  => array('', '')
+                    );
+                ?>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="aorp_icon_set">Icon Set</label></th>
+                        <td>
+                            <select name="aorp_icon_set" id="aorp_icon_set">
+                                <?php foreach ( $icon_sets as $key => $icons ) : ?>
+                                    <option value="<?php echo esc_attr( $key ); ?>" <?php selected( $set, $key ); ?>><?php echo $key === 'custom' ? 'Eigene Icons' : esc_html( $icons[0] . ' / ' . $icons[1] ); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr style="display:none;">
+                        <th></th>
+                        <td>
+                            <input type="hidden" name="aorp_icon_light" id="aorp_icon_light" value="<?php echo esc_attr( get_option( 'aorp_icon_light', '☀️' ) ); ?>" />
+                            <input type="hidden" name="aorp_icon_dark" id="aorp_icon_dark" value="<?php echo esc_attr( get_option( 'aorp_icon_dark', '🌙' ) ); ?>" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Eigenes Icon hell</th>
+                        <td>
+                            <input type="hidden" name="aorp_icon_light_img" id="aorp_icon_light_img" value="<?php echo esc_attr( $light_img ); ?>" />
+                            <button type="button" class="button aorp-image-upload">Bild auswählen</button>
+                            <span class="aorp-image-preview"><?php echo $light_img ? wp_get_attachment_image( $light_img, array(32,32) ) : ''; ?></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Eigenes Icon dunkel</th>
+                        <td>
+                            <input type="hidden" name="aorp_icon_dark_img" id="aorp_icon_dark_img" value="<?php echo esc_attr( $dark_img ); ?>" />
+                            <button type="button" class="button aorp-image-upload">Bild auswählen</button>
+                            <span class="aorp-image-preview"><?php echo $dark_img ? wp_get_attachment_image( $dark_img, array(32,32) ) : ''; ?></span>
+                        </td>
+                    </tr>
+                </table>
+                <?php submit_button(); ?>
+            </form>
+            <p>Empfohlene Größe: 32x32 PNG mit transparentem Hintergrund. Geeignete Icons gibt es z.B. auf <a href="https://www.flaticon.com" target="_blank">flaticon.com</a>.</p>
+        </div>
+        <?php
+    }
+
 
     public function register_settings() {
         register_setting( 'aorp_settings', 'aorp_menu_columns', array( 'type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 1 ) );
@@ -733,8 +792,12 @@ class AIO_Restaurant_Plugin {
         register_setting( 'aorp_settings', 'aorp_size_title', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
         register_setting( 'aorp_settings', 'aorp_size_desc', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
         register_setting( 'aorp_settings', 'aorp_size_price', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
-        register_setting( 'aorp_settings', 'aorp_icon_light', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '☀️' ) );
-        register_setting( 'aorp_settings', 'aorp_icon_dark', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '🌙' ) );
+
+        register_setting( 'aorp_dark', 'aorp_icon_set', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => 'default' ) );
+        register_setting( 'aorp_dark', 'aorp_icon_light', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '☀️' ) );
+        register_setting( 'aorp_dark', 'aorp_icon_dark', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '🌙' ) );
+        register_setting( 'aorp_dark', 'aorp_icon_light_img', array( 'type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 0 ) );
+        register_setting( 'aorp_dark', 'aorp_icon_dark_img', array( 'type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 0 ) );
     }
 
     private function render_history_table() {
@@ -972,8 +1035,8 @@ class AIO_Restaurant_Plugin {
             wp_enqueue_script( 'aorp-script', plugin_dir_url( __FILE__ ) . 'assets/script.js', array('jquery'), false, true );
             wp_localize_script( 'aorp-script', 'aorp_ajax', array(
                 'url'        => admin_url( 'admin-ajax.php' ),
-                'icon_light' => get_option( 'aorp_icon_light', '☀️' ),
-                'icon_dark'  => get_option( 'aorp_icon_dark', '🌙' ),
+                'icon_light' => $this->get_icon_html( 'light' ),
+                'icon_dark'  => $this->get_icon_html( 'dark' ),
             ) );
         }
     }

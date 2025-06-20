@@ -124,4 +124,22 @@ jQuery(document).ready(function($){
             $($(this).attr('href')).show();
         });
     }
+
+    if($('#aorp_icon_set').length){
+        function updateIconFields(){
+            var set = $('#aorp_icon_set').val();
+            if(set==='custom') return;
+            var map = {
+                'default':['☀️','🌙'],
+                'alt':['🌞','🌜'],
+                'minimal':['🔆','🌑']
+            };
+            if(map[set]){
+                $('#aorp_icon_light').val(map[set][0]);
+                $('#aorp_icon_dark').val(map[set][1]);
+            }
+        }
+        $('#aorp_icon_set').on('change',updateIconFields);
+        updateIconFields();
+    }
 });
