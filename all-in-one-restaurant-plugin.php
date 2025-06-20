@@ -634,7 +634,7 @@ class AIO_Restaurant_Plugin {
                 <h2>Darstellung</h2>
                 <table class="form-table">
                     <tr>
-                        <th scope="row"><label for="aorp_size_number">Schriftgröße Nummer</label></th>
+                        <th scope="row"><label for="aorp_size_number">Schriftgröße Nummer (1em)</label></th>
                         <td>
                             <select name="aorp_size_number" id="aorp_size_number">
                                 <?php foreach ( $sizes as $s ) : ?>
@@ -644,7 +644,7 @@ class AIO_Restaurant_Plugin {
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="aorp_size_title">Schriftgröße Titel</label></th>
+                        <th scope="row"><label for="aorp_size_title">Schriftgröße Titel (1em)</label></th>
                         <td>
                             <select name="aorp_size_title" id="aorp_size_title">
                                 <?php foreach ( $sizes as $s ) : ?>
@@ -654,7 +654,7 @@ class AIO_Restaurant_Plugin {
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="aorp_size_desc">Schriftgröße Beschreibung</label></th>
+                        <th scope="row"><label for="aorp_size_desc">Schriftgröße Beschreibung (0.9em)</label></th>
                         <td>
                             <select name="aorp_size_desc" id="aorp_size_desc">
                                 <?php foreach ( $sizes as $s ) : ?>
@@ -664,7 +664,7 @@ class AIO_Restaurant_Plugin {
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="aorp_size_price">Schriftgröße Preis</label></th>
+                        <th scope="row"><label for="aorp_size_price">Schriftgröße Preis (1em)</label></th>
                         <td>
                             <select name="aorp_size_price" id="aorp_size_price">
                                 <?php foreach ( $sizes as $s ) : ?>
