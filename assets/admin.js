@@ -7,6 +7,14 @@ jQuery(document).ready(function($){
         });
     });
 
+    $('#aorp-cat-filter').on('keyup', function(){
+        var val = $(this).val().toLowerCase();
+        $('#aorp-cat-table tbody tr').each(function(){
+            var text = $(this).text().toLowerCase();
+            $(this).toggle(text.indexOf(val) !== -1);
+        });
+    });
+
     $('.aorp-ing-select').on('change', function(){
         var ing = $(this).val();
         if(ing){

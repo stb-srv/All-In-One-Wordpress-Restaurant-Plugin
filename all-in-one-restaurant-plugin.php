@@ -2,7 +2,7 @@
 /*
 Plugin Name: All-In-One WordPress Restaurant Plugin
 Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode, Suchfunktion und Import/Export.
-Version: 1.1.3
+Version: 1.1.4
 Author: stb-srv
 */
 
@@ -28,6 +28,8 @@ class AIO_Restaurant_Plugin {
         add_action( 'admin_post_aorp_import_csv', array( $this, 'import_csv' ) );
         add_action( 'admin_post_aorp_undo_import', array( $this, 'undo_import' ) );
         add_action( 'admin_post_aorp_add_category', array( $this, 'add_category' ) );
+        add_action( 'admin_post_aorp_update_category', array( $this, 'update_category' ) );
+        add_action( 'admin_post_aorp_delete_category', array( $this, 'delete_category' ) );
         add_action( 'admin_post_aorp_add_item', array( $this, 'add_item' ) );
         add_action( 'admin_post_aorp_add_legend', array( $this, 'add_legend' ) );
         add_action( 'admin_post_aorp_update_item', array( $this, 'update_item' ) );
@@ -88,6 +90,10 @@ class AIO_Restaurant_Plugin {
     public function add_category_fields() {
         ?>
         <div class="form-field">
+            <label for="aorp_code">Code</label>
+            <input type="text" name="aorp_code" id="aorp_code" value="" />
+        </div>
+        <div class="form-field">
             <label for="aorp_bg">Hintergrundfarbe</label>
             <input type="text" name="aorp_bg" id="aorp_bg" value="" class="aorp-color" />
         </div>
@@ -111,12 +117,17 @@ class AIO_Restaurant_Plugin {
     }
 
     public function edit_category_fields( $term, $taxonomy ) {
-        $bg = get_term_meta( $term->term_id, 'aorp_bg', true );
+        $bg    = get_term_meta( $term->term_id, 'aorp_bg', true );
         $color = get_term_meta( $term->term_id, 'aorp_color', true );
-        $size = get_term_meta( $term->term_id, 'aorp_font_size', true );
+        $size  = get_term_meta( $term->term_id, 'aorp_font_size', true );
         $width = get_term_meta( $term->term_id, 'aorp_width', true );
         $height = get_term_meta( $term->term_id, 'aorp_height', true );
+        $code  = get_term_meta( $term->term_id, 'aorp_code', true );
         ?>
+        <tr class="form-field">
+            <th scope="row"><label for="aorp_code">Code</label></th>
+            <td><input type="text" name="aorp_code" id="aorp_code" value="<?php echo esc_attr( $code ); ?>" /></td>
+        </tr>
         <tr class="form-field">
             <th scope="row"><label for="aorp_bg">Hintergrundfarbe</label></th>
             <td><input type="text" name="aorp_bg" id="aorp_bg" value="<?php echo esc_attr( $bg ); ?>" class="aorp-color" /></td>
@@ -141,7 +152,7 @@ class AIO_Restaurant_Plugin {
     }
 
     public function save_category_fields( $term_id ) {
-        $fields = array( 'aorp_bg', 'aorp_color', 'aorp_font_size', 'aorp_width', 'aorp_height' );
+        $fields = array( 'aorp_code', 'aorp_bg', 'aorp_color', 'aorp_font_size', 'aorp_width', 'aorp_height' );
         foreach ( $fields as $field ) {
             if ( isset( $_POST[ $field ] ) ) {
                 update_term_meta( $term_id, $field, sanitize_text_field( $_POST[ $field ] ) );
@@ -387,23 +398,56 @@ class AIO_Restaurant_Plugin {
 
         $edit_item = isset( $_GET['edit'] ) ? intval( $_GET['edit'] ) : 0;
         $current   = $edit_item ? get_post( $edit_item ) : null;
+        $edit_cat     = isset( $_GET['edit_cat'] ) ? intval( $_GET['edit_cat'] ) : 0;
+        $current_cat  = $edit_cat ? get_term( $edit_cat, 'aorp_menu_category' ) : null;
         ?>
         <div class="wrap">
             <h1>Speisekarte Verwaltung</h1>
 
             <h2>Kategorien</h2>
+            <?php if ( $current_cat ) : ?>
+            <h3>Kategorie bearbeiten</h3>
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                <input type="hidden" name="action" value="aorp_update_category" />
+                <?php wp_nonce_field( 'aorp_edit_category_' . $current_cat->term_id ); ?>
+                <input type="hidden" name="cat_id" value="<?php echo esc_attr( $current_cat->term_id ); ?>" />
+                <p><input type="text" name="cat_code" value="<?php echo esc_attr( get_term_meta( $current_cat->term_id, 'aorp_code', true ) ); ?>" placeholder="Code" required /></p>
+                <p><input type="text" name="cat_name" value="<?php echo esc_attr( $current_cat->name ); ?>" placeholder="Bezeichnung" required /></p>
+                <?php submit_button( 'Kategorie speichern' ); ?>
+                <a href="<?php echo admin_url( 'admin.php?page=aorp_manage' ); ?>">Abbrechen</a>
+            </form>
+            <?php else : ?>
             <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
                 <input type="hidden" name="action" value="aorp_add_category" />
                 <?php wp_nonce_field( 'aorp_add_category' ); ?>
-                <input type="text" name="cat_name" placeholder="Name" required />
+                <p><input type="text" name="cat_code" placeholder="Code" required /></p>
+                <p><input type="text" name="cat_name" placeholder="Bezeichnung" required /></p>
                 <?php submit_button( 'Anlegen' ); ?>
             </form>
+            <?php endif; ?>
             <?php if ( $categories ) : ?>
-                <ul>
-                    <?php foreach ( $categories as $cat ) : ?>
-                        <li><?php echo esc_html( $cat->name ); ?></li>
-                    <?php endforeach; ?>
-                </ul>
+                <input type="text" id="aorp-cat-filter" placeholder="Suche" />
+                <table class="widefat" id="aorp-cat-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Bezeichnung</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ( $categories as $cat ) : ?>
+                            <tr>
+                                <td><?php echo esc_html( get_term_meta( $cat->term_id, 'aorp_code', true ) ); ?></td>
+                                <td><?php echo esc_html( $cat->name ); ?></td>
+                                <td>
+                                    <a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit_cat=' . $cat->term_id ); ?>">Bearbeiten</a> |
+                                    <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_category&cat_id=' . $cat->term_id ), 'aorp_delete_category_' . $cat->term_id ); ?>" onclick="return confirm('Kategorie löschen?');">Löschen</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             <?php endif; ?>
 
             <h2>Speisen</h2>
@@ -684,7 +728,39 @@ class AIO_Restaurant_Plugin {
         }
         check_admin_referer( 'aorp_add_category' );
         if ( ! empty( $_POST['cat_name'] ) ) {
-            wp_insert_term( sanitize_text_field( $_POST['cat_name'] ), 'aorp_menu_category' );
+            $term = wp_insert_term( sanitize_text_field( $_POST['cat_name'] ), 'aorp_menu_category' );
+            if ( ! is_wp_error( $term ) && isset( $_POST['cat_code'] ) ) {
+                update_term_meta( $term['term_id'], 'aorp_code', sanitize_text_field( $_POST['cat_code'] ) );
+            }
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        exit;
+    }
+
+    public function update_category() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        $term_id = intval( $_POST['cat_id'] );
+        check_admin_referer( 'aorp_edit_category_' . $term_id );
+        if ( $term_id && ! empty( $_POST['cat_name'] ) ) {
+            wp_update_term( $term_id, 'aorp_menu_category', array( 'name' => sanitize_text_field( $_POST['cat_name'] ) ) );
+        }
+        if ( isset( $_POST['cat_code'] ) ) {
+            update_term_meta( $term_id, 'aorp_code', sanitize_text_field( $_POST['cat_code'] ) );
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        exit;
+    }
+
+    public function delete_category() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        $term_id = isset( $_GET['cat_id'] ) ? intval( $_GET['cat_id'] ) : 0;
+        check_admin_referer( 'aorp_delete_category_' . $term_id );
+        if ( $term_id ) {
+            wp_delete_term( $term_id, 'aorp_menu_category' );
         }
         wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
         exit;
