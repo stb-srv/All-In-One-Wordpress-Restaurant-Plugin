@@ -1,6 +1,6 @@
 All-In-One-WordPress-Restaurant-Plugin (AIWRP)
 
-Version: 1.1.6
+Version: 1.1.7
 Autor: Dein Name
 
 ## Übersicht
