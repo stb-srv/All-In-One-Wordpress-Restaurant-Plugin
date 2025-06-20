@@ -3,11 +3,7 @@ jQuery(document).ready(function($){
         $(this).next('.aorp-items').slideToggle();
     });
 
-    function closeOverlay(){
-        $('#aorp-search-overlay').removeClass('open').addClass('closed');
-        $('#aorp-search-input').val('');
-        $('#aorp-search-results').empty();
-    }
+
 
     function performSearch(val){
         val = val.toLowerCase();
@@ -24,24 +20,7 @@ jQuery(document).ready(function($){
     }
 
     $('#aorp-search-input').on('input', function(){
-        var val = $(this).val();
-        if(val === ''){
-            $('#aorp-search-overlay').removeClass('open').addClass('closed');
-        }else{
-            $('#aorp-search-overlay').addClass('open').removeClass('closed');
-        }
-        performSearch(val);
-    });
-
-    $('#aorp-search-input').on('focus', function(){
-        $('#aorp-search-overlay').addClass('open').removeClass('closed');
-    });
-
-    $('#aorp-overlay-close').on('click', closeOverlay);
-    $('#aorp-search-overlay').on('click', function(e){
-        if(e.target === this){
-            closeOverlay();
-        }
+        performSearch($(this).val());
     });
 
     $('#aorp-close-cats').on('click', function(){
