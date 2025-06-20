@@ -18,3 +18,14 @@ body.aorp-dark .aorp-category{background:#333;color:#fff}
 .aorp-selected{margin-bottom:.5em}
 .aorp-ing-chip{background:#eee;padding:2px 5px;margin-right:4px;display:inline-block;border-radius:3px}
 .aorp-ing-chip a{text-decoration:none;margin-left:3px}
+
+@media (max-width:600px){
+    .columns-2 .aorp-category,
+    .columns-3 .aorp-category,
+    .columns-2 .aorp-items,
+    .columns-3 .aorp-items{
+        width:100%;
+        float:none;
+        margin-right:0;
+    }
+}

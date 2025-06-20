@@ -21,6 +21,7 @@ class AIO_Restaurant_Plugin {
         add_shortcode( 'speisekarte', array( $this, 'speisekarte_shortcode' ) );
         add_shortcode( 'restaurant_lightswitcher', array( $this, 'lightswitcher_shortcode' ) );
         add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+        add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_post_aorp_export_csv', array( $this, 'export_csv' ) );
         add_action( 'admin_post_aorp_import_csv', array( $this, 'import_csv' ) );
         add_action( 'admin_post_aorp_undo_import', array( $this, 'undo_import' ) );
@@ -145,6 +146,10 @@ class AIO_Restaurant_Plugin {
         <?php endif; ?>
         <?php if ( $categories ) : ?>
             <input type="text" id="aorp-cat-filter" placeholder="Suche" />
+            <p>
+                <button class="button aorp-select-all" data-target="#aorp-cat-table tbody input[type=checkbox]">Alle auswählen</button>
+                <button class="button aorp-unselect-all" data-target="#aorp-cat-table tbody input[type=checkbox]">Auswahl aufheben</button>
+            </p>
             <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
                 <input type="hidden" name="action" value="aorp_bulk_delete_category" />
                 <?php wp_nonce_field( 'aorp_bulk_delete_category' ); ?>
@@ -204,6 +209,10 @@ class AIO_Restaurant_Plugin {
         <?php endif; ?>
         <?php if ( $ingredients_posts ) : ?>
         <input type="text" id="aorp-ing-filter" placeholder="Suche" />
+        <p>
+            <button class="button aorp-select-all" data-target="#aorp-ing-table tbody input[type=checkbox]">Alle auswählen</button>
+            <button class="button aorp-unselect-all" data-target="#aorp-ing-table tbody input[type=checkbox]">Auswahl aufheben</button>
+        </p>
         <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
         <input type="hidden" name="action" value="aorp_bulk_delete_ingredient" />
         <?php wp_nonce_field( 'aorp_bulk_delete_ingredient' ); ?>
@@ -315,6 +324,10 @@ class AIO_Restaurant_Plugin {
         <?php if ( $items ) : ?>
             <h3>Alle Speisen</h3>
             <input type="text" id="aorp-item-filter" placeholder="Suche" />
+            <p>
+                <button class="button aorp-select-all" data-target="#aorp-items-table tbody input[type=checkbox]">Alle auswählen</button>
+                <button class="button aorp-unselect-all" data-target="#aorp-items-table tbody input[type=checkbox]">Auswahl aufheben</button>
+            </p>
             <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
                 <input type="hidden" name="action" value="aorp_bulk_delete_item" />
                 <?php wp_nonce_field( 'aorp_bulk_delete_item' ); ?>
@@ -450,7 +463,8 @@ class AIO_Restaurant_Plugin {
 
 
     public function speisekarte_shortcode( $atts ) {
-        $atts = shortcode_atts( array( 'columns' => 1, 'kategorien' => '' ), $atts, 'speisekarte' );
+        $default = (int) get_option( 'aorp_menu_columns', 1 );
+        $atts = shortcode_atts( array( 'columns' => $default, 'kategorien' => '' ), $atts, 'speisekarte' );
         $columns = max( 1, min( 3, intval( $atts['columns'] ) ) );
 
         ob_start();
@@ -541,6 +555,7 @@ class AIO_Restaurant_Plugin {
     public function admin_menu() {
         add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
         add_submenu_page( 'aorp_manage', 'Import/Export', 'Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
+        add_submenu_page( 'aorp_manage', 'Einstellungen', 'Einstellungen', 'manage_options', 'aorp_settings', array( $this, 'settings_page' ) );
         // Historie wird direkt auf der Import/Export Seite angezeigt
     }
 
@@ -570,6 +585,35 @@ class AIO_Restaurant_Plugin {
             <?php $this->render_history_table(); ?>
         </div>
         <?php
+    }
+
+    public function settings_page() {
+        ?>
+        <div class="wrap">
+            <h1>Einstellungen</h1>
+            <form method="post" action="options.php">
+                <?php settings_fields( 'aorp_settings' ); ?>
+                <?php $cols = (int) get_option( 'aorp_menu_columns', 1 ); ?>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row">Spaltenanzahl</th>
+                        <td>
+                            <select name="aorp_menu_columns">
+                                <?php for ( $i = 1; $i <= 3; $i++ ) : ?>
+                                    <option value="<?php echo $i; ?>" <?php selected( $cols, $i ); ?>><?php echo $i; ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+                <?php submit_button(); ?>
+            </form>
+        </div>
+        <?php
+    }
+
+    public function register_settings() {
+        register_setting( 'aorp_settings', 'aorp_menu_columns', array( 'type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 1 ) );
     }
 
     private function render_history_table() {
