@@ -1,20 +1,26 @@
-# All-In-One-WordPress-Restaurant-Plugin
+All-In-One-WordPress-Restaurant-Plugin (AIWRP)
 
-Dieses Plugin stellt eine komplett deutschsprachige Lösung zur Verwaltung digitaler Speisekarten bereit. Es funktioniert mit jedem Theme, ist responsiv und bietet einen Dark‑Mode‑Schalter.
+Version: 1.0.0  
+Autor: Dein Name
 
-## Funktionen
+## Übersicht
 
-* Custom Post Type für Speisen inklusive Inhaltsstoffen und Produktbild
-* Taxonomie für Kategorien mit individuellen Designoptionen
-* Suchfeld für Speisen im Frontend ohne Neuladen
-* Shortcode `[speisekarte]` mit Spalten- und Kategorieparametern
-* Shortcode `[restaurant_lightswitcher]` platziert den Dark‑Mode‑Schalter frei
-* Import/Export der Speisekarte als CSV im Admin-Menü "Speisekarte"
-* Dark-/Light-Switcher im Frontend inkl. Tastenkombi **Strg+Alt+D**
-* Zählt jede Umschaltung im Dashboard
+Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt:
 
-Die wichtigsten Dateien befinden sich im Plugin-Verzeichnis:
+1. Digitale Speisekarte
+2. Lightswitcher (Dark Mode)
+3. Inhaltsstoff-Legende
+4. Import/Export & Historie
 
-* `all-in-one-restaurant-plugin.php` – komplette Plugin-Logik
-* `assets/style.css` – Basisdesign für Frontend und Accordion
-* `assets/script.js` – Suchfunktion, Accordion und Dark‑Mode
+## Installation
+
+1. ZIP hochladen über Plugins → Installieren → Plugin hochladen  
+2. Plugin aktivieren  
+3. Unter Speisekarte im Admin erste Kategorien, Speisen und Legenden-Items anlegen
+
+## Shortcodes
+
+- [speisekarte] – Zeigt die Speisekarte an  
+- [restaurant_lightswitcher] – Dark Mode Switcher  
+- [speisekarte_legende] – Inhaltsstoff-Legende
+
