@@ -3,31 +3,32 @@ jQuery(document).ready(function($){
         $(this).next('.aorp-items').slideToggle();
     });
 
+    function closeOverlay(){
+        $('#aorp-search-overlay').hide();
+    }
+
     $('#aorp-search').on('keyup', function(){
         var val = $(this).val().toLowerCase();
-        $('.aorp-items').hide();
-        $('.aorp-category').each(function(){
-            var container = $(this).next('.aorp-items');
-            var match = false;
-            container.find('.aorp-item').each(function(){
-                var text = $(this).text().toLowerCase();
-                if(text.indexOf(val) !== -1){
-                    $(this).show();
-                    match = true;
-                }else{
-                    $(this).hide();
-                }
-            });
-            if(val === ''){
-                container.find('.aorp-item').show();
-                container.hide();
-                match = true;
-            }
-            if(match){
-                container.show();
+        var overlay = $('#aorp-search-overlay');
+        var list = $('#aorp-overlay-results');
+        list.empty();
+        if(val === ''){
+            closeOverlay();
+            return;
+        }
+        $('.aorp-item').each(function(){
+            if($(this).text().toLowerCase().indexOf(val) !== -1){
+                list.append($(this).clone());
             }
         });
+        if(list.children().length){
+            overlay.show();
+        }else{
+            closeOverlay();
+        }
     });
+
+    $('#aorp-overlay-close').on('click', closeOverlay);
 
     $('#aorp-close-cats').on('click', function(){
         $('.aorp-items').slideUp();
