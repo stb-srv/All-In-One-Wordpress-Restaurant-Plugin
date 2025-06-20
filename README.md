@@ -34,6 +34,8 @@ Die Widgets "Speisekarte" und "Lightswitcher" können ebenfalls in Sidebars verw
 
 Unter "Dark Mode" im Hauptmenü lassen sich verschiedene Icon-Sets per Dropdown auswählen.
 Ebenfalls steht dort eine Auswahl von zehn Templates bereit, um unterschiedliche Farbschemata des Dark Modes zu verwenden.
+Die Templates sind bereits im Plugin enthalten und müssen nicht hochgeladen werden.
+Durch die neue Vorschau wird das aktuell gewählte Icon-Set sowie das Template direkt angezeigt.
 Alternativ können eigene Icons (PNG, 32x32 Pixel, transparenter Hintergrund) hochgeladen werden.
 Kostenlose Icons findest du z.B. auf [flaticon.com](https://www.flaticon.com).
 

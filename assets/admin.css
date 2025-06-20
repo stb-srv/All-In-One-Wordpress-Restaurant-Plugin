@@ -14,3 +14,27 @@
 .aorp-dark-tab {
     padding: 10px 0;
 }
+
+#aorp_icon_preview {
+    margin-left: 10px;
+    font-size: 20px;
+}
+
+#aorp_template_preview {
+    margin-top: 5px;
+}
+
+.aorp-template-swatch {
+    display: inline-block;
+    width: 32px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    margin-right: 4px;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.aorp-template-swatch.selected {
+    border-color: #007cba;
+}

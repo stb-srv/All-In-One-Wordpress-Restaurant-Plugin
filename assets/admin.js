@@ -147,9 +147,25 @@ jQuery(document).ready(function($){
             if(map[set]){
                 $('#aorp_icon_light').val(map[set][0]);
                 $('#aorp_icon_dark').val(map[set][1]);
+                $('#aorp_icon_preview').text(map[set][0]+' / '+map[set][1]);
+            } else {
+                $('#aorp_icon_preview').text('Eigenes Icon-Set');
             }
         }
         $('#aorp_icon_set').on('change',updateIconFields);
         updateIconFields();
+    }
+
+    if($('#aorp_template_preview').length){
+        function updateTemplatePreview(){
+            var val = $('#aorp_dark_template').val();
+            $('.aorp-template-swatch').removeClass('selected');
+            $('.aorp-template-swatch[data-template='+val+']').addClass('selected');
+        }
+        $('#aorp_dark_template').on('change', updateTemplatePreview);
+        $('#aorp_template_preview').on('click', '.aorp-template-swatch', function(){
+            $('#aorp_dark_template').val($(this).data('template')).trigger('change');
+        });
+        updateTemplatePreview();
     }
 });

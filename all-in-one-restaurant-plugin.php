@@ -773,6 +773,7 @@ class AIO_Restaurant_Plugin {
                                     <option value="<?php echo esc_attr( $key ); ?>" <?php selected( $set, $key ); ?>><?php echo $key === 'custom' ? 'Eigene Icons' : esc_html( $icons[0] . ' / ' . $icons[1] ); ?></option>
                                 <?php endforeach; ?>
                             </select>
+                            <span id="aorp_icon_preview" class="aorp-icon-preview"><?php echo $set === 'custom' ? 'Eigenes Icon-Set' : esc_html( $icon_sets[ $set ][0] . ' / ' . $icon_sets[ $set ][1] ); ?></span>
                         </td>
                     </tr>
                     <tr style="display:none;">
@@ -806,6 +807,26 @@ class AIO_Restaurant_Plugin {
                                     <option value="<?php echo $i; ?>" <?php selected( $template, $i ); ?>><?php echo $i; ?></option>
                                 <?php endfor; ?>
                             </select>
+                            <div id="aorp_template_preview">
+                                <?php
+                                    $tpl_colors = array(
+                                        1  => array('bg' => '#222', 'text' => '#eee', 'cat' => '#333'),
+                                        2  => array('bg' => '#111', 'text' => '#ddd', 'cat' => '#222'),
+                                        3  => array('bg' => '#000', 'text' => '#fff', 'cat' => '#444'),
+                                        4  => array('bg' => '#2b2b2b', 'text' => '#f5f5f5', 'cat' => '#3b3b3b'),
+                                        5  => array('bg' => '#1a1a1a', 'text' => '#e0e0e0', 'cat' => '#444'),
+                                        6  => array('bg' => '#121212', 'text' => '#e8e8e8', 'cat' => '#242424'),
+                                        7  => array('bg' => '#191919', 'text' => '#f0f0f0', 'cat' => '#333'),
+                                        8  => array('bg' => '#202020', 'text' => '#fafafa', 'cat' => '#444'),
+                                        9  => array('bg' => '#000', 'text' => '#e6e6e6', 'cat' => '#333'),
+                                        10 => array('bg' => '#141414', 'text' => '#e5e5e5', 'cat' => '#2a2a2a'),
+                                    );
+                                    for ( $i = 1; $i <= 10; $i++ ) {
+                                        $c = $tpl_colors[ $i ];
+                                        echo '<span class="aorp-template-swatch" data-template="' . $i . '" style="background:' . esc_attr( $c['bg'] ) . ';color:' . esc_attr( $c['text'] ) . ';border-color:' . esc_attr( $c['cat'] ) . '">' . $i . '</span> ';
+                                    }
+                                ?>
+                            </div>
                         </td>
                     </tr>
                 </table>
