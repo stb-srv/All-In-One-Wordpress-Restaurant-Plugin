@@ -10,6 +10,7 @@
 .aorp-item img{margin-right:0.5em;max-width:80px;height:auto}
 .aorp-text{flex:1}
 .aorp-desc{font-size:0.9em}
+.aorp-ingredients{font-size:0.8em}
 .columns-2 .aorp-category,.columns-2 .aorp-items{width:48%}
 .columns-3 .aorp-category,.columns-3 .aorp-items{width:31%}
 .columns-2 .aorp-category,.columns-3 .aorp-category{float:left;margin-right:1%}

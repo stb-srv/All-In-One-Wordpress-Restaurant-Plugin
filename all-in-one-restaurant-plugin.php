@@ -532,6 +532,7 @@ class AIO_Restaurant_Plugin {
         $price = get_post_meta( get_the_ID(), '_aorp_price', true );
         $number = get_post_meta( get_the_ID(), '_aorp_number', true );
         $ingredients = get_post_meta( get_the_ID(), '_aorp_ingredients', true );
+        $ingredient_names = $this->get_ingredient_names( $ingredients );
         $img = get_the_post_thumbnail( get_the_ID(), 'thumbnail', array( 'class' => 'aorp-img' ) );
 
         echo '<div class="aorp-item">';
@@ -543,8 +544,8 @@ class AIO_Restaurant_Plugin {
         echo '<span class="aorp-title">' . get_the_title() . '</span> ';
         echo '<span class="aorp-price">' . esc_html( $price ) . '</span>';
         echo '<div class="aorp-desc">' . get_the_content() . '</div>';
-        if ( $ingredients ) {
-            echo '<div class="aorp-ingredients"><em>' . esc_html( $ingredients ) . '</em></div>';
+        if ( $ingredient_names ) {
+            echo '<div class="aorp-ingredients"><em>' . esc_html( $ingredient_names ) . '</em></div>';
         }
         echo '</div>';
         echo '</div>';
@@ -1001,6 +1002,30 @@ class AIO_Restaurant_Plugin {
         foreach ( $codes as $code ) {
             if ( isset( $this->ingredient_lookup[ $code ] ) ) {
                 $labels[] = $this->ingredient_lookup[ $code ] . ' (' . $code . ')';
+            } else {
+                $labels[] = $code;
+            }
+        }
+        return implode( ', ', $labels );
+    }
+
+    private function get_ingredient_names( $codes ) {
+        $codes = array_filter( array_map( 'trim', explode( ',', $codes ) ) );
+        if ( empty( $codes ) ) {
+            return '';
+        }
+        if ( null === $this->ingredient_lookup ) {
+            $this->ingredient_lookup = array();
+            $ings = get_posts( array( 'post_type' => 'aorp_ingredient', 'numberposts' => -1 ) );
+            foreach ( $ings as $ing ) {
+                $code = get_post_meta( $ing->ID, '_aorp_ing_code', true );
+                $this->ingredient_lookup[ $code ] = $ing->post_title;
+            }
+        }
+        $labels = array();
+        foreach ( $codes as $code ) {
+            if ( isset( $this->ingredient_lookup[ $code ] ) ) {
+                $labels[] = $this->ingredient_lookup[ $code ];
             } else {
                 $labels[] = $code;
             }
