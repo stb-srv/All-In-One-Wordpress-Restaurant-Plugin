@@ -35,13 +35,15 @@ jQuery(document).ready(function($){
         $('#aorp-toggle').html(aorp_ajax.icon_light);
     }
 
+    var templateClass = 'aorp-template-' + (aorp_ajax.template || 1);
+
     function setDark(active){
         if(active){
-            $('body').addClass('aorp-dark');
+            $('body').addClass('aorp-dark ' + templateClass);
             $('#aorp-toggle').html(aorp_ajax.icon_dark);
             localStorage.setItem('aorp-dark-mode','on');
         }else{
-            $('body').removeClass('aorp-dark');
+            $('body').removeClass('aorp-dark ' + templateClass);
             $('#aorp-toggle').html(aorp_ajax.icon_light);
             localStorage.setItem('aorp-dark-mode','off');
         }
