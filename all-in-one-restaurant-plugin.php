@@ -1165,17 +1165,33 @@ class AIO_Restaurant_Plugin {
         return $data;
     }
 
-    private function array_to_yaml( $data ) {
+    private function array_to_yaml( $data, $indent = 0 ) {
         if ( function_exists( 'yaml_emit' ) ) {
             return yaml_emit( $data );
         }
-        $yaml = '';
-        foreach ( $data as $row ) {
-            $yaml .= "-\n";
-            foreach ( $row as $k => $v ) {
-                $yaml .= '  ' . $k . ': ' . str_replace( "\n", '\\n', $v ) . "\n";
+
+        $yaml   = '';
+        $prefix = str_repeat( '  ', $indent );
+        $is_assoc = array_keys( $data ) !== range( 0, count( $data ) - 1 );
+
+        if ( $is_assoc ) {
+            foreach ( $data as $key => $value ) {
+                if ( is_array( $value ) ) {
+                    $yaml .= $prefix . $key . ":\n" . $this->array_to_yaml( $value, $indent + 1 );
+                } else {
+                    $yaml .= $prefix . $key . ': ' . str_replace( "\n", '\\n', $value ) . "\n";
+                }
+            }
+        } else {
+            foreach ( $data as $value ) {
+                if ( is_array( $value ) ) {
+                    $yaml .= $prefix . "-\n" . $this->array_to_yaml( $value, $indent + 1 );
+                } else {
+                    $yaml .= $prefix . '- ' . str_replace( "\n", '\\n', $value ) . "\n";
+                }
             }
         }
+
         return $yaml;
     }
 
@@ -1183,15 +1199,26 @@ class AIO_Restaurant_Plugin {
         if ( function_exists( 'yaml_parse' ) ) {
             return yaml_parse( $text );
         }
-        $rows    = array();
+
+        $data    = array();
+        $section = null;
         $current = array();
+
         foreach ( preg_split( '/\r?\n/', $text ) as $line ) {
             if ( '' === trim( $line ) ) {
                 continue;
             }
-            if ( '-' === $line[0] ) {
-                if ( $current ) {
-                    $rows[] = $current;
+
+            if ( ':' === substr( rtrim( $line ), -1 ) && ' ' !== $line[0] ) {
+                if ( $current && $section ) {
+                    $data[ $section ][] = $current;
+                    $current           = array();
+                }
+                $section       = rtrim( $line, ':' );
+                $data[ $section ] = array();
+            } elseif ( preg_match( '/^\s*-/', $line ) ) {
+                if ( $current && $section ) {
+                    $data[ $section ][] = $current;
                 }
                 $current = array();
             } else {
@@ -1199,10 +1226,12 @@ class AIO_Restaurant_Plugin {
                 $current[ $k ] = str_replace( '\\n', "\n", $v );
             }
         }
-        if ( $current ) {
-            $rows[] = $current;
+
+        if ( $current && $section ) {
+            $data[ $section ][] = $current;
         }
-        return $rows;
+
+        return $data;
     }
 
     private $ingredient_lookup = null;
