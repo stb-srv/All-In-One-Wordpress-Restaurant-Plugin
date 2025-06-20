@@ -15,7 +15,7 @@ Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt
 6. Kategorien besitzen Code und Bezeichnung und lassen sich filtern und bearbeiten
 7. Import/Export berücksichtigt Kategorien, Inhaltsstoffe und weitere Einstellungen
 8. Spaltenanzahl der Speisekarte (1–3) über Einstellungen wählbar
-9. Schriftgrößen für Nummer, Titel, Beschreibung und Preis über den Optik‑Tab per Dropdown anpassbar
+9. Schriftgrößen für Nummer, Titel, Beschreibung und Preis über den Einstellungen-Bereich Darstellung per Dropdown anpassbar
 
 ## Installation
 

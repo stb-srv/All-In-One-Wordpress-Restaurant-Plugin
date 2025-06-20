@@ -572,7 +572,6 @@ class AIO_Restaurant_Plugin {
         add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
         add_submenu_page( 'aorp_manage', 'Import/Export', 'Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
         add_submenu_page( 'aorp_manage', 'Einstellungen', 'Einstellungen', 'manage_options', 'aorp_settings', array( $this, 'settings_page' ) );
-        add_submenu_page( 'aorp_manage', 'Optik', 'Optik', 'manage_options', 'aorp_optics', array( $this, 'optics_page' ) );
         // Historie wird direkt auf der Import/Export Seite angezeigt
     }
 
@@ -610,7 +609,15 @@ class AIO_Restaurant_Plugin {
             <h1>Einstellungen</h1>
             <form method="post" action="options.php">
                 <?php settings_fields( 'aorp_settings' ); ?>
-                <?php $cols = (int) get_option( 'aorp_menu_columns', 1 ); ?>
+                <?php
+                    $cols  = (int) get_option( 'aorp_menu_columns', 1 );
+                    $num   = get_option( 'aorp_size_number', '' );
+                    $title = get_option( 'aorp_size_title', '' );
+                    $desc  = get_option( 'aorp_size_desc', '' );
+                    $price = get_option( 'aorp_size_price', '' );
+                    $sizes = array( '', '0.8em', '0.9em', '1em', '1.1em', '1.2em', '1.3em', '1.4em', '1.5em' );
+                ?>
+                <h2>Allgemein</h2>
                 <table class="form-table">
                     <tr>
                         <th scope="row">Spaltenanzahl</th>
@@ -623,45 +630,9 @@ class AIO_Restaurant_Plugin {
                         </td>
                     </tr>
                 </table>
-                <?php submit_button(); ?>
-            </form>
-            <?php $this->output_custom_styles(); ?>
-            <h2>Vorschau</h2>
-            <div class="aorp-menu">
-                <h3 class="aorp-category">Beispiel Kategorie</h3>
-                <div class="aorp-items" style="display:block">
-                    <div class="aorp-item">
-                        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAP////8AAAALAAAAAABAAEAAAICRAEAOw==" alt="" />
-                        <div class="aorp-text">
-                            <div class="aorp-header">
-                                <span class="aorp-number">1</span>
-                                <span class="aorp-title">Beispielgericht</span>
-                                <span class="aorp-price">9,90 €</span>
-                            </div>
-                            <div class="aorp-desc">Leckere Beschreibung</div>
-                            <div class="aorp-ingredients"><em>Zutat A, Zutat B</em></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php
-    }
 
-    public function optics_page() {
-        ?>
-        <div class="wrap">
-            <h1>Optik</h1>
-            <form method="post" action="options.php">
-                <?php settings_fields( 'aorp_optics' ); ?>
-                <?php
-                    $num  = get_option( 'aorp_size_number', '' );
-                    $title = get_option( 'aorp_size_title', '' );
-                    $desc = get_option( 'aorp_size_desc', '' );
-                    $price = get_option( 'aorp_size_price', '' );
-                ?>
+                <h2>Darstellung</h2>
                 <table class="form-table">
-                    <?php $sizes = array( '', '0.8em', '0.9em', '1em', '1.1em', '1.2em', '1.3em', '1.4em', '1.5em' ); ?>
                     <tr>
                         <th scope="row"><label for="aorp_size_number">Schriftgröße Nummer</label></th>
                         <td>
@@ -705,16 +676,36 @@ class AIO_Restaurant_Plugin {
                 </table>
                 <?php submit_button(); ?>
             </form>
+            <?php $this->output_custom_styles(); ?>
+            <h2>Vorschau</h2>
+            <div class="aorp-menu">
+                <h3 class="aorp-category">Beispiel Kategorie</h3>
+                <div class="aorp-items" style="display:block">
+                    <div class="aorp-item">
+                        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAP////8AAAALAAAAAABAAEAAAICRAEAOw==" alt="" />
+                        <div class="aorp-text">
+                            <div class="aorp-header">
+                                <span class="aorp-number">1</span>
+                                <span class="aorp-title">Beispielgericht</span>
+                                <span class="aorp-price">9,90 €</span>
+                            </div>
+                            <div class="aorp-desc">Leckere Beschreibung</div>
+                            <div class="aorp-ingredients"><em>Zutat A, Zutat B</em></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <?php
     }
 
+
     public function register_settings() {
         register_setting( 'aorp_settings', 'aorp_menu_columns', array( 'type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 1 ) );
-        register_setting( 'aorp_optics', 'aorp_size_number', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
-        register_setting( 'aorp_optics', 'aorp_size_title', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
-        register_setting( 'aorp_optics', 'aorp_size_desc', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
-        register_setting( 'aorp_optics', 'aorp_size_price', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+        register_setting( 'aorp_settings', 'aorp_size_number', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+        register_setting( 'aorp_settings', 'aorp_size_title', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+        register_setting( 'aorp_settings', 'aorp_size_desc', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
+        register_setting( 'aorp_settings', 'aorp_size_price', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
     }
 
     private function render_history_table() {
@@ -984,7 +975,7 @@ class AIO_Restaurant_Plugin {
             wp_enqueue_media();
             wp_enqueue_style( 'aorp-admin-style', plugin_dir_url( __FILE__ ) . 'assets/admin.css' );
             wp_enqueue_script( 'aorp-admin', plugin_dir_url( __FILE__ ) . 'assets/admin.js', array( 'jquery' ), false, true );
-            if ( isset( $_GET['page'] ) && $_GET['page'] === 'aorp_optics' ) {
+            if ( isset( $_GET['page'] ) && $_GET['page'] === 'aorp_settings' ) {
                 wp_enqueue_style( 'aorp-style', plugin_dir_url( __FILE__ ) . 'assets/style.css' );
             }
         }
