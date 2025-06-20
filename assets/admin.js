@@ -102,4 +102,16 @@ jQuery(document).ready(function($){
         e.preventDefault();
         $($(this).data('target')).prop('checked', false);
     });
+
+    // Live preview for font size settings on the settings page
+    if($('#aorp_size_number').length){
+        function aorpUpdatePreview(){
+            $('.aorp-number').css('font-size', $('#aorp_size_number').val() || '');
+            $('.aorp-title').css('font-size', $('#aorp_size_title').val() || '');
+            $('.aorp-desc').css('font-size', $('#aorp_size_desc').val() || '');
+            $('.aorp-price').css('font-size', $('#aorp_size_price').val() || '');
+        }
+        $('#aorp_size_number,#aorp_size_title,#aorp_size_desc,#aorp_size_price').on('change', aorpUpdatePreview);
+        aorpUpdatePreview();
+    }
 });
