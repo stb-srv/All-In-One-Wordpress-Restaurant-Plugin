@@ -20,6 +20,10 @@ class AIO_Restaurant_Plugin {
         add_shortcode( 'speisekarte', array( $this, 'speisekarte_shortcode' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
+        add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
+        add_action( 'wp_ajax_aorp_toggle_dark', array( $this, 'ajax_toggle_dark' ) );
+        add_action( 'wp_ajax_nopriv_aorp_toggle_dark', array( $this, 'ajax_toggle_dark' ) );
+        add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widgets' ) );
     }
 
     public function register_post_type() {
@@ -247,12 +251,32 @@ class AIO_Restaurant_Plugin {
         if ( ! is_admin() ) {
             wp_enqueue_style( 'aorp-style', plugin_dir_url( __FILE__ ) . 'assets/style.css' );
             wp_enqueue_script( 'aorp-script', plugin_dir_url( __FILE__ ) . 'assets/script.js', array('jquery'), false, true );
+            wp_localize_script( 'aorp-script', 'aorp_ajax', array( 'url' => admin_url( 'admin-ajax.php' ) ) );
         }
     }
 
     public function admin_assets() {
         wp_enqueue_style( 'wp-color-picker' );
         wp_enqueue_script( 'wp-color-picker' );
+    }
+
+    public function load_textdomain() {
+        load_plugin_textdomain( 'aorp', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+    }
+
+    public function ajax_toggle_dark() {
+        $count = (int) get_option( 'aorp_dark_count', 0 );
+        update_option( 'aorp_dark_count', $count + 1 );
+        wp_send_json_success();
+    }
+
+    public function add_dashboard_widgets() {
+        wp_add_dashboard_widget( 'aorp_dashboard', 'Dark-Mode Umschaltungen', array( $this, 'dashboard_widget_output' ) );
+    }
+
+    public function dashboard_widget_output() {
+        $count = (int) get_option( 'aorp_dark_count', 0 );
+        echo '<p>Gesamtanzahl: <strong>' . $count . '</strong></p>';
     }
 }
 

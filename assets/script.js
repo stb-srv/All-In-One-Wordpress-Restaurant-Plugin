@@ -30,14 +30,34 @@ jQuery(document).ready(function($){
     });
 
     if($('#aorp-toggle').length===0){
-        $('body').append('<div id="aorp-toggle">🌓</div>');
+        $('body').append('<div id="aorp-toggle" aria-label="Dark Mode umschalten" role="button" tabindex="0">🌓</div>');
+    }
+
+    function setDark(active){
+        if(active){
+            $('body').addClass('aorp-dark');
+            localStorage.setItem('aorp-dark-mode','on');
+        }else{
+            $('body').removeClass('aorp-dark');
+            localStorage.setItem('aorp-dark-mode','off');
+        }
+        $.post(aorp_ajax.url,{action:'aorp_toggle_dark'});
     }
 
     $('#aorp-toggle').on('click', function(){
-        $('body').toggleClass('aorp-dark');
+        setDark(!$('body').hasClass('aorp-dark'));
     });
 
-    if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
-        $('body').addClass('aorp-dark');
+    $(document).on('keydown', function(e){
+        if(e.ctrlKey && e.altKey && e.key.toLowerCase()=='d'){
+            setDark(!$('body').hasClass('aorp-dark'));
+        }
+    });
+
+    var stored = localStorage.getItem('aorp-dark-mode');
+    if(stored){
+        setDark(stored==='on');
+    }else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+        setDark(true);
     }
 });
