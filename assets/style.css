@@ -6,11 +6,15 @@
 .aorp-search-wrap.columns-3{width:31%;margin-left:auto;margin-right:auto}
 .aorp-category{cursor:pointer;background:#eee;padding:0.5em;margin-bottom:0.2em;display:flex;align-items:center;min-height:40px;box-sizing:border-box}
 .aorp-items{display:none;padding-left:1em;box-sizing:border-box}
-.aorp-item{margin-bottom:0.5em;display:flex;margin-top:0.5em}
-.aorp-item img{margin-right:0.5em;max-width:80px;height:auto}
+.aorp-item{display:flex;margin:1em 0;padding-bottom:1em;border-bottom:1px solid #ddd}
+.aorp-item img{margin-right:0.75em;max-width:80px;height:auto;border-radius:4px}
 .aorp-text{flex:1}
-.aorp-desc{font-size:0.9em}
-.aorp-ingredients{font-size:0.8em}
+.aorp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.3em}
+.aorp-number{font-weight:bold;margin-right:0.5em}
+.aorp-title{font-weight:bold;flex:1}
+.aorp-price{font-weight:bold;margin-left:0.5em}
+.aorp-desc{font-size:0.9em;margin-bottom:0.2em}
+.aorp-ingredients{font-size:0.8em;color:#666}
 .columns-2 .aorp-category,.columns-2 .aorp-items{width:48%}
 .columns-3 .aorp-category,.columns-3 .aorp-items{width:31%}
 .columns-2 .aorp-category,.columns-3 .aorp-category{float:left;margin-right:1%}

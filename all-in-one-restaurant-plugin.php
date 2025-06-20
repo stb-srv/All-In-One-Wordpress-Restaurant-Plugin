@@ -540,9 +540,11 @@ class AIO_Restaurant_Plugin {
             echo $img;
         }
         echo '<div class="aorp-text">';
-        echo '<span class="aorp-number">' . esc_html( $number ) . '</span> ';
-        echo '<span class="aorp-title">' . get_the_title() . '</span> ';
+        echo '<div class="aorp-header">';
+        echo '<span class="aorp-number">' . esc_html( $number ) . '</span>';
+        echo '<span class="aorp-title">' . get_the_title() . '</span>';
         echo '<span class="aorp-price">' . esc_html( $price ) . '</span>';
+        echo '</div>';
         echo '<div class="aorp-desc">' . get_the_content() . '</div>';
         if ( $ingredient_names ) {
             echo '<div class="aorp-ingredients"><em>' . esc_html( $ingredient_names ) . '</em></div>';
