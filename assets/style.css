@@ -1,0 +1,7 @@
+.aorp-menu{margin:1em 0}
+.aorp-category{cursor:pointer;background:#eee;padding:0.5em;margin-bottom:0.2em}
+.aorp-items{display:none;padding-left:1em}
+.aorp-item{margin-bottom:0.5em}
+body.aorp-dark{background:#222;color:#eee}
+body.aorp-dark .aorp-category{background:#333;color:#fff}
+#aorp-toggle{position:fixed;bottom:20px;right:20px;cursor:pointer;padding:0.5em;background:#000;color:#fff;border-radius:3px;z-index:9999}
