@@ -29,6 +29,10 @@ jQuery(document).ready(function($){
         });
     });
 
+    $('#aorp-close-cats').on('click', function(){
+        $('.aorp-items').slideUp();
+    });
+
     if($('#aorp-toggle').length===0){
         $('body').append('<div id="aorp-toggle" aria-label="Dark Mode umschalten" role="button" tabindex="0">'+aorp_ajax.icon_light+'</div>');
     } else {
