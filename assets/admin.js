@@ -114,4 +114,14 @@ jQuery(document).ready(function($){
         $('#aorp_size_number,#aorp_size_title,#aorp_size_desc,#aorp_size_price').on('change', aorpUpdatePreview);
         aorpUpdatePreview();
     }
+
+    if($('#aorp-dark-tabs').length){
+        $('#aorp-dark-tabs .nav-tab').on('click', function(e){
+            e.preventDefault();
+            $('#aorp-dark-tabs .nav-tab').removeClass('nav-tab-active');
+            $(this).addClass('nav-tab-active');
+            $('.aorp-dark-tab').hide();
+            $($(this).attr('href')).show();
+        });
+    }
 });
