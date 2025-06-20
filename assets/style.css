@@ -41,10 +41,9 @@ body.aorp-dark .aorp-category{background:#333;color:#fff}
 
 /* Overlay search */
 #aorp-search-overlay{position:relative;text-align:center;margin:2rem auto}
-#aorp-search-overlay.open{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:60%;max-width:600px;max-height:80%;background:rgba(0,0,0,0.85);color:#fff;border-radius:8px;padding:1rem;overflow-y:auto;z-index:9999;box-shadow:0 0 15px rgba(0,0,0,0.5)}
-#aorp-search-overlay.open #aorp-search-input{background:#fff;color:#000}
-#aorp-overlay-close{display:none;position:absolute;top:0.5rem;right:0.75rem;background:transparent;border:none;font-size:1.5rem;color:#fff;cursor:pointer}
-#aorp-search-overlay.open #aorp-overlay-close{display:block}
 #aorp-search-results .aorp-item{background:#222;margin:0.5rem 0;padding:0.75rem 1rem;border-radius:4px}
 #aorp-search-results .aorp-item-title{margin:0;font-size:1.1rem}
 #aorp-search-results .aorp-item-price{float:right;font-size:0.95rem;opacity:0.8}
+
+body.aorp-dark #aorp-search-input{background:#333;color:#fff;border-color:#555}
+body.aorp-dark #aorp-search-results .aorp-item{background:#333}
