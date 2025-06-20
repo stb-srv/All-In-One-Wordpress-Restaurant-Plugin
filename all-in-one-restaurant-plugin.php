@@ -346,9 +346,9 @@ class AIO_Restaurant_Plugin {
     }
 
     public function admin_menu() {
-        add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_export', array( $this, 'export_page' ), 'dashicons-list-view' );
-        add_submenu_page( 'aorp_export', 'Verwaltung', 'Verwaltung', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ) );
-        add_submenu_page( 'aorp_export', 'Historie', 'Historie', 'manage_options', 'aorp_history', array( $this, 'history_page' ) );
+        add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
+        add_submenu_page( 'aorp_manage', 'Import/Export', 'Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
+        add_submenu_page( 'aorp_manage', 'Historie', 'Historie', 'manage_options', 'aorp_history', array( $this, 'history_page' ) );
     }
 
     public function export_page() {
@@ -462,6 +462,11 @@ class AIO_Restaurant_Plugin {
                 <p><input type="text" name="item_price" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_price', true ) ); ?>" placeholder="Preis" /></p>
                 <p><input type="text" name="item_number" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_number', true ) ); ?>" placeholder="Nummer" /></p>
                 <p>
+                    <input type="hidden" id="aorp_image_id" name="item_image_id" value="<?php echo esc_attr( get_post_thumbnail_id( $current->ID ) ); ?>" />
+                    <button type="button" class="button aorp-image-upload">Bild auswählen</button>
+                    <span class="aorp-image-preview"><?php echo get_the_post_thumbnail( $current->ID, array(80,80) ); ?></span>
+                </p>
+                <p>
                     <select name="item_category">
                         <option value="">Kategorie wählen</option>
                         <?php foreach ( $categories as $cat ) : ?>
@@ -489,6 +494,11 @@ class AIO_Restaurant_Plugin {
                 <p><textarea name="item_description" placeholder="Beschreibung" rows="3" class="aorp-ing-text"></textarea></p>
                 <p><input type="text" name="item_price" placeholder="Preis" /></p>
                 <p><input type="text" name="item_number" placeholder="Nummer" /></p>
+                <p>
+                    <input type="hidden" id="aorp_image_id" name="item_image_id" value="" />
+                    <button type="button" class="button aorp-image-upload">Bild auswählen</button>
+                    <span class="aorp-image-preview"></span>
+                </p>
                 <p>
                     <select name="item_category">
                         <option value="">Kategorie wählen</option>
@@ -659,6 +669,7 @@ class AIO_Restaurant_Plugin {
         if ( strpos( $hook, 'aorp' ) !== false ) {
             wp_enqueue_style( 'wp-color-picker' );
             wp_enqueue_script( 'wp-color-picker' );
+            wp_enqueue_media();
             wp_enqueue_script( 'aorp-admin', plugin_dir_url( __FILE__ ) . 'assets/admin.js', array( 'jquery' ), false, true );
         }
     }
@@ -787,6 +798,9 @@ class AIO_Restaurant_Plugin {
             if ( isset( $_POST['item_number'] ) ) {
                 update_post_meta( $post_id, '_aorp_number', sanitize_text_field( $_POST['item_number'] ) );
             }
+            if ( ! empty( $_POST['item_image_id'] ) ) {
+                set_post_thumbnail( $post_id, intval( $_POST['item_image_id'] ) );
+            }
             if ( isset( $_POST['item_ingredients'] ) ) {
                 update_post_meta( $post_id, '_aorp_ingredients', sanitize_textarea_field( $_POST['item_ingredients'] ) );
             }
@@ -816,6 +830,9 @@ class AIO_Restaurant_Plugin {
         }
         if ( isset( $_POST['item_number'] ) ) {
             update_post_meta( $post_id, '_aorp_number', sanitize_text_field( $_POST['item_number'] ) );
+        }
+        if ( ! empty( $_POST['item_image_id'] ) ) {
+            set_post_thumbnail( $post_id, intval( $_POST['item_image_id'] ) );
         }
         if ( isset( $_POST['item_ingredients'] ) ) {
             update_post_meta( $post_id, '_aorp_ingredients', sanitize_textarea_field( $_POST['item_ingredients'] ) );
