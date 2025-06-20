@@ -4,14 +4,14 @@ jQuery(document).ready(function($){
     });
 
     function closeOverlay(){
-        $('#aorp-search-overlay').hide();
-        $('#aorp-overlay-input').val('');
+        $('#aorp-search-overlay').fadeOut(200);
+        $('#aorp-search-input').val('');
     }
 
     function performSearch(val){
         val = val.toLowerCase();
         var overlay = $('#aorp-search-overlay');
-        var list = $('#aorp-overlay-results');
+        var list = $('#aorp-search-results');
         list.empty();
         if(val === ''){
             closeOverlay();
@@ -23,18 +23,22 @@ jQuery(document).ready(function($){
             }
         });
         if(list.children().length){
-            $('#aorp-overlay-input').val(val);
-            overlay.show();
+            overlay.fadeIn(200);
         }else{
             closeOverlay();
         }
     }
 
-    $('#aorp-search, #aorp-overlay-input').on('keyup', function(){
+    $('#aorp-search-input').on('input', function(){
         performSearch($(this).val());
     });
 
     $('#aorp-overlay-close').on('click', closeOverlay);
+    $('#aorp-search-overlay').on('click', function(e){
+        if(e.target === this){
+            closeOverlay();
+        }
+    });
 
     $('#aorp-close-cats').on('click', function(){
         $('.aorp-items').slideUp();
