@@ -246,10 +246,10 @@ class AIO_Restaurant_Plugin {
             <input type="hidden" name="action" value="aorp_update_item" />
             <?php wp_nonce_field( 'aorp_edit_item' ); ?>
             <input type="hidden" name="item_id" value="<?php echo esc_attr( $current->ID ); ?>" />
+            <p><input type="text" name="item_number" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_number', true ) ); ?>" placeholder="Nummer" /></p>
             <p><input type="text" name="item_title" value="<?php echo esc_attr( $current->post_title ); ?>" placeholder="Name" required /></p>
             <p><textarea name="item_description" placeholder="Beschreibung" rows="3" class="aorp-ing-text"><?php echo esc_textarea( $current->post_content ); ?></textarea></p>
             <p><input type="text" name="item_price" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_price', true ) ); ?>" placeholder="Preis" /></p>
-            <p><input type="text" name="item_number" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_number', true ) ); ?>" placeholder="Nummer" /></p>
             <p>
                 <input type="hidden" id="aorp_image_id" name="item_image_id" value="<?php echo esc_attr( get_post_thumbnail_id( $current->ID ) ); ?>" />
                 <button type="button" class="button aorp-image-upload">Bild auswählen</button>
@@ -280,10 +280,10 @@ class AIO_Restaurant_Plugin {
         <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
             <input type="hidden" name="action" value="aorp_add_item" />
             <?php wp_nonce_field( 'aorp_add_item' ); ?>
+            <p><input type="text" name="item_number" placeholder="Nummer" /></p>
             <p><input type="text" name="item_title" placeholder="Name" required /></p>
             <p><textarea name="item_description" placeholder="Beschreibung" rows="3" class="aorp-ing-text"></textarea></p>
             <p><input type="text" name="item_price" placeholder="Preis" /></p>
-            <p><input type="text" name="item_number" placeholder="Nummer" /></p>
             <p>
                 <input type="hidden" id="aorp_image_id" name="item_image_id" value="" />
                 <button type="button" class="button aorp-image-upload">Bild auswählen</button>
@@ -540,7 +540,7 @@ class AIO_Restaurant_Plugin {
     public function admin_menu() {
         add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
         add_submenu_page( 'aorp_manage', 'Import/Export', 'Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
-        add_submenu_page( 'aorp_manage', 'Historie', 'Historie', 'manage_options', 'aorp_history', array( $this, 'history_page' ) );
+        // Historie wird direkt auf der Import/Export Seite angezeigt
     }
 
     public function export_page() {
@@ -566,8 +566,24 @@ class AIO_Restaurant_Plugin {
                 </select>
                 <?php submit_button( 'Exportieren' ); ?>
             </form>
+            <?php $this->render_history_table(); ?>
         </div>
         <?php
+    }
+
+    private function render_history_table() {
+        echo '<h2>Historie</h2><table class="widefat"><thead><tr><th>Aktion</th><th>Zeit</th><th>Benutzer</th><th>Format</th><th>Undo</th></tr></thead><tbody>';
+        $history = array_reverse( get_option( 'aorp_history', array() ) );
+        foreach ( $history as $index => $row ) {
+            $user = get_userdata( $row['user'] );
+            echo '<tr><td>' . esc_html( $row['action'] ) . '</td><td>' . esc_html( $row['time'] ) . '</td><td>' . esc_html( $user ? $user->display_name : $row['user'] ) . '</td><td>' . esc_html( isset( $row['format'] ) ? $row['format'] : '' ) . '</td><td>';
+            if ( 'import' === $row['action'] && ! empty( $row['ids'] ) ) {
+                $url = wp_nonce_url( admin_url( 'admin-post.php?action=aorp_undo_import&index=' . $index ), 'aorp_undo_' . $index );
+                echo '<a href="' . esc_url( $url ) . '">Rückgängig</a>';
+            }
+            echo '</td></tr>';
+        }
+        echo '</tbody></table>';
     }
 
     public function manage_page() {
@@ -1105,18 +1121,9 @@ class AIO_Restaurant_Plugin {
     }
 
     public function history_page() {
-        echo '<div class="wrap"><h1>Import/Export Historie</h1><table class="widefat"><thead><tr><th>Aktion</th><th>Zeit</th><th>Benutzer</th><th>Format</th><th>Undo</th></tr></thead><tbody>';
-        $history = array_reverse( get_option( 'aorp_history', array() ) );
-        foreach ( $history as $index => $row ) {
-            $user = get_userdata( $row['user'] );
-            echo '<tr><td>' . esc_html( $row['action'] ) . '</td><td>' . esc_html( $row['time'] ) . '</td><td>' . esc_html( $user ? $user->display_name : $row['user'] ) . '</td><td>' . esc_html( isset( $row['format'] ) ? $row['format'] : '' ) . '</td><td>';
-            if ( 'import' === $row['action'] && ! empty( $row['ids'] ) ) {
-                $url = wp_nonce_url( admin_url( 'admin-post.php?action=aorp_undo_import&index=' . $index ), 'aorp_undo_' . $index );
-                echo '<a href="' . esc_url( $url ) . '">Rückgängig</a>';
-            }
-            echo '</td></tr>';
-        }
-        echo '</tbody></table></div>';
+        echo '<div class="wrap"><h1>Import/Export Historie</h1>';
+        $this->render_history_table();
+        echo '</div>';
     }
 
     public function undo_import() {
