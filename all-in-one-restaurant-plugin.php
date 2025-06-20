@@ -120,6 +120,7 @@ class AIO_Restaurant_Plugin {
 
     private function render_category_form( $categories, $current_cat ) {
         ?>
+        <div class="aorp-section">
         <h2>Kategorien</h2>
         <?php if ( $current_cat ) : ?>
         <h3>Kategorie bearbeiten</h3>
@@ -172,11 +173,13 @@ class AIO_Restaurant_Plugin {
                 <?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
             </form>
         <?php endif; ?>
+        </div>
         <?php
     }
 
     private function render_ingredient_form( $ingredients_posts, $current_ing ) {
         ?>
+        <div class="aorp-section">
         <h2>Inhaltsstoffe</h2>
         <?php if ( $current_ing ) : ?>
         <h3>Inhaltsstoff bearbeiten</h3>
@@ -229,11 +232,13 @@ class AIO_Restaurant_Plugin {
         <?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
         </form>
         <?php endif; ?>
+        </div>
         <?php
     }
 
     private function render_item_form( $items, $categories, $ingredients_list, $current ) {
         ?>
+        <div class="aorp-section">
         <h2>Speisen</h2>
         <?php if ( $current ) : ?>
         <h3>Speise bearbeiten</h3>
@@ -349,6 +354,7 @@ class AIO_Restaurant_Plugin {
                 <?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
             </form>
         <?php endif; ?>
+        </div>
         <?php
     }
 
@@ -690,6 +696,7 @@ class AIO_Restaurant_Plugin {
             wp_enqueue_style( 'wp-color-picker' );
             wp_enqueue_script( 'wp-color-picker' );
             wp_enqueue_media();
+            wp_enqueue_style( 'aorp-admin-style', plugin_dir_url( __FILE__ ) . 'assets/admin.css' );
             wp_enqueue_script( 'aorp-admin', plugin_dir_url( __FILE__ ) . 'assets/admin.js', array( 'jquery' ), false, true );
         }
     }
