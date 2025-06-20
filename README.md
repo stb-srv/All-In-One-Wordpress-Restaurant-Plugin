@@ -8,6 +8,8 @@ Dieses Plugin stellt eine komplett deutschsprachige Lösung zur Verwaltung digit
 * Taxonomie für Kategorien mit individuellen Designoptionen
 * Suchfeld für Speisen im Frontend ohne Neuladen
 * Shortcode `[speisekarte]` mit Spalten- und Kategorieparametern
+* Shortcode `[restaurant_lightswitcher]` platziert den Dark‑Mode‑Schalter frei
+* Import/Export der Speisekarte als CSV im Admin-Menü "Speisekarte"
 * Dark-/Light-Switcher im Frontend inkl. Tastenkombi **Strg+Alt+D**
 * Zählt jede Umschaltung im Dashboard
 

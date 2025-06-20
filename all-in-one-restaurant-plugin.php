@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: All-In-One WordPress Restaurant Plugin
-Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode und Suchfunktion.
-Version: 1.0.0
+Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode, Suchfunktion und Import/Export.
+Version: 1.1.0
 Author: stb-srv
 */
 
@@ -18,6 +18,10 @@ class AIO_Restaurant_Plugin {
         add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
         add_action( 'save_post', array( $this, 'save_meta_boxes' ) );
         add_shortcode( 'speisekarte', array( $this, 'speisekarte_shortcode' ) );
+        add_shortcode( 'restaurant_lightswitcher', array( $this, 'lightswitcher_shortcode' ) );
+        add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+        add_action( 'admin_post_aorp_export_csv', array( $this, 'export_csv' ) );
+        add_action( 'admin_post_aorp_import_csv', array( $this, 'import_csv' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
         add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
@@ -245,6 +249,78 @@ class AIO_Restaurant_Plugin {
         }
         echo '</div>';
         echo '</div>';
+    }
+
+    public function lightswitcher_shortcode() {
+        return '<div id="aorp-toggle" aria-label="Dark Mode umschalten" role="button" tabindex="0">🌓</div>';
+    }
+
+    public function admin_menu() {
+        add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_export', array( $this, 'export_page' ), 'dashicons-list-view' );
+    }
+
+    public function export_page() {
+        ?>
+        <div class="wrap">
+            <h1>Import/Export</h1>
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="aorp_import_csv" />
+                <input type="file" name="import_file" accept="text/csv" />
+                <?php submit_button( 'Importieren' ); ?>
+            </form>
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                <input type="hidden" name="action" value="aorp_export_csv" />
+                <?php submit_button( 'CSV Export' ); ?>
+            </form>
+        </div>
+        <?php
+    }
+
+    public function export_csv() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        header( 'Content-Type: text/csv' );
+        header( 'Content-Disposition: attachment; filename="speisekarte.csv"' );
+        $out = fopen( 'php://output', 'w' );
+        fputcsv( $out, array( 'Nummer', 'Titel', 'Beschreibung', 'Preis' ) );
+        $items = get_posts( array( 'post_type' => 'aorp_menu_item', 'numberposts' => -1 ) );
+        foreach ( $items as $item ) {
+            fputcsv( $out, array(
+                get_post_meta( $item->ID, '_aorp_number', true ),
+                $item->post_title,
+                $item->post_content,
+                get_post_meta( $item->ID, '_aorp_price', true ),
+            ) );
+        }
+        fclose( $out );
+        exit;
+    }
+
+    public function import_csv() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        if ( ! empty( $_FILES['import_file']['tmp_name'] ) ) {
+            $handle = fopen( $_FILES['import_file']['tmp_name'], 'r' );
+            if ( $handle ) {
+                // skip header
+                fgetcsv( $handle );
+                while ( ( $data = fgetcsv( $handle ) ) !== false ) {
+                    $post_id = wp_insert_post( array( 'post_type' => 'aorp_menu_item', 'post_title' => sanitize_text_field( $data[1] ), 'post_content' => sanitize_textarea_field( $data[2] ), 'post_status' => 'publish' ) );
+                    if ( $post_id ) {
+                        update_post_meta( $post_id, '_aorp_number', sanitize_text_field( $data[0] ) );
+                        update_post_meta( $post_id, '_aorp_price', sanitize_text_field( $data[3] ) );
+                    }
+                }
+                fclose( $handle );
+                $history = get_option( 'aorp_history', array() );
+                $history[] = array( 'action' => 'import', 'time' => current_time( 'mysql' ), 'user' => get_current_user_id() );
+                update_option( 'aorp_history', $history );
+            }
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_export' ) );
+        exit;
     }
 
     public function enqueue_assets() {
