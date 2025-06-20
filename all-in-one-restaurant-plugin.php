@@ -107,8 +107,12 @@ class AIO_Restaurant_Plugin {
             <input type="text" name="aorp_color" id="aorp_color" value="" class="aorp-color" />
         </div>
         <div class="form-field">
-            <label for="aorp_font_size">Schriftgröße (z.B. 16px)</label>
-            <input type="text" name="aorp_font_size" id="aorp_font_size" value="" />
+            <label for="aorp_font_size">Schriftgröße</label>
+            <select name="aorp_font_size" id="aorp_font_size">
+                <?php foreach ( array( '', '0.8em', '0.9em', '1em', '1.1em', '1.2em', '1.3em', '1.4em', '1.5em' ) as $fs ) : ?>
+                    <option value="<?php echo esc_attr( $fs ); ?>"><?php echo $fs ? esc_html( $fs ) : '--'; ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="form-field">
             <label for="aorp_width">Kachelbreite</label>
@@ -396,8 +400,14 @@ class AIO_Restaurant_Plugin {
             <td><input type="text" name="aorp_color" id="aorp_color" value="<?php echo esc_attr( $color ); ?>" class="aorp-color" /></td>
         </tr>
         <tr class="form-field">
-            <th scope="row"><label for="aorp_font_size">Schriftgröße (z.B. 16px)</label></th>
-            <td><input type="text" name="aorp_font_size" id="aorp_font_size" value="<?php echo esc_attr( $size ); ?>" /></td>
+            <th scope="row"><label for="aorp_font_size">Schriftgröße</label></th>
+            <td>
+                <select name="aorp_font_size" id="aorp_font_size">
+                    <?php foreach ( array( '', '0.8em', '0.9em', '1em', '1.1em', '1.2em', '1.3em', '1.4em', '1.5em' ) as $fs ) : ?>
+                        <option value="<?php echo esc_attr( $fs ); ?>" <?php selected( $size, $fs ); ?>><?php echo $fs ? esc_html( $fs ) : '--'; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
         </tr>
         <tr class="form-field">
             <th scope="row"><label for="aorp_width">Kachelbreite</label></th>
@@ -632,21 +642,46 @@ class AIO_Restaurant_Plugin {
                     $price = get_option( 'aorp_size_price', '' );
                 ?>
                 <table class="form-table">
+                    <?php $sizes = array( '', '0.8em', '0.9em', '1em', '1.1em', '1.2em', '1.3em', '1.4em', '1.5em' ); ?>
                     <tr>
                         <th scope="row"><label for="aorp_size_number">Schriftgröße Nummer</label></th>
-                        <td><input type="text" name="aorp_size_number" id="aorp_size_number" value="<?php echo esc_attr( $num ); ?>" /></td>
+                        <td>
+                            <select name="aorp_size_number" id="aorp_size_number">
+                                <?php foreach ( $sizes as $s ) : ?>
+                                    <option value="<?php echo esc_attr( $s ); ?>" <?php selected( $num, $s ); ?>><?php echo $s ? esc_html( $s ) : '--'; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="aorp_size_title">Schriftgröße Titel</label></th>
-                        <td><input type="text" name="aorp_size_title" id="aorp_size_title" value="<?php echo esc_attr( $title ); ?>" /></td>
+                        <td>
+                            <select name="aorp_size_title" id="aorp_size_title">
+                                <?php foreach ( $sizes as $s ) : ?>
+                                    <option value="<?php echo esc_attr( $s ); ?>" <?php selected( $title, $s ); ?>><?php echo $s ? esc_html( $s ) : '--'; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="aorp_size_desc">Schriftgröße Beschreibung</label></th>
-                        <td><input type="text" name="aorp_size_desc" id="aorp_size_desc" value="<?php echo esc_attr( $desc ); ?>" /></td>
+                        <td>
+                            <select name="aorp_size_desc" id="aorp_size_desc">
+                                <?php foreach ( $sizes as $s ) : ?>
+                                    <option value="<?php echo esc_attr( $s ); ?>" <?php selected( $desc, $s ); ?>><?php echo $s ? esc_html( $s ) : '--'; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
                     </tr>
                     <tr>
                         <th scope="row"><label for="aorp_size_price">Schriftgröße Preis</label></th>
-                        <td><input type="text" name="aorp_size_price" id="aorp_size_price" value="<?php echo esc_attr( $price ); ?>" /></td>
+                        <td>
+                            <select name="aorp_size_price" id="aorp_size_price">
+                                <?php foreach ( $sizes as $s ) : ?>
+                                    <option value="<?php echo esc_attr( $s ); ?>" <?php selected( $price, $s ); ?>><?php echo $s ? esc_html( $s ) : '--'; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
                     </tr>
                 </table>
                 <?php submit_button(); ?>
