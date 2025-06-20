@@ -4,17 +4,16 @@ jQuery(document).ready(function($){
     });
 
     function closeOverlay(){
-        $('#aorp-search-overlay').fadeOut(200);
+        $('#aorp-search-overlay').removeClass('open').addClass('closed');
         $('#aorp-search-input').val('');
+        $('#aorp-search-results').empty();
     }
 
     function performSearch(val){
         val = val.toLowerCase();
-        var overlay = $('#aorp-search-overlay');
         var list = $('#aorp-search-results');
         list.empty();
         if(val === ''){
-            closeOverlay();
             return;
         }
         $('.aorp-item').each(function(){
@@ -22,15 +21,20 @@ jQuery(document).ready(function($){
                 list.append($(this).clone());
             }
         });
-        if(list.children().length){
-            overlay.fadeIn(200);
-        }else{
-            closeOverlay();
-        }
     }
 
     $('#aorp-search-input').on('input', function(){
-        performSearch($(this).val());
+        var val = $(this).val();
+        if(val === ''){
+            $('#aorp-search-overlay').removeClass('open').addClass('closed');
+        }else{
+            $('#aorp-search-overlay').addClass('open').removeClass('closed');
+        }
+        performSearch(val);
+    });
+
+    $('#aorp-search-input').on('focus', function(){
+        $('#aorp-search-overlay').addClass('open').removeClass('closed');
     });
 
     $('#aorp-overlay-close').on('click', closeOverlay);
