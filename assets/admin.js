@@ -132,7 +132,17 @@ jQuery(document).ready(function($){
             var map = {
                 'default':['☀️','🌙'],
                 'alt':['🌞','🌜'],
-                'minimal':['🔆','🌑']
+                'minimal':['🔆','🌑'],
+                'eclipse':['🌞','🌚'],
+                'sunset':['🌇','🌃'],
+                'cloudy':['⛅','🌙'],
+                'simple':['☼','☾'],
+                'twilight':['🌄','🌌'],
+                'starry':['⭐','🌜'],
+                'morning':['🌅','🌠'],
+                'bright':['🔆','🔅'],
+                'flower':['🌻','🌑'],
+                'smiley':['😀','😴']
             };
             if(map[set]){
                 $('#aorp_icon_light').val(map[set][0]);
