@@ -1,6 +1,6 @@
 All-In-One-WordPress-Restaurant-Plugin (AIWRP)
 
-Version: 1.1.7
+Version: 1.1.8
 Autor: Dein Name
 
 ## Übersicht
@@ -15,6 +15,7 @@ Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt
 6. Kategorien besitzen Code und Bezeichnung und lassen sich filtern und bearbeiten
 7. Import/Export berücksichtigt Kategorien, Inhaltsstoffe und weitere Einstellungen
 8. Spaltenanzahl der Speisekarte (1–3) über Einstellungen wählbar
+9. Schriftgrößen für Nummer, Titel, Beschreibung und Preis über den Optik‑Tab anpassbar
 
 ## Installation
 
