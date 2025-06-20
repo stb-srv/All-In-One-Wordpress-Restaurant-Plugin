@@ -95,10 +95,6 @@ class AIO_Restaurant_Plugin {
     public function add_category_fields() {
         ?>
         <div class="form-field">
-            <label for="aorp_code">Code</label>
-            <input type="text" name="aorp_code" id="aorp_code" value="" />
-        </div>
-        <div class="form-field">
             <label for="aorp_bg">Hintergrundfarbe</label>
             <input type="text" name="aorp_bg" id="aorp_bg" value="" class="aorp-color" />
         </div>
@@ -135,7 +131,6 @@ class AIO_Restaurant_Plugin {
             <input type="hidden" name="action" value="aorp_update_category" />
             <?php wp_nonce_field( 'aorp_edit_category_' . $current_cat->term_id ); ?>
             <input type="hidden" name="cat_id" value="<?php echo esc_attr( $current_cat->term_id ); ?>" />
-            <p><input type="text" name="cat_code" value="<?php echo esc_attr( get_term_meta( $current_cat->term_id, 'aorp_code', true ) ); ?>" placeholder="Code" required /></p>
             <p><input type="text" name="cat_name" value="<?php echo esc_attr( $current_cat->name ); ?>" placeholder="Bezeichnung" required /></p>
             <?php submit_button( 'Kategorie speichern' ); ?>
             <a href="<?php echo admin_url( 'admin.php?page=aorp_manage' ); ?>">Abbrechen</a>
@@ -144,7 +139,6 @@ class AIO_Restaurant_Plugin {
         <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
             <input type="hidden" name="action" value="aorp_add_category" />
             <?php wp_nonce_field( 'aorp_add_category' ); ?>
-            <p><input type="text" name="cat_code" placeholder="Code" required /></p>
             <p><input type="text" name="cat_name" placeholder="Bezeichnung" required /></p>
             <?php submit_button( 'Anlegen' ); ?>
         </form>
@@ -162,7 +156,6 @@ class AIO_Restaurant_Plugin {
                     <thead>
                         <tr>
                             <th></th>
-                            <th>Code</th>
                             <th>Bezeichnung</th>
                             <th>Aktionen</th>
                         </tr>
@@ -171,7 +164,6 @@ class AIO_Restaurant_Plugin {
                         <?php foreach ( $categories as $cat ) : ?>
                             <tr>
                                 <td><input type="checkbox" name="cat_ids[]" value="<?php echo esc_attr( $cat->term_id ); ?>" /></td>
-                                <td><?php echo esc_html( get_term_meta( $cat->term_id, 'aorp_code', true ) ); ?></td>
                                 <td><?php echo esc_html( $cat->name ); ?></td>
                                 <td>
                                     <a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit_cat=' . $cat->term_id ); ?>">Bearbeiten</a> |
@@ -385,12 +377,7 @@ class AIO_Restaurant_Plugin {
         $size  = get_term_meta( $term->term_id, 'aorp_font_size', true );
         $width = get_term_meta( $term->term_id, 'aorp_width', true );
         $height = get_term_meta( $term->term_id, 'aorp_height', true );
-        $code  = get_term_meta( $term->term_id, 'aorp_code', true );
         ?>
-        <tr class="form-field">
-            <th scope="row"><label for="aorp_code">Code</label></th>
-            <td><input type="text" name="aorp_code" id="aorp_code" value="<?php echo esc_attr( $code ); ?>" /></td>
-        </tr>
         <tr class="form-field">
             <th scope="row"><label for="aorp_bg">Hintergrundfarbe</label></th>
             <td><input type="text" name="aorp_bg" id="aorp_bg" value="<?php echo esc_attr( $bg ); ?>" class="aorp-color" /></td>
@@ -421,7 +408,7 @@ class AIO_Restaurant_Plugin {
     }
 
     public function save_category_fields( $term_id ) {
-        $fields = array( 'aorp_code', 'aorp_bg', 'aorp_color', 'aorp_font_size', 'aorp_width', 'aorp_height' );
+        $fields = array( 'aorp_bg', 'aorp_color', 'aorp_font_size', 'aorp_width', 'aorp_height' );
         foreach ( $fields as $field ) {
             if ( isset( $_POST[ $field ] ) ) {
                 update_term_meta( $term_id, $field, sanitize_text_field( $_POST[ $field ] ) );
@@ -963,26 +950,22 @@ class AIO_Restaurant_Plugin {
 
             $cat_map = array();
             foreach ( $categories as $cat ) {
-                if ( empty( $cat['code'] ) ) {
+                if ( empty( $cat['name'] ) ) {
                     continue;
                 }
                 $existing = get_terms( array(
                     'taxonomy'   => 'aorp_menu_category',
                     'hide_empty' => false,
-                    'meta_query' => array(
-                        array( 'key' => 'aorp_code', 'value' => $cat['code'] ),
-                    ),
+                    'name'       => $cat['name'],
                 ) );
                 if ( $existing && ! is_wp_error( $existing ) ) {
                     $term_id = $existing[0]->term_id;
-                    wp_update_term( $term_id, 'aorp_menu_category', array( 'name' => sanitize_text_field( $cat['name'] ) ) );
                 } else {
                     $term = wp_insert_term( sanitize_text_field( $cat['name'] ), 'aorp_menu_category' );
                     $term_id = is_wp_error( $term ) ? 0 : $term['term_id'];
                 }
                 if ( $term_id ) {
                     $fields = array(
-                        'aorp_code'      => 'code',
                         'aorp_bg'        => 'bg',
                         'aorp_color'     => 'color',
                         'aorp_font_size' => 'font_size',
@@ -994,7 +977,7 @@ class AIO_Restaurant_Plugin {
                             update_term_meta( $term_id, $meta, sanitize_text_field( $cat[ $src ] ) );
                         }
                     }
-                    $cat_map[ $cat['code'] ] = $term_id;
+                    $cat_map[ $cat['name'] ] = $term_id;
                 }
             }
 
@@ -1144,7 +1127,6 @@ class AIO_Restaurant_Plugin {
         $cats = get_terms( array( 'taxonomy' => 'aorp_menu_category', 'hide_empty' => false ) );
         foreach ( $cats as $cat ) {
             $data['categories'][] = array(
-                'code'       => get_term_meta( $cat->term_id, 'aorp_code', true ),
                 'name'       => $cat->name,
                 'bg'         => get_term_meta( $cat->term_id, 'aorp_bg', true ),
                 'color'      => get_term_meta( $cat->term_id, 'aorp_color', true ),
@@ -1167,7 +1149,7 @@ class AIO_Restaurant_Plugin {
             $term  = get_the_terms( $item->ID, 'aorp_menu_category' );
             $cat   = '';
             if ( $term && ! is_wp_error( $term ) ) {
-                $cat = get_term_meta( $term[0]->term_id, 'aorp_code', true );
+                $cat = $term[0]->name;
             }
             $data['items'][] = array(
                 'number'      => get_post_meta( $item->ID, '_aorp_number', true ),
@@ -1279,10 +1261,7 @@ class AIO_Restaurant_Plugin {
         }
         check_admin_referer( 'aorp_add_category' );
         if ( ! empty( $_POST['cat_name'] ) ) {
-            $term = wp_insert_term( sanitize_text_field( $_POST['cat_name'] ), 'aorp_menu_category' );
-            if ( ! is_wp_error( $term ) && isset( $_POST['cat_code'] ) ) {
-                update_term_meta( $term['term_id'], 'aorp_code', sanitize_text_field( $_POST['cat_code'] ) );
-            }
+            wp_insert_term( sanitize_text_field( $_POST['cat_name'] ), 'aorp_menu_category' );
         }
         wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
         exit;
@@ -1296,9 +1275,6 @@ class AIO_Restaurant_Plugin {
         check_admin_referer( 'aorp_edit_category_' . $term_id );
         if ( $term_id && ! empty( $_POST['cat_name'] ) ) {
             wp_update_term( $term_id, 'aorp_menu_category', array( 'name' => sanitize_text_field( $_POST['cat_name'] ) ) );
-        }
-        if ( isset( $_POST['cat_code'] ) ) {
-            update_term_meta( $term_id, 'aorp_code', sanitize_text_field( $_POST['cat_code'] ) );
         }
         wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
         exit;

@@ -1,6 +1,5 @@
 categories:
-  - code: pizza
-    name: Pizzen
+  - name: Pizzen
     bg: "#f0f0f0"
     color: "#000000"
     font_size: ''
@@ -16,6 +15,6 @@ items:
     title: Margherita
     description: Tomate, Mozzarella
     price: "7.90"
-    category: pizza
+    category: Pizzen
     ingredients: "A,B"
     image_id: ''
