@@ -15,10 +15,9 @@
 .aorp-price{font-weight:bold;margin-left:0.5em}
 .aorp-desc{font-size:0.9em;margin-bottom:0.2em}
 .aorp-ingredients{font-size:0.8em;color:#666}
-.columns-2 .aorp-category,.columns-2 .aorp-items{width:48%}
-.columns-3 .aorp-category,.columns-3 .aorp-items{width:31%}
-.columns-2 .aorp-category,.columns-3 .aorp-category{float:left;margin-right:1%}
-.columns-2 .aorp-items,.columns-3 .aorp-items{float:left;margin-right:1%}
+.columns-2 .aorp-category{width:48%;float:left;margin-right:1%}
+.columns-3 .aorp-category{width:31%;float:left;margin-right:1%}
+.columns-2 .aorp-items,.columns-3 .aorp-items{width:100%;float:none;clear:both;margin-right:0}
 .aorp-menu::after{content:"";display:block;clear:both}
 #aorp-search{width:100%;padding:0.5em;margin:0}
 body.aorp-dark{background:#222;color:#eee}
