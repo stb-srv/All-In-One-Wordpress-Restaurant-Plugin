@@ -15,13 +15,18 @@ class AIO_Restaurant_Plugin {
     public function __construct() {
         add_action( 'init', array( $this, 'register_post_type' ) );
         add_action( 'init', array( $this, 'register_taxonomy' ) );
+        add_action( 'init', array( $this, 'register_legend_type' ) );
         add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
+        add_action( 'add_meta_boxes', array( $this, 'add_legend_meta_box' ) );
         add_action( 'save_post', array( $this, 'save_meta_boxes' ) );
+        add_action( 'save_post', array( $this, 'save_legend_meta' ) );
         add_shortcode( 'speisekarte', array( $this, 'speisekarte_shortcode' ) );
+        add_shortcode( 'speisekarte_legende', array( $this, 'legend_shortcode' ) );
         add_shortcode( 'restaurant_lightswitcher', array( $this, 'lightswitcher_shortcode' ) );
         add_action( 'admin_menu', array( $this, 'admin_menu' ) );
         add_action( 'admin_post_aorp_export_csv', array( $this, 'export_csv' ) );
         add_action( 'admin_post_aorp_import_csv', array( $this, 'import_csv' ) );
+        add_action( 'admin_post_aorp_undo_import', array( $this, 'undo_import' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
         add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
@@ -40,6 +45,20 @@ class AIO_Restaurant_Plugin {
             'public' => true,
             'has_archive' => false,
             'supports' => array( 'title', 'editor', 'thumbnail' )
+        ) );
+    }
+
+    public function register_legend_type() {
+        $labels = array(
+            'name' => __( 'Legende', 'aorp' ),
+            'singular_name' => __( 'Legenden-Item', 'aorp' )
+        );
+        register_post_type( 'aorp_legend', array(
+            'labels' => $labels,
+            'public' => false,
+            'show_ui' => true,
+            'show_in_menu' => 'edit.php?post_type=aorp_menu_item',
+            'supports' => array( 'title', 'page-attributes' )
         ) );
     }
 
@@ -128,6 +147,10 @@ class AIO_Restaurant_Plugin {
         add_meta_box( 'aorp_meta', __( 'Speise Details', 'aorp' ), array( $this, 'render_meta_box' ), 'aorp_menu_item', 'normal', 'default' );
     }
 
+    public function add_legend_meta_box() {
+        add_meta_box( 'aorp_legend_meta', __( 'Legenden-Details', 'aorp' ), array( $this, 'render_legend_meta' ), 'aorp_legend', 'normal', 'default' );
+    }
+
     public function render_meta_box( $post ) {
         wp_nonce_field( basename( __FILE__ ), 'aorp_nonce' );
         $price = get_post_meta( $post->ID, '_aorp_price', true );
@@ -149,6 +172,22 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+    public function render_legend_meta( $post ) {
+        wp_nonce_field( 'aorp_legend_meta', 'aorp_legend_nonce' );
+        $symbol = get_post_meta( $post->ID, '_aorp_symbol', true );
+        $color  = get_post_meta( $post->ID, '_aorp_color', true );
+        ?>
+        <p>
+            <label for="aorp_symbol"><?php _e( 'Symbol', 'aorp' ); ?></label>
+            <input type="text" name="aorp_symbol" id="aorp_symbol" value="<?php echo esc_attr( $symbol ); ?>" style="width:100%;" />
+        </p>
+        <p>
+            <label for="aorp_color"><?php _e( 'Farbe', 'aorp' ); ?></label>
+            <input type="text" name="aorp_color" id="aorp_color" value="<?php echo esc_attr( $color ); ?>" class="aorp-color" />
+        </p>
+        <?php
+    }
+
     public function save_meta_boxes( $post_id ) {
         if ( ! isset( $_POST['aorp_nonce'] ) || ! wp_verify_nonce( $_POST['aorp_nonce'], basename( __FILE__ ) ) ) {
             return $post_id;
@@ -164,6 +203,21 @@ class AIO_Restaurant_Plugin {
         }
         if ( isset( $_POST['aorp_ingredients'] ) ) {
             update_post_meta( $post_id, '_aorp_ingredients', sanitize_textarea_field( $_POST['aorp_ingredients'] ) );
+        }
+    }
+
+    public function save_legend_meta( $post_id ) {
+        if ( ! isset( $_POST['aorp_legend_nonce'] ) || ! wp_verify_nonce( $_POST['aorp_legend_nonce'], 'aorp_legend_meta' ) ) {
+            return $post_id;
+        }
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return $post_id;
+        }
+        if ( isset( $_POST['aorp_symbol'] ) ) {
+            update_post_meta( $post_id, '_aorp_symbol', sanitize_text_field( $_POST['aorp_symbol'] ) );
+        }
+        if ( isset( $_POST['aorp_color'] ) ) {
+            update_post_meta( $post_id, '_aorp_color', sanitize_text_field( $_POST['aorp_color'] ) );
         }
     }
 
@@ -229,6 +283,25 @@ class AIO_Restaurant_Plugin {
         return ob_get_clean();
     }
 
+    public function legend_shortcode() {
+        $items = get_posts( array( 'post_type' => 'aorp_legend', 'numberposts' => -1, 'orderby' => 'menu_order', 'order' => 'ASC' ) );
+        if ( ! $items ) {
+            return '';
+        }
+        ob_start();
+        echo '<div class="aorp-legende">';
+        foreach ( $items as $item ) {
+            $symbol = get_post_meta( $item->ID, '_aorp_symbol', true );
+            $color  = get_post_meta( $item->ID, '_aorp_color', true );
+            echo '<div class="aorp-legende-item" style="color:' . esc_attr( $color ) . '">';
+            echo '<span class="aorp-legend-symbol">' . esc_html( $symbol ) . '</span> ';
+            echo '<span class="aorp-legend-desc">' . esc_html( $item->post_title ) . '</span>';
+            echo '</div>';
+        }
+        echo '</div>';
+        return ob_get_clean();
+    }
+
     private function render_menu_item() {
         $price = get_post_meta( get_the_ID(), '_aorp_price', true );
         $number = get_post_meta( get_the_ID(), '_aorp_number', true );
@@ -257,6 +330,7 @@ class AIO_Restaurant_Plugin {
 
     public function admin_menu() {
         add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_export', array( $this, 'export_page' ), 'dashicons-list-view' );
+        add_submenu_page( 'aorp_export', 'Historie', 'Historie', 'manage_options', 'aorp_history', array( $this, 'history_page' ) );
     }
 
     public function export_page() {
@@ -265,12 +339,22 @@ class AIO_Restaurant_Plugin {
             <h1>Import/Export</h1>
             <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="aorp_import_csv" />
-                <input type="file" name="import_file" accept="text/csv" />
+                <select name="import_format">
+                    <option value="csv">CSV</option>
+                    <option value="json">JSON</option>
+                    <option value="yaml">YAML</option>
+                </select>
+                <input type="file" name="import_file" accept=".csv,.json,.yml,.yaml" />
                 <?php submit_button( 'Importieren' ); ?>
             </form>
             <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
                 <input type="hidden" name="action" value="aorp_export_csv" />
-                <?php submit_button( 'CSV Export' ); ?>
+                <select name="export_format">
+                    <option value="csv">CSV</option>
+                    <option value="json">JSON</option>
+                    <option value="yaml">YAML</option>
+                </select>
+                <?php submit_button( 'Exportieren' ); ?>
             </form>
         </div>
         <?php
@@ -280,20 +364,39 @@ class AIO_Restaurant_Plugin {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
         }
-        header( 'Content-Type: text/csv' );
-        header( 'Content-Disposition: attachment; filename="speisekarte.csv"' );
-        $out = fopen( 'php://output', 'w' );
-        fputcsv( $out, array( 'Nummer', 'Titel', 'Beschreibung', 'Preis' ) );
-        $items = get_posts( array( 'post_type' => 'aorp_menu_item', 'numberposts' => -1 ) );
+        $format = isset( $_POST['export_format'] ) ? sanitize_text_field( $_POST['export_format'] ) : 'csv';
+        $data   = array();
+        $items  = get_posts( array( 'post_type' => 'aorp_menu_item', 'numberposts' => -1 ) );
         foreach ( $items as $item ) {
-            fputcsv( $out, array(
-                get_post_meta( $item->ID, '_aorp_number', true ),
-                $item->post_title,
-                $item->post_content,
-                get_post_meta( $item->ID, '_aorp_price', true ),
-            ) );
+            $data[] = array(
+                'number'      => get_post_meta( $item->ID, '_aorp_number', true ),
+                'title'       => $item->post_title,
+                'description' => $item->post_content,
+                'price'       => get_post_meta( $item->ID, '_aorp_price', true ),
+            );
         }
-        fclose( $out );
+        $history = get_option( 'aorp_history', array() );
+        $history[] = array( 'action' => 'export', 'time' => current_time( 'mysql' ), 'user' => get_current_user_id(), 'format' => $format );
+        update_option( 'aorp_history', $history );
+
+        if ( 'json' === $format ) {
+            header( 'Content-Type: application/json' );
+            header( 'Content-Disposition: attachment; filename="speisekarte.json"' );
+            echo wp_json_encode( $data );
+        } elseif ( 'yaml' === $format ) {
+            header( 'Content-Type: text/yaml' );
+            header( 'Content-Disposition: attachment; filename="speisekarte.yaml"' );
+            echo $this->array_to_yaml( $data );
+        } else {
+            header( 'Content-Type: text/csv' );
+            header( 'Content-Disposition: attachment; filename="speisekarte.csv"' );
+            $out = fopen( 'php://output', 'w' );
+            fputcsv( $out, array( 'Nummer', 'Titel', 'Beschreibung', 'Preis' ) );
+            foreach ( $data as $row ) {
+                fputcsv( $out, $row );
+            }
+            fclose( $out );
+        }
         exit;
     }
 
@@ -302,22 +405,36 @@ class AIO_Restaurant_Plugin {
             wp_die( 'Nicht erlaubt' );
         }
         if ( ! empty( $_FILES['import_file']['tmp_name'] ) ) {
-            $handle = fopen( $_FILES['import_file']['tmp_name'], 'r' );
-            if ( $handle ) {
-                // skip header
-                fgetcsv( $handle );
-                while ( ( $data = fgetcsv( $handle ) ) !== false ) {
-                    $post_id = wp_insert_post( array( 'post_type' => 'aorp_menu_item', 'post_title' => sanitize_text_field( $data[1] ), 'post_content' => sanitize_textarea_field( $data[2] ), 'post_status' => 'publish' ) );
+            $format = isset( $_POST['import_format'] ) ? sanitize_text_field( $_POST['import_format'] ) : 'csv';
+            $rows   = array();
+            if ( 'json' === $format ) {
+                $rows = json_decode( file_get_contents( $_FILES['import_file']['tmp_name'] ), true );
+            } elseif ( 'yaml' === $format ) {
+                $rows = $this->yaml_to_array( file_get_contents( $_FILES['import_file']['tmp_name'] ) );
+            } else {
+                $handle = fopen( $_FILES['import_file']['tmp_name'], 'r' );
+                if ( $handle ) {
+                    fgetcsv( $handle );
+                    while ( ( $data = fgetcsv( $handle ) ) !== false ) {
+                        $rows[] = array( 'number' => $data[0], 'title' => $data[1], 'description' => $data[2], 'price' => $data[3] );
+                    }
+                    fclose( $handle );
+                }
+            }
+            $ids = array();
+            if ( is_array( $rows ) ) {
+                foreach ( $rows as $row ) {
+                    $post_id = wp_insert_post( array( 'post_type' => 'aorp_menu_item', 'post_title' => sanitize_text_field( $row['title'] ), 'post_content' => sanitize_textarea_field( $row['description'] ), 'post_status' => 'publish' ) );
                     if ( $post_id ) {
-                        update_post_meta( $post_id, '_aorp_number', sanitize_text_field( $data[0] ) );
-                        update_post_meta( $post_id, '_aorp_price', sanitize_text_field( $data[3] ) );
+                        update_post_meta( $post_id, '_aorp_number', sanitize_text_field( $row['number'] ) );
+                        update_post_meta( $post_id, '_aorp_price', sanitize_text_field( $row['price'] ) );
+                        $ids[] = $post_id;
                     }
                 }
-                fclose( $handle );
-                $history = get_option( 'aorp_history', array() );
-                $history[] = array( 'action' => 'import', 'time' => current_time( 'mysql' ), 'user' => get_current_user_id() );
-                update_option( 'aorp_history', $history );
             }
+            $history = get_option( 'aorp_history', array() );
+            $history[] = array( 'action' => 'import', 'time' => current_time( 'mysql' ), 'user' => get_current_user_id(), 'ids' => $ids, 'format' => $format );
+            update_option( 'aorp_history', $history );
         }
         wp_redirect( admin_url( 'admin.php?page=aorp_export' ) );
         exit;
@@ -354,6 +471,81 @@ class AIO_Restaurant_Plugin {
         $count = (int) get_option( 'aorp_dark_count', 0 );
         echo '<p>Gesamtanzahl: <strong>' . $count . '</strong></p>';
     }
+
+    private function array_to_yaml( $data ) {
+        if ( function_exists( 'yaml_emit' ) ) {
+            return yaml_emit( $data );
+        }
+        $yaml = '';
+        foreach ( $data as $row ) {
+            $yaml .= "-\n";
+            foreach ( $row as $k => $v ) {
+                $yaml .= '  ' . $k . ': ' . str_replace( "\n", '\\n', $v ) . "\n";
+            }
+        }
+        return $yaml;
+    }
+
+    private function yaml_to_array( $text ) {
+        if ( function_exists( 'yaml_parse' ) ) {
+            return yaml_parse( $text );
+        }
+        $rows    = array();
+        $current = array();
+        foreach ( preg_split( '/\r?\n/', $text ) as $line ) {
+            if ( '' === trim( $line ) ) {
+                continue;
+            }
+            if ( '-' === $line[0] ) {
+                if ( $current ) {
+                    $rows[] = $current;
+                }
+                $current = array();
+            } else {
+                list( $k, $v ) = array_map( 'trim', explode( ':', $line, 2 ) );
+                $current[ $k ] = str_replace( '\\n', "\n", $v );
+            }
+        }
+        if ( $current ) {
+            $rows[] = $current;
+        }
+        return $rows;
+    }
+
+    public function history_page() {
+        echo '<div class="wrap"><h1>Import/Export Historie</h1><table class="widefat"><thead><tr><th>Aktion</th><th>Zeit</th><th>Benutzer</th><th>Format</th><th>Undo</th></tr></thead><tbody>';
+        $history = array_reverse( get_option( 'aorp_history', array() ) );
+        foreach ( $history as $index => $row ) {
+            $user = get_userdata( $row['user'] );
+            echo '<tr><td>' . esc_html( $row['action'] ) . '</td><td>' . esc_html( $row['time'] ) . '</td><td>' . esc_html( $user ? $user->display_name : $row['user'] ) . '</td><td>' . esc_html( isset( $row['format'] ) ? $row['format'] : '' ) . '</td><td>';
+            if ( 'import' === $row['action'] && ! empty( $row['ids'] ) ) {
+                $url = wp_nonce_url( admin_url( 'admin-post.php?action=aorp_undo_import&index=' . $index ), 'aorp_undo_' . $index );
+                echo '<a href="' . esc_url( $url ) . '">Rückgängig</a>';
+            }
+            echo '</td></tr>';
+        }
+        echo '</tbody></table></div>';
+    }
+
+    public function undo_import() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        $index = isset( $_GET['index'] ) ? intval( $_GET['index'] ) : -1;
+        check_admin_referer( 'aorp_undo_' . $index );
+        $history = get_option( 'aorp_history', array() );
+        if ( isset( $history[ $index ] ) && 'import' === $history[ $index ]['action'] && ! empty( $history[ $index ]['ids'] ) ) {
+            foreach ( $history[ $index ]['ids'] as $id ) {
+                wp_delete_post( $id, true );
+            }
+            $history[] = array( 'action' => 'undo', 'time' => current_time( 'mysql' ), 'user' => get_current_user_id(), 'format' => $history[ $index ]['format'] );
+            update_option( 'aorp_history', $history );
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_history' ) );
+        exit;
+    }
 }
+
+require_once plugin_dir_path( __FILE__ ) . 'includes/widgets.php';
 
 new AIO_Restaurant_Plugin();

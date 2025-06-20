@@ -14,4 +14,8 @@
 #aorp-search{width:100%;padding:0.5em;margin-bottom:1em}
 body.aorp-dark{background:#222;color:#eee}
 body.aorp-dark .aorp-category{background:#333;color:#fff}
+body.aorp-dark .aorp-legende-item{color:#eee}
 #aorp-toggle{position:fixed;bottom:20px;right:20px;cursor:pointer;padding:0.5em;background:#000;color:#fff;border-radius:3px;z-index:9999}
+.aorp-legende{margin-top:1em}
+.aorp-legende-item{margin-bottom:0.2em}
+.aorp-legend-symbol{font-weight:bold;margin-right:0.3em}

@@ -1,6 +1,6 @@
 All-In-One-WordPress-Restaurant-Plugin (AIWRP)
 
-Version: 1.0.0  
+Version: 1.1.0
 Autor: Dein Name
 
 ## Übersicht
@@ -11,6 +11,7 @@ Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt
 2. Lightswitcher (Dark Mode)
 3. Inhaltsstoff-Legende
 4. Import/Export & Historie
+5. Widgets für Speisekarte und Lightswitcher
 
 ## Installation
 
@@ -20,7 +21,8 @@ Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt
 
 ## Shortcodes
 
-- [speisekarte] – Zeigt die Speisekarte an  
-- [restaurant_lightswitcher] – Dark Mode Switcher  
+- [speisekarte] – Zeigt die Speisekarte an
+- [restaurant_lightswitcher] – Dark Mode Switcher
 - [speisekarte_legende] – Inhaltsstoff-Legende
+Die Widgets "Speisekarte" und "Lightswitcher" können ebenfalls in Sidebars verwendet werden.
 
