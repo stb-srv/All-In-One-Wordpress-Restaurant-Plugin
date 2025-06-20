@@ -27,6 +27,9 @@ class AIO_Restaurant_Plugin {
         add_action( 'admin_post_aorp_export_csv', array( $this, 'export_csv' ) );
         add_action( 'admin_post_aorp_import_csv', array( $this, 'import_csv' ) );
         add_action( 'admin_post_aorp_undo_import', array( $this, 'undo_import' ) );
+        add_action( 'admin_post_aorp_add_category', array( $this, 'add_category' ) );
+        add_action( 'admin_post_aorp_add_item', array( $this, 'add_item' ) );
+        add_action( 'admin_post_aorp_add_legend', array( $this, 'add_legend' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
         add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
@@ -330,6 +333,7 @@ class AIO_Restaurant_Plugin {
 
     public function admin_menu() {
         add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_export', array( $this, 'export_page' ), 'dashicons-list-view' );
+        add_submenu_page( 'aorp_export', 'Verwaltung', 'Verwaltung', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ) );
         add_submenu_page( 'aorp_export', 'Historie', 'Historie', 'manage_options', 'aorp_history', array( $this, 'history_page' ) );
     }
 
@@ -356,6 +360,79 @@ class AIO_Restaurant_Plugin {
                 </select>
                 <?php submit_button( 'Exportieren' ); ?>
             </form>
+        </div>
+        <?php
+    }
+
+    public function manage_page() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+        $categories = get_terms( array( 'taxonomy' => 'aorp_menu_category', 'hide_empty' => false ) );
+        $items      = get_posts( array( 'post_type' => 'aorp_menu_item', 'numberposts' => -1 ) );
+        $legend     = get_posts( array( 'post_type' => 'aorp_legend', 'numberposts' => -1, 'orderby' => 'menu_order', 'order' => 'ASC' ) );
+        ?>
+        <div class="wrap">
+            <h1>Speisekarte Verwaltung</h1>
+
+            <h2>Kategorien</h2>
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                <input type="hidden" name="action" value="aorp_add_category" />
+                <?php wp_nonce_field( 'aorp_add_category' ); ?>
+                <input type="text" name="cat_name" placeholder="Name" required />
+                <?php submit_button( 'Anlegen' ); ?>
+            </form>
+            <?php if ( $categories ) : ?>
+                <ul>
+                    <?php foreach ( $categories as $cat ) : ?>
+                        <li><?php echo esc_html( $cat->name ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+
+            <h2>Speisen</h2>
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                <input type="hidden" name="action" value="aorp_add_item" />
+                <?php wp_nonce_field( 'aorp_add_item' ); ?>
+                <p><input type="text" name="item_title" placeholder="Name" required /></p>
+                <p><textarea name="item_description" placeholder="Beschreibung" rows="3"></textarea></p>
+                <p><input type="text" name="item_price" placeholder="Preis" /></p>
+                <p><input type="text" name="item_number" placeholder="Nummer" /></p>
+                <p>
+                    <select name="item_category">
+                        <option value="">Kategorie wählen</option>
+                        <?php foreach ( $categories as $cat ) : ?>
+                            <option value="<?php echo esc_attr( $cat->term_id ); ?>"><?php echo esc_html( $cat->name ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </p>
+                <p><textarea name="item_ingredients" placeholder="Inhaltsstoffe" rows="2"></textarea></p>
+                <?php submit_button( 'Speise anlegen' ); ?>
+            </form>
+            <?php if ( $items ) : ?>
+                <ul>
+                    <?php foreach ( $items as $item ) : ?>
+                        <li><?php echo esc_html( $item->post_title ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+
+            <h2>Legende</h2>
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                <input type="hidden" name="action" value="aorp_add_legend" />
+                <?php wp_nonce_field( 'aorp_add_legend' ); ?>
+                <p><input type="text" name="legend_title" placeholder="Beschreibung" required /></p>
+                <p><input type="text" name="legend_symbol" placeholder="Symbol" /></p>
+                <p><input type="text" name="legend_color" placeholder="Farbe" class="aorp-color" /></p>
+                <?php submit_button( 'Item anlegen' ); ?>
+            </form>
+            <?php if ( $legend ) : ?>
+                <ul>
+                    <?php foreach ( $legend as $l ) : ?>
+                        <li><?php echo esc_html( $l->post_title ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
         </div>
         <?php
     }
@@ -510,6 +587,69 @@ class AIO_Restaurant_Plugin {
             $rows[] = $current;
         }
         return $rows;
+    }
+
+    public function add_category() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_add_category' );
+        if ( ! empty( $_POST['cat_name'] ) ) {
+            wp_insert_term( sanitize_text_field( $_POST['cat_name'] ), 'aorp_menu_category' );
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        exit;
+    }
+
+    public function add_item() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_add_item' );
+        $post_id = wp_insert_post( array(
+            'post_type'   => 'aorp_menu_item',
+            'post_status' => 'publish',
+            'post_title'  => sanitize_text_field( $_POST['item_title'] ),
+            'post_content'=> sanitize_textarea_field( $_POST['item_description'] )
+        ) );
+        if ( $post_id ) {
+            if ( ! empty( $_POST['item_category'] ) ) {
+                wp_set_object_terms( $post_id, intval( $_POST['item_category'] ), 'aorp_menu_category' );
+            }
+            if ( isset( $_POST['item_price'] ) ) {
+                update_post_meta( $post_id, '_aorp_price', sanitize_text_field( $_POST['item_price'] ) );
+            }
+            if ( isset( $_POST['item_number'] ) ) {
+                update_post_meta( $post_id, '_aorp_number', sanitize_text_field( $_POST['item_number'] ) );
+            }
+            if ( isset( $_POST['item_ingredients'] ) ) {
+                update_post_meta( $post_id, '_aorp_ingredients', sanitize_textarea_field( $_POST['item_ingredients'] ) );
+            }
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        exit;
+    }
+
+    public function add_legend() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_add_legend' );
+        $post_id = wp_insert_post( array(
+            'post_type'   => 'aorp_legend',
+            'post_status' => 'publish',
+            'post_title'  => sanitize_text_field( $_POST['legend_title'] )
+        ) );
+        if ( $post_id ) {
+            if ( isset( $_POST['legend_symbol'] ) ) {
+                update_post_meta( $post_id, '_aorp_symbol', sanitize_text_field( $_POST['legend_symbol'] ) );
+            }
+            if ( isset( $_POST['legend_color'] ) ) {
+                update_post_meta( $post_id, '_aorp_color', sanitize_text_field( $_POST['legend_color'] ) );
+            }
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        exit;
     }
 
     public function history_page() {
