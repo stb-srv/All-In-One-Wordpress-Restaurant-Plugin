@@ -678,7 +678,10 @@ class AIO_Restaurant_Plugin {
             </form>
             <?php $this->output_custom_styles(); ?>
             <h2>Vorschau</h2>
-            <div class="aorp-menu">
+            <div class="aorp-search-wrap columns-<?php echo (int) $cols; ?>">
+                <input type="text" id="aorp-search" placeholder="Suche nach Speisen …" />
+            </div>
+            <div class="aorp-menu columns-<?php echo (int) $cols; ?>">
                 <h3 class="aorp-category">Beispiel Kategorie</h3>
                 <div class="aorp-items" style="display:block">
                     <div class="aorp-item">
