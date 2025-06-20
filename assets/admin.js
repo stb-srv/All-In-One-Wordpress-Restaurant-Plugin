@@ -27,4 +27,25 @@ jQuery(document).ready(function($){
             $(this).val('');
         }
     });
+
+    var aorp_frame;
+    $(document).on('click', '.aorp-image-upload', function(e){
+        e.preventDefault();
+        var button = $(this);
+        if(aorp_frame){
+            aorp_frame.open();
+            return;
+        }
+        aorp_frame = wp.media({
+            title: 'Bild auswählen',
+            multiple: false,
+            library: { type: 'image' }
+        });
+        aorp_frame.on('select', function(){
+            var attachment = aorp_frame.state().get('selection').first().toJSON();
+            button.prev('input').val(attachment.id);
+            button.next('.aorp-image-preview').html('<img src="'+attachment.sizes.thumbnail.url+'" alt="" />');
+        });
+        aorp_frame.open();
+    });
 });
