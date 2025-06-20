@@ -2,7 +2,7 @@
 /*
 Plugin Name: All-In-One WordPress Restaurant Plugin
 Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode, Suchfunktion und Import/Export.
-Version: 1.1.2
+Version: 1.1.3
 Author: stb-srv
 */
 
@@ -45,7 +45,8 @@ class AIO_Restaurant_Plugin {
         );
         register_post_type( 'aorp_menu_item', array(
             'labels' => $labels,
-            'public' => true,
+            'public' => false,
+            'show_ui' => false,
             'has_archive' => false,
             'supports' => array( 'title', 'editor', 'thumbnail' )
         ) );
@@ -59,8 +60,7 @@ class AIO_Restaurant_Plugin {
         register_post_type( 'aorp_legend', array(
             'labels' => $labels,
             'public' => false,
-            'show_ui' => true,
-            'show_in_menu' => 'edit.php?post_type=aorp_menu_item',
+            'show_ui' => false,
             'supports' => array( 'title', 'page-attributes' )
         ) );
     }
@@ -74,6 +74,7 @@ class AIO_Restaurant_Plugin {
             'labels' => $labels,
             'hierarchical' => true,
             'show_admin_column' => true,
+            'show_ui' => false,
         ) );
         // Term Meta for Styling
         add_action( 'aorp_menu_category_add_form_fields', array( $this, 'add_category_fields' ) );
