@@ -470,6 +470,7 @@ class AIO_Restaurant_Plugin {
         ob_start();
         echo '<p class="aorp-note">🔽 Klicke auf eine Kategorie, um die Speisen einzublenden.</p>';
         echo '<div class="aorp-search-wrap columns-' . $columns . '"><input type="text" id="aorp-search" placeholder="Suche nach Speisen …" /><button type="button" id="aorp-close-cats" class="aorp-close-cats">Alle Kategorien schließen</button></div>';
+        echo '<div id="aorp-search-overlay"><button type="button" id="aorp-overlay-close">×</button><div id="aorp-overlay-results"></div></div>';
 
         echo '<div class="aorp-menu columns-' . $columns . '">';
 
