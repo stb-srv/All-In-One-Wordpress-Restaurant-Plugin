@@ -740,6 +740,9 @@ class AIO_Restaurant_Plugin {
         ?>
         <div class="wrap">
             <h1>Dark Mode</h1>
+            <p class="description">Wähle zunächst ein Icon-Set oder lade eigene Icons hoch. 
+            Das darunterliegende Template bestimmt nur die Farben des Dark Modes – die ausgewählten Icons bleiben erhalten. 
+            Nach deinen Anpassungen klicke auf „Änderungen speichern“.</p>
             <form method="post" action="options.php">
                 <?php settings_fields( 'aorp_dark' ); ?>
                 <?php
@@ -800,7 +803,7 @@ class AIO_Restaurant_Plugin {
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><label for="aorp_dark_template">Template</label></th>
+                        <th scope="row"><label for="aorp_dark_template">Farbvorlage (Template)</label></th>
                         <td>
                             <select name="aorp_dark_template" id="aorp_dark_template">
                                 <?php for ( $i = 1; $i <= 10; $i++ ) : ?>

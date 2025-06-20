@@ -32,10 +32,50 @@ Die Widgets "Speisekarte" und "Lightswitcher" können ebenfalls in Sidebars verw
 
 ## Dark‑Mode Icons
 
-Unter "Dark Mode" im Hauptmenü lassen sich verschiedene Icon-Sets per Dropdown auswählen.
-Ebenfalls steht dort eine Auswahl von zehn Templates bereit, um unterschiedliche Farbschemata des Dark Modes zu verwenden.
-Die Templates sind bereits im Plugin enthalten und müssen nicht hochgeladen werden.
-Durch die neue Vorschau wird das aktuell gewählte Icon-Set sowie das Template direkt angezeigt.
-Alternativ können eigene Icons (PNG, 32x32 Pixel, transparenter Hintergrund) hochgeladen werden.
-Kostenlose Icons findest du z.B. auf [flaticon.com](https://www.flaticon.com).
+Im Menüpunkt **Dark Mode** legst du Aussehen und Verhalten des Lichtschalters fest.
+Zunächst wählst du ein passendes Icon-Set oder lädst eigene Symbole hoch. Anschließend bestimmst du mit dem Template lediglich die Farben des Dark Modes.
+
+### Verfügbare Icon‑Sets
+
+| Name      | Symbole |
+|-----------|---------|
+| default   | ☀️ / 🌙 |
+| alt       | 🌞 / 🌜 |
+| minimal   | 🔆 / 🌑 |
+| eclipse   | 🌞 / 🌚 |
+| sunset    | 🌇 / 🌃 |
+| cloudy    | ⛅ / 🌙 |
+| simple    | ☼ / ☾ |
+| twilight  | 🌄 / 🌌 |
+| starry    | ⭐ / 🌜 |
+| morning   | 🌅 / 🌠 |
+| bright    | 🔆 / 🔅 |
+| flower    | 🌻 / 🌑 |
+| smiley    | 😀 / 😴 |
+| custom    | eigene Icons |
+
+### Templates (Farbschemata)
+
+Die Zahl 1–10 wählt jeweils ein vorbereitetes Farbschema. Eine kleine Vorschau zeigt dir die Farben an. Die Icons bleiben dabei unverändert.
+
+| Nr. | Hintergrund | Text | Kategorie |
+|----:|-------------|------|-----------|
+| 1 | `#222` | `#eee` | `#333` |
+| 2 | `#111` | `#ddd` | `#222` |
+| 3 | `#000` | `#fff` | `#444` |
+| 4 | `#2b2b2b` | `#f5f5f5` | `#3b3b3b` |
+| 5 | `#1a1a1a` | `#e0e0e0` | `#444` |
+| 6 | `#121212` | `#e8e8e8` | `#242424` |
+| 7 | `#191919` | `#f0f0f0` | `#333` |
+| 8 | `#202020` | `#fafafa` | `#444` |
+| 9 | `#000` | `#e6e6e6` | `#333` |
+| 10 | `#141414` | `#e5e5e5` | `#2a2a2a` |
+
+### Eigene Icons hochladen
+
+1. Wähle im Dropdown **Icon Set** den Eintrag **Eigene Icons**.
+2. Klicke bei "Eigenes Icon hell" bzw. "Eigenes Icon dunkel" auf *Bild auswählen* und lade jeweils eine 32x32‑PNG mit transparentem Hintergrund hoch.
+3. Lege ein Template fest und speichere die Einstellungen.
+
+Kostenlose Icons findest du zum Beispiel auf [flaticon.com](https://www.flaticon.com).
 
