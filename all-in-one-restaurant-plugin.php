@@ -1224,11 +1224,15 @@ class AIO_Restaurant_Plugin {
                 $inline  = trim( $m[1] );
                 if ( '' !== $inline ) {
                     list( $k, $v ) = array_map( 'trim', explode( ':', $inline, 2 ) );
-                    $current[ $k ] = str_replace( '\\n', "\n", $v );
+                    $v = str_replace( '\\n', "\n", $v );
+                    $v = $this->trim_quotes( $v );
+                    $current[ $k ] = $v;
                 }
             } else {
                 list( $k, $v ) = array_map( 'trim', explode( ':', $line, 2 ) );
-                $current[ $k ] = str_replace( '\\n', "\n", $v );
+                $v = str_replace( '\\n', "\n", $v );
+                $v = $this->trim_quotes( $v );
+                $current[ $k ] = $v;
             }
         }
 
@@ -1237,6 +1241,15 @@ class AIO_Restaurant_Plugin {
         }
 
         return $data;
+    }
+
+    private function trim_quotes( $value ) {
+        if ( is_string( $value ) && strlen( $value ) > 1 ) {
+            if ( ( $value[0] === '"' && substr( $value, -1 ) === '"' ) || ( $value[0] === "'" && substr( $value, -1 ) === "'" ) ) {
+                return substr( $value, 1, -1 );
+            }
+        }
+        return $value;
     }
 
     private $ingredient_lookup = null;
