@@ -74,3 +74,4 @@ Du findest die Vorlagen direkt auf der Import/Export-Seite:
 - `import-template.yaml`
 
 Lade die gewünschte Datei herunter, trage deine Daten ein und importiere sie anschließend wieder über das Formular.
+Beim YAML-Format können Nummern und Preise ohne Anführungszeichen angegeben werden. Eventuell vorhandene Anführungszeichen werden beim Import automatisch entfernt.
