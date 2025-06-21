@@ -1216,11 +1216,16 @@ class AIO_Restaurant_Plugin {
                 }
                 $section       = rtrim( $line, ':' );
                 $data[ $section ] = array();
-            } elseif ( preg_match( '/^\s*-/', $line ) ) {
+            } elseif ( preg_match( '/^\s*-\s*(.*)/', $line, $m ) ) {
                 if ( $current && $section ) {
                     $data[ $section ][] = $current;
                 }
                 $current = array();
+                $inline  = trim( $m[1] );
+                if ( '' !== $inline ) {
+                    list( $k, $v ) = array_map( 'trim', explode( ':', $inline, 2 ) );
+                    $current[ $k ] = str_replace( '\\n', "\n", $v );
+                }
             } else {
                 list( $k, $v ) = array_map( 'trim', explode( ':', $line, 2 ) );
                 $current[ $k ] = str_replace( '\\n', "\n", $v );
