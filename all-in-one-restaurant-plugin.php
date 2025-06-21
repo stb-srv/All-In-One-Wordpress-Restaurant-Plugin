@@ -333,6 +333,7 @@ class AIO_Restaurant_Plugin {
                         <tr>
                             <th></th>
                             <th>Name</th>
+                            <th>Beschreibung</th>
                             <th>Preis</th>
                             <th>Nummer</th>
                             <th>Inhaltsstoffe</th>
@@ -345,6 +346,7 @@ class AIO_Restaurant_Plugin {
                             <tr>
                                 <td><input type="checkbox" name="item_ids[]" value="<?php echo esc_attr( $item->ID ); ?>" /></td>
                                 <td><?php echo esc_html( $item->post_title ); ?></td>
+                                <td><?php echo esc_html( wp_trim_words( wp_strip_all_tags( $item->post_content ), 15 ) ); ?></td>
                                 <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_price', true ) ); ?></td>
                                 <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_number', true ) ); ?></td>
                                 <td><?php echo esc_html( $this->get_ingredient_labels( get_post_meta( $item->ID, '_aorp_ingredients', true ) ) ); ?></td>
