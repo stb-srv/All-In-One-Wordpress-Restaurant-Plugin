@@ -256,7 +256,7 @@ class AIO_Restaurant_Plugin {
             <p><input type="text" name="item_number" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_number', true ) ); ?>" placeholder="Nummer" /></p>
             <p><input type="text" name="item_title" value="<?php echo esc_attr( $current->post_title ); ?>" placeholder="Name" required /></p>
             <p><textarea name="item_description" placeholder="Beschreibung" rows="3" class="aorp-ing-text"><?php echo esc_textarea( $current->post_content ); ?></textarea></p>
-            <p><input type="text" name="item_price" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_price', true ) ); ?>" placeholder="Preis" /></p>
+            <p><input type="text" name="item_price" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_price', true ) ); ?>" placeholder="Preis (€)" /></p>
             <p>
                 <input type="hidden" id="aorp_image_id" name="item_image_id" value="<?php echo esc_attr( get_post_thumbnail_id( $current->ID ) ); ?>" />
                 <button type="button" class="button aorp-image-upload">Bild auswählen</button>
@@ -290,7 +290,7 @@ class AIO_Restaurant_Plugin {
             <p><input type="text" name="item_number" placeholder="Nummer" /></p>
             <p><input type="text" name="item_title" placeholder="Name" required /></p>
             <p><textarea name="item_description" placeholder="Beschreibung" rows="3" class="aorp-ing-text"></textarea></p>
-            <p><input type="text" name="item_price" placeholder="Preis" /></p>
+            <p><input type="text" name="item_price" placeholder="Preis (€)" /></p>
             <p>
                 <input type="hidden" id="aorp_image_id" name="item_image_id" value="" />
                 <button type="button" class="button aorp-image-upload">Bild auswählen</button>
@@ -347,7 +347,7 @@ class AIO_Restaurant_Plugin {
                                 <td><input type="checkbox" name="item_ids[]" value="<?php echo esc_attr( $item->ID ); ?>" /></td>
                                 <td><?php echo esc_html( $item->post_title ); ?></td>
                                 <td><?php echo esc_html( wp_trim_words( wp_strip_all_tags( $item->post_content ), 15 ) ); ?></td>
-                                <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_price', true ) ); ?></td>
+                                <td><?php echo esc_html( $this->format_price( get_post_meta( $item->ID, '_aorp_price', true ) ) ); ?></td>
                                 <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_number', true ) ); ?></td>
                                 <td><?php echo esc_html( $this->get_ingredient_labels( get_post_meta( $item->ID, '_aorp_ingredients', true ) ) ); ?></td>
                                 <td>
@@ -434,7 +434,7 @@ class AIO_Restaurant_Plugin {
             <input type="text" name="aorp_number" id="aorp_number" value="<?php echo esc_attr( $number ); ?>" />
         </p>
         <p>
-            <label for="aorp_price"><?php _e( 'Preis', 'aorp' ); ?></label>
+            <label for="aorp_price"><?php _e( 'Preis (€)', 'aorp' ); ?></label>
             <input type="text" name="aorp_price" id="aorp_price" value="<?php echo esc_attr( $price ); ?>" />
         </p>
         <p>
@@ -543,7 +543,7 @@ class AIO_Restaurant_Plugin {
         echo '<div class="aorp-header">';
         echo '<span class="aorp-number">' . esc_html( $number ) . '</span>';
         echo '<span class="aorp-title">' . get_the_title() . '</span>';
-        echo '<span class="aorp-price">' . esc_html( $price ) . '</span>';
+        echo '<span class="aorp-price">' . esc_html( $this->format_price( $price ) ) . '</span>';
         echo '</div>';
         echo '<div class="aorp-desc">' . get_the_content() . '</div>';
         if ( $ingredient_names ) {
@@ -1302,6 +1302,17 @@ class AIO_Restaurant_Plugin {
             }
         }
         return implode( ', ', $labels );
+    }
+
+    private function format_price( $price ) {
+        $price = trim( (string) $price );
+        if ( '' === $price ) {
+            return '';
+        }
+        if ( strpos( $price, '€' ) === false ) {
+            $price .= ' €';
+        }
+        return $price;
     }
 
     public function add_category() {

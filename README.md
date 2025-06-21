@@ -16,6 +16,7 @@ Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt
 7. Import/Export berücksichtigt Kategorien, Inhaltsstoffe und weitere Einstellungen
 8. Spaltenanzahl der Speisekarte (1–3) über Einstellungen wählbar
 9. Schriftgrößen für Nummer, Titel, Beschreibung und Preis über den Einstellungen-Bereich Darstellung per Dropdown anpassbar
+10. Preise werden stets mit dem Euro-Zeichen ("€") angezeigt
 
 ## Installation
 
