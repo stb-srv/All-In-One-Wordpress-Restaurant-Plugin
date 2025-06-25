@@ -79,7 +79,24 @@ class AIO_Leaflet_Map {
             return;
         }
         global $post;
-        if ( has_shortcode( $post->post_content, 'aio_leaflet_map' ) ) {
+        $has_sc = has_shortcode( $post->post_content, 'aio_leaflet_map' );
+        if ( ! $has_sc ) {
+            $tpl = get_post_meta( $post->ID, 'wpgmo_template', true );
+            if ( ! $tpl ) {
+                $tpl = get_option( 'wpgmo_default_template', is_multisite() ? get_site_option( 'wpgmo_default_template_network', '' ) : '' );
+            }
+            $cells = get_post_meta( $post->ID, 'wpgmo_content_' . $tpl, true );
+            if ( is_array( $cells ) ) {
+                foreach ( $cells as $val ) {
+                    if ( has_shortcode( $val, 'aio_leaflet_map' ) ) {
+                        $has_sc = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ( $has_sc ) {
             $plugin_url = plugin_dir_url( __FILE__ );
             wp_enqueue_style( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.css' );
             wp_enqueue_script( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.js', array(), null, true );
