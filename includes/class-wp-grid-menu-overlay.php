@@ -31,7 +31,8 @@ class WP_Grid_Menu_Overlay {
 
     public function shortcode( $atts ) {
         global $post;
-        $atts = shortcode_atts( array( 'id' => get_option( 'wpgmo_default_template' ) ), $atts );
+        $default = get_option( 'wpgmo_default_template', is_multisite() ? get_site_option( 'wpgmo_default_template_network', '' ) : '' );
+        $atts = shortcode_atts( array( 'id' => $default ), $atts );
         $templates = $this->get_templates();
         if ( empty( $templates[ $atts['id'] ] ) ) {
             return '';
