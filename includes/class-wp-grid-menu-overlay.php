@@ -47,12 +47,14 @@ class WP_Grid_Menu_Overlay {
             foreach ( $row as $cell ) {
                 $cid   = $cell['id'];
                 if ( ! empty( $content[ $cid ] ) ) {
-                    $inner = apply_filters( 'the_content', aorp_wp_kses_post_iframe( $content[ $cid ] ) );
+                    $raw   = $content[ $cid ];
                 } elseif ( isset( $tpl_def[ $cid ] ) ) {
-                    $inner = apply_filters( 'the_content', aorp_wp_kses_post_iframe( $tpl_def[ $cid ] ) );
+                    $raw   = $tpl_def[ $cid ];
                 } else {
-                    $inner = '';
+                    $raw   = '';
                 }
+                $inner = apply_filters( 'the_content', aorp_wp_kses_post_iframe( $raw ) );
+                $inner = do_shortcode( $inner );
                 $size  = isset( $cell['size'] ) ? $cell['size'] : 'large';
                 $html .= "<div class='wpgmo-cell wpgmo-{$size}'>" . $inner . '</div>';
             }
