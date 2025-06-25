@@ -562,7 +562,8 @@ class AIO_Restaurant_Plugin {
         echo '<span class="aorp-title">' . get_the_title() . '</span>';
         echo '<span class="aorp-price">' . esc_html( $this->format_price( $price ) ) . '</span>';
         echo '</div>';
-        echo '<div class="aorp-desc">' . get_the_content() . '</div>';
+        $content = apply_filters( 'the_content', get_the_content() );
+        echo '<div class="aorp-desc">' . $content . '</div>';
         if ( $ingredient_names ) {
             echo '<div class="aorp-ingredients"><em>' . esc_html( $ingredient_names ) . '</em></div>';
         }
