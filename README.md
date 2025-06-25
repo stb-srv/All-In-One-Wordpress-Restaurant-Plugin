@@ -37,6 +37,7 @@ Die Widgets "Speisekarte" und "Lightswitcher" können ebenfalls in Sidebars verw
 
 Über den Menüpunkt **Karten** legst du Latitude, Longitude, Zoomstufe und einen Popup-Text fest.
 Diese Werte werden vom `[aio_leaflet_map]`‑Shortcode verwendet.
+Im Popup erscheint jetzt automatisch ein Link, über den Besucher:innen direkt eine Navigation starten können.
 
 ```
 [aio_leaflet_map]
