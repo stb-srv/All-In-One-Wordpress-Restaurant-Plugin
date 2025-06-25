@@ -2,7 +2,7 @@
 /*
 Plugin Name: All-In-One WordPress Restaurant Plugin
 Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode, Suchfunktion und Import/Export.
-Version: 1.2.1
+Version: 1.3.0
 Author: stb-srv
 */
 
@@ -20,6 +20,7 @@ class AIO_Restaurant_Plugin {
         add_action( 'save_post', array( $this, 'save_meta_boxes' ) );
         add_shortcode( 'speisekarte', array( $this, 'speisekarte_shortcode' ) );
         add_shortcode( 'restaurant_lightswitcher', array( $this, 'lightswitcher_shortcode' ) );
+        add_shortcode( 'aorp_menu', array( $this, 'custom_menu_shortcode' ) );
         add_action( 'admin_menu', array( $this, 'admin_menu' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_post_aorp_export_csv', array( $this, 'export_csv' ) );
@@ -37,6 +38,7 @@ class AIO_Restaurant_Plugin {
         add_action( 'admin_post_aorp_update_item', array( $this, 'update_item' ) );
         add_action( 'admin_post_aorp_delete_item', array( $this, 'delete_item' ) );
         add_action( 'admin_post_aorp_bulk_delete_item', array( $this, 'bulk_delete_item' ) );
+        add_action( 'admin_post_aorp_save_shortcode', array( $this, 'save_shortcode' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'wp_head', array( $this, 'output_custom_styles' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
@@ -596,6 +598,7 @@ class AIO_Restaurant_Plugin {
         add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
         add_submenu_page( 'aorp_manage', 'Import/Export', 'Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
         add_submenu_page( 'aorp_manage', 'Einstellungen', 'Einstellungen', 'manage_options', 'aorp_settings', array( $this, 'settings_page' ) );
+        add_submenu_page( 'aorp_manage', 'Shortcodes', 'Shortcodes', 'manage_options', 'aorp_shortcodes', array( $this, 'shortcodes_page' ) );
         add_menu_page( 'Dark Mode', 'Dark Mode', 'manage_options', 'aorp_dark', array( $this, 'dark_page' ), 'dashicons-lightbulb' );
         // Historie wird direkt auf der Import/Export Seite angezeigt
     }
@@ -1516,6 +1519,135 @@ class AIO_Restaurant_Plugin {
         }
         wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
         exit;
+    }
+
+    public function shortcodes_page() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        $shortcodes = get_option( 'aorp_custom_shortcodes', array() );
+
+        if ( isset( $_GET['delete'] ) ) {
+            $id = intval( $_GET['delete'] );
+            check_admin_referer( 'aorp_delete_shortcode_' . $id );
+            foreach ( $shortcodes as $k => $sc ) {
+                if ( $sc['id'] == $id ) {
+                    unset( $shortcodes[ $k ] );
+                    break;
+                }
+            }
+            update_option( 'aorp_custom_shortcodes', array_values( $shortcodes ) );
+            wp_redirect( admin_url( 'admin.php?page=aorp_shortcodes' ) );
+            exit;
+        }
+
+        $edit_id = isset( $_GET['edit'] ) ? intval( $_GET['edit'] ) : 0;
+        $current = null;
+        foreach ( $shortcodes as $sc ) {
+            if ( $sc['id'] == $edit_id ) {
+                $current = $sc;
+                break;
+            }
+        }
+        ?>
+        <div class="wrap">
+            <h1>Shortcodes</h1>
+            <?php if ( $shortcodes ) : ?>
+            <table class="widefat">
+                <thead><tr><th>Name</th><th>Shortcode</th><th>Aktionen</th></tr></thead>
+                <tbody>
+                <?php foreach ( $shortcodes as $sc ) : ?>
+                    <tr>
+                        <td><?php echo esc_html( $sc['name'] ); ?></td>
+                        <td>[aorp_menu id="<?php echo esc_attr( $sc['id'] ); ?>"]</td>
+                        <td>
+                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=aorp_shortcodes&edit=' . $sc['id'] ), 'aorp_edit_shortcode_' . $sc['id'] ) ); ?>">Bearbeiten</a> |
+                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=aorp_shortcodes&delete=' . $sc['id'] ), 'aorp_delete_shortcode_' . $sc['id'] ) ); ?>" onclick="return confirm('Löschen?');">Löschen</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            <?php endif; ?>
+
+            <h2><?php echo $current ? 'Shortcode bearbeiten' : 'Neuen Shortcode anlegen'; ?></h2>
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                <input type="hidden" name="action" value="aorp_save_shortcode" />
+                <?php wp_nonce_field( 'aorp_save_shortcode' ); ?>
+                <?php if ( $current ) : ?>
+                    <input type="hidden" name="id" value="<?php echo esc_attr( $current['id'] ); ?>" />
+                <?php endif; ?>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="aorp_sc_name">Name</label></th>
+                        <td><input type="text" id="aorp_sc_name" name="name" value="<?php echo esc_attr( $current['name'] ?? '' ); ?>" required /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aorp_sc_columns">Spalten</label></th>
+                        <td>
+                            <select name="columns" id="aorp_sc_columns">
+                                <?php for ( $i = 1; $i <= 3; $i++ ) : ?>
+                                    <option value="<?php echo $i; ?>" <?php selected( $current['columns'] ?? 1, $i ); ?>><?php echo $i; ?></option>
+                                <?php endfor; ?>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="aorp_sc_kats">Kategorien Slugs (Komma)</label></th>
+                        <td><input type="text" id="aorp_sc_kats" name="kategorien" value="<?php echo esc_attr( $current['kategorien'] ?? '' ); ?>" /></td>
+                    </tr>
+                </table>
+                <?php submit_button( $current ? 'Aktualisieren' : 'Anlegen' ); ?>
+            </form>
+        </div>
+        <?php
+    }
+
+    public function save_shortcode() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_save_shortcode' );
+        $shortcodes = get_option( 'aorp_custom_shortcodes', array() );
+        $id = isset( $_POST['id'] ) ? intval( $_POST['id'] ) : 0;
+        $entry = array(
+            'id'         => $id ? $id : time(),
+            'name'       => sanitize_text_field( $_POST['name'] ),
+            'columns'    => max( 1, min( 3, absint( $_POST['columns'] ) ) ),
+            'kategorien' => sanitize_text_field( $_POST['kategorien'] ),
+        );
+        if ( $id ) {
+            foreach ( $shortcodes as &$sc ) {
+                if ( $sc['id'] == $id ) {
+                    $sc = $entry;
+                    break;
+                }
+            }
+        } else {
+            $shortcodes[] = $entry;
+        }
+        update_option( 'aorp_custom_shortcodes', array_values( $shortcodes ) );
+        wp_redirect( admin_url( 'admin.php?page=aorp_shortcodes' ) );
+        exit;
+    }
+
+    public function custom_menu_shortcode( $atts ) {
+        $atts = shortcode_atts( array( 'id' => 0 ), $atts, 'aorp_menu' );
+        $shortcodes = get_option( 'aorp_custom_shortcodes', array() );
+        foreach ( $shortcodes as $sc ) {
+            if ( $sc['id'] == intval( $atts['id'] ) ) {
+                $args = array();
+                if ( ! empty( $sc['columns'] ) ) {
+                    $args['columns'] = $sc['columns'];
+                }
+                if ( ! empty( $sc['kategorien'] ) ) {
+                    $args['kategorien'] = $sc['kategorien'];
+                }
+                return $this->speisekarte_shortcode( $args );
+            }
+        }
+        return '';
     }
 
     public function history_page() {
