@@ -30,8 +30,6 @@ Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt
 
 - [speisekarte] – Zeigt die Speisekarte an
 - [restaurant_lightswitcher] – Dark Mode Switcher
-- [wp_grid_menu_overlay] – Overlay mit Öffnungszeiten, Kontakt & mehr
-- [wp_grid_menu_overlay id="ID"] – Nutzt ein gespeichertes Overlay
 Die Widgets "Speisekarte" und "Lightswitcher" können ebenfalls in Sidebars verwendet werden.
 
 ## Dark‑Mode Icons
@@ -80,24 +78,3 @@ Du findest die Vorlagen direkt auf der Import/Export-Seite:
 Lade die gewünschte Datei herunter, trage deine Daten ein und importiere sie anschließend wieder über das Formular.
 Beim YAML-Format können Nummern und Preise ohne Anführungszeichen angegeben werden. Eventuell vorhandene Anführungszeichen werden beim Import automatisch entfernt.
 
-## WP Grid Menu Overlay
-
-Dieses Modul zeigt Öffnungszeiten und weitere Infos im Kachel‑Layout an.
-Beispielwerte werden automatisch verwendet, wenn keine eigenen Angaben
-hinterlegt sind. Über den Shortcode‑Generator lässt sich zudem ein individueller
-Aufbau des Grids definieren. Jeder Eintrag kann als "kleine" oder "große" Kachel
-angelegt und beliebig sortiert werden:
-
-```
-Willkommens‑Titel: "Willkommen"
-Öffnungszeiten: "Montag bis Freitag: 9–18 Uhr"
-About‑Text: "Kurze Beschreibung des Restaurants."
-Kontakt‑Adresse: "123 Musterstraße, 98765 Stadt"
-Telefon: "01234/56789"
-E‑Mail: "mail@example.com"
-Formular‑Shortcode: "[contact-form-7 id=\"1\"]"
-Karten‑Embed: "<iframe src=...></iframe>"
-```
-
-Nutze den Shortcode `[wp_grid_menu_overlay]` oder `[wp_grid_menu_overlay id="ID"]`, um das Grid auf einer Seite einzubinden.
-Eigene Overlays legst du über den **Grid Builder** an. Bereits erstellte Grids findest du unter **Alle Grids**.
