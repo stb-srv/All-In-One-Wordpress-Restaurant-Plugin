@@ -113,6 +113,23 @@ class AIO_Leaflet_Map {
     }
 
     public function render_shortcode() {
+        $plugin_url = plugin_dir_url( __FILE__ );
+
+        // Ensure Leaflet assets and the initialization script are loaded
+        wp_enqueue_style( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.css' );
+        wp_enqueue_script( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.js', array(), null, true );
+        wp_enqueue_style( 'aio-leaflet-map', $plugin_url . '../assets/css/map.css' );
+        wp_enqueue_script( 'aio-leaflet-map', $plugin_url . '../assets/js/map.js', array( 'leaflet' ), null, true );
+
+        // Pass saved coordinates to the initialization script
+        $data = array(
+            'lat'   => get_option( 'aio_leaflet_lat', 0 ),
+            'lng'   => get_option( 'aio_leaflet_lng', 0 ),
+            'zoom'  => (int) get_option( 'aio_leaflet_zoom', 15 ),
+            'popup' => get_option( 'aio_leaflet_popup', '' ),
+        );
+        wp_localize_script( 'aio-leaflet-map', 'aio_leaflet_map_settings', $data );
+
         return '<div id="aio-leaflet-map"></div>';
     }
 }
