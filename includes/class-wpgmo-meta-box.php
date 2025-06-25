@@ -46,7 +46,7 @@ class WPGMO_Meta_Box {
             foreach ( $template['layout'] as $row ) {
                 foreach ( $row as $cell ) {
                     $cid = esc_attr( $cell['id'] );
-                    $val = isset( $content[ $cid ] ) ? wp_kses_post( $content[ $cid ] ) : '';
+                    $val = isset( $content[ $cid ] ) ? aorp_wp_kses_post_iframe( $content[ $cid ] ) : '';
                     echo '<p><label>'.esc_html( $cid ).'</label></p>';
                     wp_editor( $val, 'wpgmo_cell_' . $cid, array(
                         'textarea_name' => 'wpgmo_cells['.$cid.']',
@@ -74,7 +74,7 @@ class WPGMO_Meta_Box {
         $cells = isset( $_POST['wpgmo_cells'] ) && is_array( $_POST['wpgmo_cells'] ) ? wp_unslash( $_POST['wpgmo_cells'] ) : array();
         $clean = array();
         foreach ( $cells as $k => $v ) {
-            $clean[ sanitize_key( $k ) ] = wp_kses_post( $v );
+            $clean[ sanitize_key( $k ) ] = aorp_wp_kses_post_iframe( $v );
         }
         update_post_meta( $post_id, 'wpgmo_content_' . $template, $clean );
     }

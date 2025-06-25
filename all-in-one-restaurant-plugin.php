@@ -10,6 +10,23 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly.
 }
 
+function aorp_wp_kses_post_iframe( $content ) {
+    $allowed = wp_kses_allowed_html( 'post' );
+    $allowed['iframe'] = array(
+        'src'             => true,
+        'width'           => true,
+        'height'          => true,
+        'frameborder'     => true,
+        'allowfullscreen' => true,
+        'title'           => true,
+        'loading'         => true,
+        'style'           => true,
+        'class'           => true,
+        'id'              => true,
+    );
+    return wp_kses( $content, $allowed );
+}
+
 class AIO_Restaurant_Plugin {
 
     public function __construct() {

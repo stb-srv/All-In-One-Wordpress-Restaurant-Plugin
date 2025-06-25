@@ -98,7 +98,7 @@ class WPGMO_Template_Manager {
             foreach ( $templates as $slug => $tpl ) {
                 if ( isset( $_POST['content'][ $slug ] ) && is_array( $_POST['content'][ $slug ] ) ) {
                     foreach ( $_POST['content'][ $slug ] as $cid => $val ) {
-                        $contents[ $slug ][ sanitize_key( $cid ) ] = wp_kses_post( $val );
+                        $contents[ $slug ][ sanitize_key( $cid ) ] = aorp_wp_kses_post_iframe( $val );
                     }
                 }
             }
