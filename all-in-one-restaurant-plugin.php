@@ -1544,5 +1544,8 @@ class AIO_Restaurant_Plugin {
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/widgets.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-kontaktblockpro.php';
+
+new AORP_KontaktblockPro();
 
 new AIO_Restaurant_Plugin();
