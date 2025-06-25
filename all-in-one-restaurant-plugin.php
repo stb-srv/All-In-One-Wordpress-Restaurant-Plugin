@@ -1548,8 +1548,6 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/widgets.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-kontaktblockpro.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-template-manager.php';
 WPGMO_Template_Manager::instance();
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-grid-builder-admin.php';
-WPGMO_Grid_Builder_Admin::instance();
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-meta-box.php';
 WPGMO_Meta_Box::instance();
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-grid-menu-overlay.php';

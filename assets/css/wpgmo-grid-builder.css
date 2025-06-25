@@ -1,0 +1,3 @@
+.wpgmo-row-editor{display:flex;gap:10px;margin-bottom:10px}
+.wpgmo-cell-editor{background:var(--bg-color,#fff);padding:5px;border:1px solid #ccc;border-radius:4px}
+body.dark .wpgmo-cell-editor{background:var(--dark-bg,#333);color:var(--dark-text,#fff)}
