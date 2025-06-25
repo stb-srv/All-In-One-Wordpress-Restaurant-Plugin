@@ -25,7 +25,7 @@ class WPGMO_Meta_Box {
     public function render_box( $post ) {
         $templates_net  = get_site_option( 'wpgmo_templates_network', array() );
         $templates_site = get_option( 'wpgmo_templates', array() );
-        $default        = get_option( 'wpgmo_default_template', '' );
+        $default        = get_option( 'wpgmo_default_template', get_site_option( 'wpgmo_default_template_network', '' ) );
         $selected       = get_post_meta( $post->ID, 'wpgmo_template', true );
         if ( ! $selected ) {
             $selected = $default;
