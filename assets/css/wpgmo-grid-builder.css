@@ -1,3 +1,8 @@
 #wpgmo-template-manager{padding:20px;background:#fff;border:1px solid #ccc}
-#wpgmo-template-manager .wpgmo-row{display:flex;margin-bottom:10px}
-#wpgmo-template-manager .wpgmo-cell{border:1px dashed #999;padding:10px;flex:1;margin-right:10px}
+#wpgmo-template-manager table{width:100%;margin-top:10px}
+#wpgmo-template-manager td,#wpgmo-template-manager th{padding:5px}
+#wpgmo-template-manager .wpgmo-editor{margin-top:20px;padding:10px;border:1px solid #ccc;background:#fff}
+#wpgmo-template-manager .wpgmo-row{display:flex;gap:10px;margin-bottom:10px}
+#wpgmo-template-manager .wpgmo-cell{border:1px dashed #999;padding:10px;flex:1;position:relative}
+#wpgmo-template-manager .wpgmo-cell span{display:block;margin-bottom:5px}
+#wpgmo-template-manager .wpgmo-cell select{position:absolute;bottom:5px;right:5px}
