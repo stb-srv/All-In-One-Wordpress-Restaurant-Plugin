@@ -14,10 +14,18 @@ class AIO_Leaflet_Map {
     }
 
     public function register_settings() {
-        register_setting( 'aio_leaflet_map', 'aio_leaflet_lat' );
-        register_setting( 'aio_leaflet_map', 'aio_leaflet_lng' );
-        register_setting( 'aio_leaflet_map', 'aio_leaflet_zoom' );
-        register_setting( 'aio_leaflet_map', 'aio_leaflet_popup' );
+        register_setting( 'aio_leaflet_map', 'aio_leaflet_lat', array(
+            'sanitize_callback' => 'floatval',
+        ) );
+        register_setting( 'aio_leaflet_map', 'aio_leaflet_lng', array(
+            'sanitize_callback' => 'floatval',
+        ) );
+        register_setting( 'aio_leaflet_map', 'aio_leaflet_zoom', array(
+            'sanitize_callback' => 'intval',
+        ) );
+        register_setting( 'aio_leaflet_map', 'aio_leaflet_popup', array(
+            'sanitize_callback' => 'sanitize_text_field',
+        ) );
     }
 
     public function admin_enqueue_assets( $hook ) {
@@ -25,8 +33,8 @@ class AIO_Leaflet_Map {
             return;
         }
         $plugin_url = plugin_dir_url( __FILE__ );
-        wp_enqueue_style( 'leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css' );
-        wp_enqueue_script( 'leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', array(), null, true );
+        wp_enqueue_style( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.css' );
+        wp_enqueue_script( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.js', array(), null, true );
         wp_enqueue_style( 'aio-leaflet-map', $plugin_url . '../assets/css/map.css' );
         wp_enqueue_script( 'aio-leaflet-map-admin', $plugin_url . '../assets/js/map-admin.js', array( 'leaflet' ), null, true );
     }
@@ -73,8 +81,8 @@ class AIO_Leaflet_Map {
         global $post;
         if ( has_shortcode( $post->post_content, 'aio_leaflet_map' ) ) {
             $plugin_url = plugin_dir_url( __FILE__ );
-            wp_enqueue_style( 'leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css' );
-            wp_enqueue_script( 'leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', array(), null, true );
+            wp_enqueue_style( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.css' );
+            wp_enqueue_script( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.js', array(), null, true );
             wp_enqueue_style( 'aio-leaflet-map', $plugin_url . '../assets/css/map.css' );
             wp_enqueue_script( 'aio-leaflet-map', $plugin_url . '../assets/js/map.js', array( 'leaflet' ), null, true );
             $data = array(
