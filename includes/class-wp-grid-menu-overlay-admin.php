@@ -17,6 +17,7 @@ class WP_Grid_Menu_Overlay_Admin {
     private function __construct() {
         add_action( 'admin_menu', [ $this, 'admin_menu' ] );
         add_action( 'admin_init', [ $this, 'admin_init' ] );
+        add_action( 'admin_post_wpgmo_save_shortcode', [ $this, 'save_shortcode' ] );
     }
 
     public function admin_menu() {
@@ -28,6 +29,14 @@ class WP_Grid_Menu_Overlay_Admin {
             [ $this, 'render_settings_page' ],
             'dashicons-screenoptions',
             80
+        );
+        add_submenu_page(
+            'wpgmo_settings',
+            __( 'Shortcodes', 'wpgmo' ),
+            __( 'Shortcodes', 'wpgmo' ),
+            'manage_options',
+            'wpgmo_shortcodes',
+            [ $this, 'shortcodes_page' ]
         );
     }
 
@@ -104,6 +113,141 @@ class WP_Grid_Menu_Overlay_Admin {
         $opts  = get_option( 'wpgmo_settings', [] );
         $value = esc_textarea( $opts['map_embed'] ?? '' );
         echo '<textarea name="wpgmo_settings[map_embed]" rows="5" class="large-text">' . $value . '</textarea>';
+    }
+
+    public function shortcodes_page() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        $shortcodes = get_option( 'wpgmo_custom_shortcodes', [] );
+
+        if ( isset( $_GET['delete'] ) ) {
+            $id = intval( $_GET['delete'] );
+            check_admin_referer( 'wpgmo_delete_shortcode_' . $id );
+            foreach ( $shortcodes as $k => $sc ) {
+                if ( $sc['id'] == $id ) {
+                    unset( $shortcodes[ $k ] );
+                    break;
+                }
+            }
+            update_option( 'wpgmo_custom_shortcodes', array_values( $shortcodes ) );
+            wp_redirect( admin_url( 'admin.php?page=wpgmo_shortcodes' ) );
+            exit;
+        }
+
+        $edit_id = isset( $_GET['edit'] ) ? intval( $_GET['edit'] ) : 0;
+        $current = null;
+        foreach ( $shortcodes as $sc ) {
+            if ( $sc['id'] == $edit_id ) {
+                $current = $sc;
+                break;
+            }
+        }
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e( 'Shortcodes', 'wpgmo' ); ?></h1>
+            <?php if ( $shortcodes ) : ?>
+            <table class="widefat">
+                <thead><tr><th><?php esc_html_e( 'Name', 'wpgmo' ); ?></th><th><?php esc_html_e( 'Shortcode', 'wpgmo' ); ?></th><th><?php esc_html_e( 'Aktionen', 'wpgmo' ); ?></th></tr></thead>
+                <tbody>
+                <?php foreach ( $shortcodes as $sc ) : ?>
+                    <tr>
+                        <td><?php echo esc_html( $sc['name'] ); ?></td>
+                        <td>[wp_grid_menu_overlay id="<?php echo esc_attr( $sc['id'] ); ?>"]</td>
+                        <td>
+                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=wpgmo_shortcodes&edit=' . $sc['id'] ), 'wpgmo_edit_shortcode_' . $sc['id'] ) ); ?>"><?php esc_html_e( 'Bearbeiten', 'wpgmo' ); ?></a> |
+                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=wpgmo_shortcodes&delete=' . $sc['id'] ), 'wpgmo_delete_shortcode_' . $sc['id'] ) ); ?>" onclick="return confirm('Löschen?');"><?php esc_html_e( 'Löschen', 'wpgmo' ); ?></a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            <?php endif; ?>
+
+            <h2><?php echo $current ? esc_html__( 'Shortcode bearbeiten', 'wpgmo' ) : esc_html__( 'Neuen Shortcode anlegen', 'wpgmo' ); ?></h2>
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                <input type="hidden" name="action" value="wpgmo_save_shortcode" />
+                <?php wp_nonce_field( 'wpgmo_save_shortcode' ); ?>
+                <?php if ( $current ) : ?>
+                    <input type="hidden" name="id" value="<?php echo esc_attr( $current['id'] ); ?>" />
+                <?php endif; ?>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><label for="wpgmo_sc_name">Name</label></th>
+                        <td><input type="text" id="wpgmo_sc_name" name="name" value="<?php echo esc_attr( $current['name'] ?? '' ); ?>" required /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="wpgmo_sc_welcome">Willkommens-Titel</label></th>
+                        <td><input type="text" id="wpgmo_sc_welcome" name="welcome_title" value="<?php echo esc_attr( $current['welcome_title'] ?? '' ); ?>" class="regular-text" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="wpgmo_sc_hours">Öffnungszeiten</label></th>
+                        <td><input type="text" id="wpgmo_sc_hours" name="opening_hours" value="<?php echo esc_attr( $current['opening_hours'] ?? '' ); ?>" class="regular-text" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="wpgmo_sc_about">Über uns Text</label></th>
+                        <td><textarea id="wpgmo_sc_about" name="about_text" rows="3" class="large-text"><?php echo esc_textarea( $current['about_text'] ?? '' ); ?></textarea></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="wpgmo_sc_address">Kontakt-Adresse</label></th>
+                        <td><textarea id="wpgmo_sc_address" name="contact_address" rows="2" class="large-text"><?php echo esc_textarea( $current['contact_address'] ?? '' ); ?></textarea></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="wpgmo_sc_phone">Telefon</label></th>
+                        <td><input type="text" id="wpgmo_sc_phone" name="contact_phone" value="<?php echo esc_attr( $current['contact_phone'] ?? '' ); ?>" class="regular-text" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="wpgmo_sc_email">E-Mail</label></th>
+                        <td><input type="email" id="wpgmo_sc_email" name="contact_email" value="<?php echo esc_attr( $current['contact_email'] ?? '' ); ?>" class="regular-text" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="wpgmo_sc_form">Formular Shortcode</label></th>
+                        <td><input type="text" id="wpgmo_sc_form" name="form_shortcode" value="<?php echo esc_attr( $current['form_shortcode'] ?? '' ); ?>" class="regular-text" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="wpgmo_sc_map">Karte einbetten</label></th>
+                        <td><textarea id="wpgmo_sc_map" name="map_embed" rows="3" class="large-text"><?php echo esc_textarea( $current['map_embed'] ?? '' ); ?></textarea></td>
+                    </tr>
+                </table>
+                <?php submit_button( $current ? esc_html__( 'Aktualisieren', 'wpgmo' ) : esc_html__( 'Anlegen', 'wpgmo' ) ); ?>
+            </form>
+        </div>
+        <?php
+    }
+
+    public function save_shortcode() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'wpgmo_save_shortcode' );
+        $shortcodes = get_option( 'wpgmo_custom_shortcodes', [] );
+        $id = isset( $_POST['id'] ) ? intval( $_POST['id'] ) : 0;
+        $entry = [
+            'id'             => $id ? $id : time(),
+            'name'           => sanitize_text_field( $_POST['name'] ),
+            'welcome_title'  => sanitize_text_field( $_POST['welcome_title'] ?? '' ),
+            'opening_hours'  => sanitize_text_field( $_POST['opening_hours'] ?? '' ),
+            'about_text'     => sanitize_textarea_field( $_POST['about_text'] ?? '' ),
+            'contact_address'=> sanitize_textarea_field( $_POST['contact_address'] ?? '' ),
+            'contact_phone'  => sanitize_text_field( $_POST['contact_phone'] ?? '' ),
+            'contact_email'  => sanitize_email( $_POST['contact_email'] ?? '' ),
+            'form_shortcode' => wp_kses_post( $_POST['form_shortcode'] ?? '' ),
+            'map_embed'      => wp_kses_post( $_POST['map_embed'] ?? '' ),
+        ];
+        if ( $id ) {
+            foreach ( $shortcodes as &$sc ) {
+                if ( $sc['id'] == $id ) {
+                    $sc = $entry;
+                    break;
+                }
+            }
+        } else {
+            $shortcodes[] = $entry;
+        }
+        update_option( 'wpgmo_custom_shortcodes', array_values( $shortcodes ) );
+        wp_redirect( admin_url( 'admin.php?page=wpgmo_shortcodes' ) );
+        exit;
     }
 
     public function sanitize_settings( $input ) {
