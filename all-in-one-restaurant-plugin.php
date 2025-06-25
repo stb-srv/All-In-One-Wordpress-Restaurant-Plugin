@@ -1545,17 +1545,5 @@ class AIO_Restaurant_Plugin {
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/widgets.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-kontaktblockpro.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-template-manager.php';
-WPGMO_Template_Manager::instance();
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-meta-box.php';
-WPGMO_Meta_Box::instance();
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-grid-menu-overlay.php';
-WP_Grid_Menu_Overlay::instance();
-
-// Old admin class remains for backward compatibility if needed
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-grid-menu-overlay-admin.php';
-WP_Grid_Menu_Overlay_Admin::instance();
-new AORP_KontaktblockPro();
 
 new AIO_Restaurant_Plugin();
