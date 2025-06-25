@@ -84,7 +84,9 @@ Beim YAML-Format können Nummern und Preise ohne Anführungszeichen angegeben we
 
 Dieses Modul zeigt Öffnungszeiten und weitere Infos im Kachel‑Layout an.
 Beispielwerte werden automatisch verwendet, wenn keine eigenen Angaben
-hinterlegt sind:
+hinterlegt sind. Über den Shortcode‑Generator lässt sich zudem ein individueller
+Aufbau des Grids definieren. Jeder Eintrag kann als "kleine" oder "große" Kachel
+angelegt und beliebig sortiert werden:
 
 ```
 Willkommens‑Titel: "Willkommen"
@@ -98,3 +100,4 @@ Karten‑Embed: "<iframe src=...></iframe>"
 ```
 
 Nutze den Shortcode `[wp_grid_menu_overlay]` oder `[wp_grid_menu_overlay id="ID"]`, um das Grid auf einer Seite einzubinden.
+Die Verwaltung eigener Overlays befindet sich unter **WP Grid Menu → Shortcodes**.
