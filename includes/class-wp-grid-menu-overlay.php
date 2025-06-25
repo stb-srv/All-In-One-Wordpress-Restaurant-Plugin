@@ -47,9 +47,9 @@ class WP_Grid_Menu_Overlay {
             foreach ( $row as $cell ) {
                 $cid   = $cell['id'];
                 if ( ! empty( $content[ $cid ] ) ) {
-                    $inner = do_shortcode( wp_kses_post( $content[ $cid ] ) );
+                    $inner = do_shortcode( aorp_wp_kses_post_iframe( $content[ $cid ] ) );
                 } elseif ( isset( $tpl_def[ $cid ] ) ) {
-                    $inner = do_shortcode( wp_kses_post( $tpl_def[ $cid ] ) );
+                    $inner = do_shortcode( aorp_wp_kses_post_iframe( $tpl_def[ $cid ] ) );
                 } else {
                     $inner = '';
                 }
