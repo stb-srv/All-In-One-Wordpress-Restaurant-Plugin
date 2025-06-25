@@ -19,7 +19,7 @@ class WPGMO_Meta_Box {
     }
 
     public function add_box() {
-        add_meta_box( 'wpgmo_box', __('Grid Overlay Content','aorp'), array( $this, 'render_box' ), ['post','page'], 'normal', 'high' );
+        add_meta_box( 'wpgmo_box', __('Grid-Overlay Inhalt','aorp'), array( $this, 'render_box' ), ['post','page'], 'normal', 'high' );
     }
 
     public function render_box( $post ) {
@@ -31,7 +31,7 @@ class WPGMO_Meta_Box {
             $selected = $default;
         }
         wp_nonce_field( 'wpgmo_save_meta', 'wpgmo_nonce' );
-        echo '<p><label for="wpgmo_template">'.__('Choose Template','aorp').'</label> ';
+        echo '<p><label for="wpgmo_template">'.__('Vorlage wählen','aorp').'</label> ';
         echo '<select name="wpgmo_template" id="wpgmo_template">';
         foreach ( $templates_net as $slug => $tpl ) {
             printf( '<option value="%s" %s>%s</option>', esc_attr( $slug ), selected( $selected, $slug, false ), esc_html( $tpl['label'] ) );
