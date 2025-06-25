@@ -1,38 +1,26 @@
-.wpgmo-grid {
+.wpgmo-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
+
+.wpgmo-cell {
+  background: var(--bg-color, #fff);
+  color: var(--text-color, #000);
+  padding: 1rem;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.wpgmo-cell-small { grid-column: span 6; }
+.wpgmo-cell-large { grid-column: span 12; }
+
 @media (max-width: 600px) {
-  .wpgmo-grid { grid-template-columns: 1fr; }
-  .wpgmo-item.size-large { grid-column: span 1; }
+  .wpgmo-cell-small, .wpgmo-cell-large { grid-column: span 12; }
 }
 
-  .wpgmo-item {
-    background: var(--bg-color, #fff);
-    color: var(--text-color, #000);
-    padding: 1rem;
-    border-radius: 8px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-  }
-
-  .wpgmo-item.size-large {
-    grid-column: span 2;
-  }
-
-.wpgmo-item h2 {
-  margin-top: 0;
-  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
-}
-
-.wpgmo-item p {
-  font-size: clamp(1rem, 2vw, 1.2rem);
-}
-
-body.dark .wpgmo-item {
+body.dark .wpgmo-cell {
   background: var(--dark-bg, #333);
   color: var(--dark-text, #fff);
 }
