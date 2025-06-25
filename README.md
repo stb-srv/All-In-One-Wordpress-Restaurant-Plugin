@@ -1,6 +1,6 @@
 All-In-One-WordPress-Restaurant-Plugin (AIWRP)
 
-Version: 1.4.0
+Version: 1.4.1
 Autor: Dein Name
 
 ## Übersicht
@@ -30,7 +30,19 @@ Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt
 
 - [speisekarte] – Zeigt die Speisekarte an
 - [restaurant_lightswitcher] – Dark Mode Switcher
+- [aio_leaflet_map] – Blendet eine Leaflet-Karte ein
 Die Widgets "Speisekarte" und "Lightswitcher" können ebenfalls in Sidebars verwendet werden.
+
+### Karte konfigurieren
+
+Über den Menüpunkt **Karten** legst du Latitude, Longitude, Zoomstufe und einen Popup-Text fest.
+Diese Werte werden vom `[aio_leaflet_map]`‑Shortcode verwendet.
+
+```
+[aio_leaflet_map]
+```
+
+Du kannst den Shortcode auch innerhalb einer Zelle des Grid-Overlays einsetzen.
 
 ## Dark‑Mode Icons
 
