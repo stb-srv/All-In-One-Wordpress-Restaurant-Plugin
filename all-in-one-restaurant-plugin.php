@@ -2,7 +2,7 @@
 /*
 Plugin Name: All-In-One WordPress Restaurant Plugin
 Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode, Suchfunktion und Import/Export.
-Version: 1.4.0
+Version: 1.4.1
 Author: stb-srv
 */
 
@@ -1548,6 +1548,32 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/widgets.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-template-manager.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-meta-box.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-grid-menu-overlay.php';
+
+function aio_restaurant_activate() {
+    $templates = is_multisite()
+        ? get_site_option( 'wpgmo_templates_network', array() )
+        : get_option( 'wpgmo_templates', array() );
+    if ( empty( $templates ) ) {
+        $templates['beispiel'] = array(
+            'label'  => 'Beispiel Grid',
+            'layout' => array(
+                array(
+                    array( 'id' => 'cell1', 'size' => 'large' ),
+                    array( 'id' => 'cell2', 'size' => 'large' ),
+                ),
+            ),
+        );
+        if ( is_multisite() ) {
+            update_site_option( 'wpgmo_templates_network', $templates );
+            update_site_option( 'wpgmo_default_template_network', 'beispiel' );
+        } else {
+            update_option( 'wpgmo_templates', $templates );
+            update_option( 'wpgmo_default_template', 'beispiel' );
+        }
+    }
+}
+
+register_activation_hook( __FILE__, 'aio_restaurant_activate' );
 
 WPGMO_Template_Manager::instance();
 WPGMO_Meta_Box::instance();
