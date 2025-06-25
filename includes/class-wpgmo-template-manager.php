@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WPGMO_Template_Manager {
     private static $instance = null;
     private $page_hook = '';
+    private $overview_hook = '';
 
     public static function instance() {
         if ( null === self::$instance ) {
@@ -27,41 +28,47 @@ class WPGMO_Template_Manager {
     public function admin_menu() {
         if ( is_network_admin() ) {
             $this->page_hook = add_menu_page( __('Grid Templates','aorp'), __('Grid Templates','aorp'), 'manage_network_options', 'wpgmo-templates', array( $this, 'render_page' ) );
+            $this->overview_hook = add_submenu_page( 'wpgmo-templates', __('Grid Overview','aorp'), __('Grid Overview','aorp'), 'manage_network_options', 'wpgmo-overview', array( $this, 'render_overview_page' ) );
         } else {
             $this->page_hook = add_menu_page( __('Grid Templates','aorp'), __('Grid Templates','aorp'), 'manage_options', 'wpgmo-templates', array( $this, 'render_page' ) );
+            $this->overview_hook = add_submenu_page( 'wpgmo-templates', __('Grid Overview','aorp'), __('Grid Overview','aorp'), 'manage_options', 'wpgmo-overview', array( $this, 'render_overview_page' ) );
         }
     }
 
     public function enqueue( $hook ) {
-        if ( $hook !== $this->page_hook ) {
+        if ( $hook === $this->page_hook ) {
+            wp_enqueue_style( 'wpgmo-gb-css', plugin_dir_url( __FILE__ ) . '../assets/css/wpgmo-grid-builder.css' );
+            wp_enqueue_script( 'wpgmo-gb-js', plugin_dir_url( __FILE__ ) . '../assets/js/wpgmo-grid-builder.js', array( 'jquery' ), false, true );
+            $network_templates = get_site_option( 'wpgmo_templates_network', array() );
+            $templates = is_network_admin()
+                ? $network_templates
+                : array_merge( $network_templates, get_option( 'wpgmo_templates', array() ) );
+            $default = is_network_admin() ? get_site_option( 'wpgmo_default_template_network', '' ) : get_option( 'wpgmo_default_template', '' );
+            wp_localize_script( 'wpgmo-gb-js', 'WPGMO_GB', array(
+                'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+                'nonce'        => wp_create_nonce( is_network_admin() ? 'wpgmo_gb_network' : 'wpgmo_gb' ),
+                'templates'    => $templates,
+                'networkSlugs' => array_keys( $network_templates ),
+                'isNetwork'    => is_network_admin() ? 1 : 0,
+                'setDefault'   => __( 'Set default', 'aorp' ),
+                'duplicate'    => __( 'Duplicate', 'aorp' ),
+                'edit'         => __( 'Edit', 'aorp' ),
+                'del'          => __( 'Delete', 'aorp' ),
+                'new'          => __( 'New Template', 'aorp' ),
+                'save'         => __( 'Save Template', 'aorp' ),
+                'cancel'       => __( 'Cancel', 'aorp' ),
+                'slug'         => __( 'Slug', 'aorp' ),
+                'label'        => __( 'Label', 'aorp' ),
+                'actions'      => __( 'Actions', 'aorp' ),
+                'confirm'      => __( 'Delete this template?', 'aorp' ),
+                'removeRow'    => __( 'Remove Row', 'aorp' ),
+                'default'      => $default,
+            ) );
+        } elseif ( $hook === $this->overview_hook ) {
+            wp_enqueue_style( 'wp-grid-menu-overlay', plugin_dir_url( __FILE__ ) . '../assets/css/wp-grid-menu-overlay.css' );
+        } else {
             return;
         }
-        wp_enqueue_style( 'wpgmo-gb-css', plugin_dir_url( __FILE__ ) . '../assets/css/wpgmo-grid-builder.css' );
-        wp_enqueue_script( 'wpgmo-gb-js', plugin_dir_url( __FILE__ ) . '../assets/js/wpgmo-grid-builder.js', array( 'jquery' ), false, true );
-        $network_templates = get_site_option( 'wpgmo_templates_network', array() );
-        $templates = is_network_admin()
-            ? $network_templates
-            : array_merge( $network_templates, get_option( 'wpgmo_templates', array() ) );
-        $default = is_network_admin() ? get_site_option( 'wpgmo_default_template_network', '' ) : get_option( 'wpgmo_default_template', '' );
-        wp_localize_script( 'wpgmo-gb-js', 'WPGMO_GB', array(
-            'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
-            'nonce'        => wp_create_nonce( is_network_admin() ? 'wpgmo_gb_network' : 'wpgmo_gb' ),
-            'templates'    => $templates,
-            'networkSlugs' => array_keys( $network_templates ),
-            'isNetwork'    => is_network_admin() ? 1 : 0,
-            'setDefault'   => __( 'Set default', 'aorp' ),
-            'duplicate'    => __( 'Duplicate', 'aorp' ),
-            'edit'         => __( 'Edit', 'aorp' ),
-            'del'          => __( 'Delete', 'aorp' ),
-            'new'          => __( 'New Template', 'aorp' ),
-            'save'         => __( 'Save Template', 'aorp' ),
-            'cancel'       => __( 'Cancel', 'aorp' ),
-            'slug'         => __( 'Slug', 'aorp' ),
-            'label'        => __( 'Label', 'aorp' ),
-            'actions'      => __( 'Actions', 'aorp' ),
-            'confirm'      => __( 'Delete this template?', 'aorp' ),
-            'default'      => $default,
-        ) );
     }
 
     public function render_page() {
@@ -74,6 +81,32 @@ class WPGMO_Template_Manager {
         <div class="wrap">
             <h1><?php _e('Grid Templates','aorp'); ?></h1>
             <div id="wpgmo-template-manager" data-network="<?php echo $is_network ? 1 : 0; ?>" data-default="<?php echo esc_attr( $default ); ?>"></div>
+        </div>
+        <?php
+    }
+
+    public function render_overview_page() {
+        if ( ! current_user_can( is_network_admin() ? 'manage_network_options' : 'manage_options' ) ) {
+            return;
+        }
+        $templates = is_network_admin()
+            ? get_site_option( 'wpgmo_templates_network', array() )
+            : array_merge( get_site_option( 'wpgmo_templates_network', array() ), get_option( 'wpgmo_templates', array() ) );
+        ?>
+        <div class="wrap">
+            <h1><?php _e('Grid Overview','aorp'); ?></h1>
+            <?php foreach ( $templates as $slug => $tpl ) : ?>
+                <h2><?php echo esc_html( $tpl['label'] ); ?> (<?php echo esc_html( $slug ); ?>)</h2>
+                <div class="wpgmo-grid">
+                    <?php foreach ( $tpl['layout'] as $row ) : ?>
+                        <div class="wpgmo-row">
+                            <?php foreach ( $row as $cell ) : ?>
+                                <div class="wpgmo-cell wpgmo-<?php echo esc_attr( $cell['size'] ); ?>"><?php echo esc_html( $cell['id'] ); ?></div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endforeach; ?>
         </div>
         <?php
     }

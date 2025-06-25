@@ -6,3 +6,5 @@
 #wpgmo-template-manager .wpgmo-cell{border:1px dashed #999;padding:10px;flex:1;position:relative}
 #wpgmo-template-manager .wpgmo-cell span{display:block;margin-bottom:5px}
 #wpgmo-template-manager .wpgmo-cell select{position:absolute;bottom:5px;right:5px}
+#wpgmo-template-manager .remove-cell{position:absolute;top:2px;right:2px;background:#f00;color:#fff;border:none;padding:0 5px;cursor:pointer}
+#wpgmo-template-manager .remove-row{margin-left:5px}

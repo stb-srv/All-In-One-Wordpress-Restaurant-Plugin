@@ -85,10 +85,13 @@ jQuery(function($){
                 sel.val(cell.size);
                 sel.on('change',function(){ cell.size = $(this).val(); });
                 cdiv.append(sel);
+                var del = $('<button type="button" class="remove-cell">&times;</button>').on('click',function(){ removeColumn(i,j); });
+                cdiv.append(del);
                 rdiv.append(cdiv);
             });
             var addC = $('<button class="button">+ Column</button>').on('click',function(){ addColumn(i); });
-            rdiv.append(addC);
+            var delR = $('<button class="button remove-row"/>').text(WPGMO_GB.removeRow).on('click',function(){ removeRow(i); });
+            rdiv.append(addC).append(delR);
             layoutDiv.append(rdiv);
         });
         layoutDiv.append($('<button class="button">+ Row</button>').on('click',addRow));
@@ -106,6 +109,19 @@ jQuery(function($){
 
     function addColumn(index){
         state.layout[index].push({id:'cell'+(nextId++),size:'medium'});
+        render();
+    }
+
+    function removeColumn(rowIndex,colIndex){
+        state.layout[rowIndex].splice(colIndex,1);
+        if(state.layout[rowIndex].length===0){
+            state.layout.splice(rowIndex,1);
+        }
+        render();
+    }
+
+    function removeRow(rowIndex){
+        state.layout.splice(rowIndex,1);
         render();
     }
 
