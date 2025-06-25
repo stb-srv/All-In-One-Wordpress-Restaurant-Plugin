@@ -1565,6 +1565,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/widgets.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-template-manager.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-meta-box.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-grid-menu-overlay.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/maps.php';
 
 function aio_restaurant_activate() {
     $templates = is_multisite()
