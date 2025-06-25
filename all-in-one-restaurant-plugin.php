@@ -1545,5 +1545,12 @@ class AIO_Restaurant_Plugin {
 }
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/widgets.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-template-manager.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-meta-box.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-grid-menu-overlay.php';
+
+WPGMO_Template_Manager::instance();
+WPGMO_Meta_Box::instance();
+WP_Grid_Menu_Overlay::instance();
 
 new AIO_Restaurant_Plugin();
