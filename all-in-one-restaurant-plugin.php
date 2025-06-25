@@ -1545,7 +1545,11 @@ class AIO_Restaurant_Plugin {
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/widgets.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-kontaktblockpro.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-grid-menu-overlay.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-grid-menu-overlay-admin.php';
 
+WP_Grid_Menu_Overlay::instance();
+WP_Grid_Menu_Overlay_Admin::instance();
 new AORP_KontaktblockPro();
 
 new AIO_Restaurant_Plugin();
