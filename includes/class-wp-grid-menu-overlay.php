@@ -40,7 +40,20 @@ class WP_Grid_Menu_Overlay {
     public function render_shortcode( $atts ) {
         $this->enqueue_assets();
 
-        $opts    = get_option( 'wpgmo_settings', [] );
+        $atts = shortcode_atts( [ 'id' => 0 ], $atts, 'wp_grid_menu_overlay' );
+        $opts = [];
+        if ( $atts['id'] ) {
+            $shortcodes = get_option( 'wpgmo_custom_shortcodes', [] );
+            foreach ( $shortcodes as $sc ) {
+                if ( $sc['id'] == intval( $atts['id'] ) ) {
+                    $opts = $sc;
+                    break;
+                }
+            }
+        }
+        if ( ! $opts ) {
+            $opts = get_option( 'wpgmo_settings', [] );
+        }
         $welcome = sanitize_text_field( $opts['welcome_title'] ?? __( 'Willkommen', 'wpgmo' ) );
         $hours   = sanitize_text_field( $opts['opening_hours'] ?? '' );
         $about   = sanitize_textarea_field( $opts['about_text'] ?? '' );

@@ -1,6 +1,6 @@
 All-In-One-WordPress-Restaurant-Plugin (AIWRP)
 
-Version: 1.3.0
+Version: 1.4.0
 Autor: Dein Name
 
 ## Übersicht
@@ -17,7 +17,7 @@ Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt
 8. Spaltenanzahl der Speisekarte (1–3) über Einstellungen wählbar
 9. Schriftgrößen für Nummer, Titel, Beschreibung und Preis über den Einstellungen-Bereich Darstellung per Dropdown anpassbar
 10. Preise werden stets mit dem Euro-Zeichen ("€") angezeigt
-11. Eigener Shortcode-Generator für individuelle Menüs
+11. Eigener Shortcode-Generator für individuelle Overlays
 
 ## Installation
 
@@ -30,8 +30,8 @@ Dieses Plugin bietet alles, was Restaurant-Personal ohne IT-Kenntnisse benötigt
 
 - [speisekarte] – Zeigt die Speisekarte an
 - [restaurant_lightswitcher] – Dark Mode Switcher
-- [aorp_menu id="ID"] – Gibt eine gespeicherte Speisekarte aus
 - [wp_grid_menu_overlay] – Overlay mit Öffnungszeiten, Kontakt & mehr
+- [wp_grid_menu_overlay id="ID"] – Nutzt ein gespeichertes Overlay
 Die Widgets "Speisekarte" und "Lightswitcher" können ebenfalls in Sidebars verwendet werden.
 
 ## Dark‑Mode Icons
@@ -97,4 +97,4 @@ Formular‑Shortcode: "[contact-form-7 id=\"1\"]"
 Karten‑Embed: "<iframe src=...></iframe>"
 ```
 
-Nutze den Shortcode `[wp_grid_menu_overlay]`, um das Grid auf einer Seite einzubinden.
+Nutze den Shortcode `[wp_grid_menu_overlay]` oder `[wp_grid_menu_overlay id="ID"]`, um das Grid auf einer Seite einzubinden.
