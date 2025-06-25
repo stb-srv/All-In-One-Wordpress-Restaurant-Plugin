@@ -42,14 +42,25 @@ class WPGMO_Template_Manager {
         $templates = is_network_admin()
             ? $network_templates
             : array_merge( $network_templates, get_option( 'wpgmo_templates', array() ) );
+        $default = is_network_admin() ? get_site_option( 'wpgmo_default_template_network', '' ) : get_option( 'wpgmo_default_template', '' );
         wp_localize_script( 'wpgmo-gb-js', 'WPGMO_GB', array(
-            'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
-            'nonce'          => wp_create_nonce( is_network_admin() ? 'wpgmo_gb_network' : 'wpgmo_gb' ),
-            'templates'      => $templates,
-            'networkSlugs'   => array_keys( $network_templates ),
-            'setDefault'     => __( 'Set default', 'aorp' ),
-            'duplicate'      => __( 'Duplicate', 'aorp' ),
-            'isNetwork'      => is_network_admin() ? 1 : 0,
+            'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+            'nonce'        => wp_create_nonce( is_network_admin() ? 'wpgmo_gb_network' : 'wpgmo_gb' ),
+            'templates'    => $templates,
+            'networkSlugs' => array_keys( $network_templates ),
+            'isNetwork'    => is_network_admin() ? 1 : 0,
+            'setDefault'   => __( 'Set default', 'aorp' ),
+            'duplicate'    => __( 'Duplicate', 'aorp' ),
+            'edit'         => __( 'Edit', 'aorp' ),
+            'del'          => __( 'Delete', 'aorp' ),
+            'new'          => __( 'New Template', 'aorp' ),
+            'save'         => __( 'Save Template', 'aorp' ),
+            'cancel'       => __( 'Cancel', 'aorp' ),
+            'slug'         => __( 'Slug', 'aorp' ),
+            'label'        => __( 'Label', 'aorp' ),
+            'actions'      => __( 'Actions', 'aorp' ),
+            'confirm'      => __( 'Delete this template?', 'aorp' ),
+            'default'      => $default,
         ) );
     }
 
