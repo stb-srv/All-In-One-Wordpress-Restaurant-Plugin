@@ -90,5 +90,6 @@ Nach der Installation ist bereits eine Beispielvorlage vorhanden, die du bearbei
 
 Auf Beitrags- und Seitenbearbeitungen erscheint die Metabox **Grid Overlay Content**.
 Dort wählst du eine Vorlage aus und fügst die Inhalte für jede Zelle ein.
+Für jede Zelle steht ein visueller Editor bereit, mit dem du Texte, Bilder oder Shortcodes komfortabel einfügst.
 Der Shortcode gibt anschließend das definierte Raster auf der Seite aus.
 

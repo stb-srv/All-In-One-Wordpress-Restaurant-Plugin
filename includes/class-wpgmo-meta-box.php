@@ -46,9 +46,14 @@ class WPGMO_Meta_Box {
             foreach ( $template['layout'] as $row ) {
                 foreach ( $row as $cell ) {
                     $cid = esc_attr( $cell['id'] );
-                    $val = isset( $content[ $cid ] ) ? esc_textarea( $content[ $cid ] ) : '';
-                    echo '<p><label>'.esc_html( $cid ).'</label><br />';
-                    echo '<textarea name="wpgmo_cells['.$cid.']" rows="3" style="width:100%;">'.$val.'</textarea></p>';
+                    $val = isset( $content[ $cid ] ) ? wp_kses_post( $content[ $cid ] ) : '';
+                    echo '<p><label>'.esc_html( $cid ).'</label></p>';
+                    wp_editor( $val, 'wpgmo_cell_' . $cid, array(
+                        'textarea_name' => 'wpgmo_cells['.$cid.']',
+                        'textarea_rows' => 5,
+                        'media_buttons' => true,
+                        'teeny'         => true,
+                    ) );
                 }
             }
         }
