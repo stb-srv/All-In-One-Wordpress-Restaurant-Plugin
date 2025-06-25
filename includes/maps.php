@@ -8,6 +8,7 @@ class AIO_Leaflet_Map {
     public function __construct() {
         add_action( 'admin_menu', array( $this, 'admin_menu' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_assets' ) );
         add_shortcode( 'aio_leaflet_map', array( $this, 'render_shortcode' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_assets' ) );
     }
@@ -19,6 +20,17 @@ class AIO_Leaflet_Map {
         register_setting( 'aio_leaflet_map', 'aio_leaflet_popup' );
     }
 
+    public function admin_enqueue_assets( $hook ) {
+        if ( 'toplevel_page_aio_leaflet_map' !== $hook ) {
+            return;
+        }
+        $plugin_url = plugin_dir_url( __FILE__ );
+        wp_enqueue_style( 'leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css' );
+        wp_enqueue_script( 'leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', array(), null, true );
+        wp_enqueue_style( 'aio-leaflet-map', $plugin_url . '../assets/css/map.css' );
+        wp_enqueue_script( 'aio-leaflet-map-admin', $plugin_url . '../assets/js/map-admin.js', array( 'leaflet' ), null, true );
+    }
+
     public function admin_menu() {
         add_menu_page( 'Karten', 'Karten', 'manage_options', 'aio_leaflet_map', array( $this, 'settings_page' ), 'dashicons-location-alt' );
     }
@@ -27,6 +39,7 @@ class AIO_Leaflet_Map {
         ?>
         <div class="wrap">
             <h1>Karten Einstellungen</h1>
+            <div id="aio-leaflet-map-admin"></div>
             <form method="post" action="options.php">
                 <?php settings_fields( 'aio_leaflet_map' ); ?>
                 <table class="form-table">
