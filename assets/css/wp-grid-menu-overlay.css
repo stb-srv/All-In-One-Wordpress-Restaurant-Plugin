@@ -1,6 +1,7 @@
 .wpgmo-grid{display:flex;flex-direction:column;gap:10px}
-.wpgmo-row{display:flex;gap:10px}
+.wpgmo-row{display:flex;gap:10px;flex-wrap:wrap}
 .wpgmo-cell{border:1px solid #eee;padding:10px;flex:1}
 .wpgmo-large{flex:2}
 .wpgmo-medium{flex:1}
 .wpgmo-small{flex:0.5}
+@media (max-width:600px){.wpgmo-row{flex-direction:column}}
