@@ -22,21 +22,29 @@ class WP_Grid_Menu_Overlay_Admin {
 
     public function admin_menu() {
         add_menu_page(
-            __( 'WP Grid Menu Overlay', 'wpgmo' ),
-            __( 'WP Grid Menu', 'wpgmo' ),
+            __( 'Grid Builder', 'wpgmo' ),
+            __( 'Grid Builder', 'wpgmo' ),
             'manage_options',
-            'wpgmo_settings',
-            [ $this, 'render_settings_page' ],
+            'wpgmo_builder',
+            [ $this, 'builder_page' ],
             'dashicons-screenoptions',
             80
         );
         add_submenu_page(
-            'wpgmo_settings',
-            __( 'Shortcodes', 'wpgmo' ),
-            __( 'Shortcodes', 'wpgmo' ),
+            'wpgmo_builder',
+            __( 'Alle Grids', 'wpgmo' ),
+            __( 'Alle Grids', 'wpgmo' ),
             'manage_options',
-            'wpgmo_shortcodes',
-            [ $this, 'shortcodes_page' ]
+            'wpgmo_overview',
+            [ $this, 'overview_page' ]
+        );
+        add_submenu_page(
+            'wpgmo_builder',
+            __( 'Einstellungen', 'wpgmo' ),
+            __( 'Einstellungen', 'wpgmo' ),
+            'manage_options',
+            'wpgmo_settings',
+            [ $this, 'render_settings_page' ]
         );
     }
 
@@ -115,7 +123,7 @@ class WP_Grid_Menu_Overlay_Admin {
         echo '<textarea name="wpgmo_settings[map_embed]" rows="5" class="large-text">' . $value . '</textarea>';
     }
 
-    public function shortcodes_page() {
+    public function overview_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
             return;
         }
@@ -132,21 +140,14 @@ class WP_Grid_Menu_Overlay_Admin {
                 }
             }
             update_option( 'wpgmo_custom_shortcodes', array_values( $shortcodes ) );
-            wp_redirect( admin_url( 'admin.php?page=wpgmo_shortcodes' ) );
+            wp_redirect( admin_url( 'admin.php?page=wpgmo_overview' ) );
             exit;
         }
 
-        $edit_id = isset( $_GET['edit'] ) ? intval( $_GET['edit'] ) : 0;
-        $current = null;
-        foreach ( $shortcodes as $sc ) {
-            if ( $sc['id'] == $edit_id ) {
-                $current = $sc;
-                break;
-            }
-        }
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Shortcodes', 'wpgmo' ); ?></h1>
+            <h1><?php esc_html_e( 'Alle Grids', 'wpgmo' ); ?></h1>
+            <p><a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=wpgmo_builder' ) ); ?>"><?php esc_html_e( 'Neues Grid erstellen', 'wpgmo' ); ?></a></p>
             <?php if ( $shortcodes ) : ?>
             <table class="widefat">
                 <thead><tr><th><?php esc_html_e( 'Name', 'wpgmo' ); ?></th><th><?php esc_html_e( 'Shortcode', 'wpgmo' ); ?></th><th><?php esc_html_e( 'Aktionen', 'wpgmo' ); ?></th></tr></thead>
@@ -156,16 +157,39 @@ class WP_Grid_Menu_Overlay_Admin {
                         <td><?php echo esc_html( $sc['name'] ); ?></td>
                         <td>[wp_grid_menu_overlay id="<?php echo esc_attr( $sc['id'] ); ?>"]</td>
                         <td>
-                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=wpgmo_shortcodes&edit=' . $sc['id'] ), 'wpgmo_edit_shortcode_' . $sc['id'] ) ); ?>"><?php esc_html_e( 'Bearbeiten', 'wpgmo' ); ?></a> |
-                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=wpgmo_shortcodes&delete=' . $sc['id'] ), 'wpgmo_delete_shortcode_' . $sc['id'] ) ); ?>" onclick="return confirm('Löschen?');"><?php esc_html_e( 'Löschen', 'wpgmo' ); ?></a>
+                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=wpgmo_builder&edit=' . $sc['id'] ), 'wpgmo_edit_shortcode_' . $sc['id'] ) ); ?>"><?php esc_html_e( 'Bearbeiten', 'wpgmo' ); ?></a> |
+                            <a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=wpgmo_overview&delete=' . $sc['id'] ), 'wpgmo_delete_shortcode_' . $sc['id'] ) ); ?>" onclick="return confirm('Löschen?');"><?php esc_html_e( 'Löschen', 'wpgmo' ); ?></a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
             <?php endif; ?>
+        </div>
+        <?php
+    }
 
-            <h2><?php echo $current ? esc_html__( 'Shortcode bearbeiten', 'wpgmo' ) : esc_html__( 'Neuen Shortcode anlegen', 'wpgmo' ); ?></h2>
+    public function builder_page() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
+        $shortcodes = get_option( 'wpgmo_custom_shortcodes', [] );
+
+        $edit_id = isset( $_GET['edit'] ) ? intval( $_GET['edit'] ) : 0;
+        $current  = null;
+        foreach ( $shortcodes as $sc ) {
+            if ( $sc['id'] == $edit_id ) {
+                $current = $sc;
+                break;
+            }
+        }
+
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e( 'Grid Builder', 'wpgmo' ); ?></h1>
+            <p><a href="<?php echo esc_url( admin_url( 'admin.php?page=wpgmo_overview' ) ); ?>">&laquo; <?php esc_html_e( 'Zur Übersicht', 'wpgmo' ); ?></a></p>
+            <h2><?php echo $current ? esc_html__( 'Grid bearbeiten', 'wpgmo' ) : esc_html__( 'Neues Grid anlegen', 'wpgmo' ); ?></h2>
             <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
                 <input type="hidden" name="action" value="wpgmo_save_shortcode" />
                 <?php wp_nonce_field( 'wpgmo_save_shortcode' ); ?>
@@ -286,7 +310,7 @@ class WP_Grid_Menu_Overlay_Admin {
             $shortcodes[] = $entry;
         }
         update_option( 'wpgmo_custom_shortcodes', array_values( $shortcodes ) );
-        wp_redirect( admin_url( 'admin.php?page=wpgmo_shortcodes' ) );
+        wp_redirect( admin_url( 'admin.php?page=wpgmo_overview' ) );
         exit;
     }
 

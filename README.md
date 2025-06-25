@@ -100,4 +100,4 @@ Karten‑Embed: "<iframe src=...></iframe>"
 ```
 
 Nutze den Shortcode `[wp_grid_menu_overlay]` oder `[wp_grid_menu_overlay id="ID"]`, um das Grid auf einer Seite einzubinden.
-Die Verwaltung eigener Overlays befindet sich unter **WP Grid Menu → Shortcodes**.
+Eigene Overlays legst du über den **Grid Builder** an. Bereits erstellte Grids findest du unter **Alle Grids**.
