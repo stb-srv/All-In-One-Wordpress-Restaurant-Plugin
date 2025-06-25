@@ -37,14 +37,22 @@ class WP_Grid_Menu_Overlay {
         if ( empty( $templates[ $atts['id'] ] ) ) {
             return '';
         }
-        $layout  = $templates[ $atts['id'] ]['layout'];
-        $content = get_post_meta( $post->ID, 'wpgmo_content_' . $atts['id'], true );
+        $layout   = $templates[ $atts['id'] ]['layout'];
+        $content  = get_post_meta( $post->ID, 'wpgmo_content_' . $atts['id'], true );
+        $defaults = get_option( 'wpgmo_default_content', array() );
+        $tpl_def  = isset( $defaults[ $atts['id'] ] ) ? $defaults[ $atts['id'] ] : array();
         $html = '<div class="wpgmo-grid">';
         foreach ( $layout as $row ) {
             $html .= '<div class="wpgmo-row">';
             foreach ( $row as $cell ) {
                 $cid   = $cell['id'];
-                $inner = isset( $content[ $cid ] ) ? do_shortcode( wp_kses_post( $content[ $cid ] ) ) : '';
+                if ( ! empty( $content[ $cid ] ) ) {
+                    $inner = do_shortcode( wp_kses_post( $content[ $cid ] ) );
+                } elseif ( isset( $tpl_def[ $cid ] ) ) {
+                    $inner = do_shortcode( wp_kses_post( $tpl_def[ $cid ] ) );
+                } else {
+                    $inner = '';
+                }
                 $size  = isset( $cell['size'] ) ? $cell['size'] : 'large';
                 $html .= "<div class='wpgmo-cell wpgmo-{$size}'>" . $inner . '</div>';
             }

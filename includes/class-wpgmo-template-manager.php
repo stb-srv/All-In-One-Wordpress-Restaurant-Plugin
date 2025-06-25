@@ -27,11 +27,11 @@ class WPGMO_Template_Manager {
 
     public function admin_menu() {
         if ( is_network_admin() ) {
-            $this->page_hook = add_menu_page( __('Grid Templates','aorp'), __('Grid Templates','aorp'), 'manage_network_options', 'wpgmo-templates', array( $this, 'render_page' ) );
-            $this->overview_hook = add_submenu_page( 'wpgmo-templates', __('Grid Overview','aorp'), __('Grid Overview','aorp'), 'manage_network_options', 'wpgmo-overview', array( $this, 'render_overview_page' ) );
+            $this->page_hook = add_menu_page( __('Grid-Vorlagen','aorp'), __('Grid-Vorlagen','aorp'), 'manage_network_options', 'wpgmo-templates', array( $this, 'render_page' ) );
+            $this->overview_hook = add_submenu_page( 'wpgmo-templates', __('Grid-Inhalte','aorp'), __('Grid-Inhalte','aorp'), 'manage_network_options', 'wpgmo-overview', array( $this, 'render_overview_page' ) );
         } else {
-            $this->page_hook = add_menu_page( __('Grid Templates','aorp'), __('Grid Templates','aorp'), 'manage_options', 'wpgmo-templates', array( $this, 'render_page' ) );
-            $this->overview_hook = add_submenu_page( 'wpgmo-templates', __('Grid Overview','aorp'), __('Grid Overview','aorp'), 'manage_options', 'wpgmo-overview', array( $this, 'render_overview_page' ) );
+            $this->page_hook = add_menu_page( __('Grid-Vorlagen','aorp'), __('Grid-Vorlagen','aorp'), 'manage_options', 'wpgmo-templates', array( $this, 'render_page' ) );
+            $this->overview_hook = add_submenu_page( 'wpgmo-templates', __('Grid-Inhalte','aorp'), __('Grid-Inhalte','aorp'), 'manage_options', 'wpgmo-overview', array( $this, 'render_overview_page' ) );
         }
     }
 
@@ -50,22 +50,23 @@ class WPGMO_Template_Manager {
                 'templates'    => $templates,
                 'networkSlugs' => array_keys( $network_templates ),
                 'isNetwork'    => is_network_admin() ? 1 : 0,
-                'setDefault'   => __( 'Set default', 'aorp' ),
-                'duplicate'    => __( 'Duplicate', 'aorp' ),
-                'edit'         => __( 'Edit', 'aorp' ),
-                'del'          => __( 'Delete', 'aorp' ),
-                'new'          => __( 'New Template', 'aorp' ),
-                'save'         => __( 'Save Template', 'aorp' ),
-                'cancel'       => __( 'Cancel', 'aorp' ),
+                'setDefault'   => __( 'Als Standard setzen', 'aorp' ),
+                'duplicate'    => __( 'Duplizieren', 'aorp' ),
+                'edit'         => __( 'Bearbeiten', 'aorp' ),
+                'del'          => __( 'Löschen', 'aorp' ),
+                'new'          => __( 'Neue Vorlage', 'aorp' ),
+                'save'         => __( 'Vorlage speichern', 'aorp' ),
+                'cancel'       => __( 'Abbrechen', 'aorp' ),
                 'slug'         => __( 'Slug', 'aorp' ),
-                'label'        => __( 'Label', 'aorp' ),
-                'actions'      => __( 'Actions', 'aorp' ),
-                'confirm'      => __( 'Delete this template?', 'aorp' ),
-                'removeRow'    => __( 'Remove Row', 'aorp' ),
+                'label'        => __( 'Bezeichnung', 'aorp' ),
+                'actions'      => __( 'Aktionen', 'aorp' ),
+                'confirm'      => __( 'Vorlage löschen?', 'aorp' ),
+                'removeRow'    => __( 'Zeile entfernen', 'aorp' ),
                 'default'      => $default,
             ) );
         } elseif ( $hook === $this->overview_hook ) {
             wp_enqueue_style( 'wp-grid-menu-overlay', plugin_dir_url( __FILE__ ) . '../assets/css/wp-grid-menu-overlay.css' );
+            wp_enqueue_editor();
         } else {
             return;
         }
@@ -92,21 +93,44 @@ class WPGMO_Template_Manager {
         $templates = is_network_admin()
             ? get_site_option( 'wpgmo_templates_network', array() )
             : array_merge( get_site_option( 'wpgmo_templates_network', array() ), get_option( 'wpgmo_templates', array() ) );
+        $contents  = get_option( 'wpgmo_default_content', array() );
+        if ( isset( $_POST['wpgmo_save_content'] ) && check_admin_referer( 'wpgmo_save_content' ) ) {
+            foreach ( $templates as $slug => $tpl ) {
+                if ( isset( $_POST['content'][ $slug ] ) && is_array( $_POST['content'][ $slug ] ) ) {
+                    foreach ( $_POST['content'][ $slug ] as $cid => $val ) {
+                        $contents[ $slug ][ sanitize_key( $cid ) ] = wp_kses_post( $val );
+                    }
+                }
+            }
+            update_option( 'wpgmo_default_content', $contents );
+            echo '<div class="updated"><p>' . esc_html__( 'Inhalte gespeichert', 'aorp' ) . '</p></div>';
+        }
         ?>
         <div class="wrap">
-            <h1><?php _e('Grid Overview','aorp'); ?></h1>
-            <?php foreach ( $templates as $slug => $tpl ) : ?>
-                <h2><?php echo esc_html( $tpl['label'] ); ?> (<?php echo esc_html( $slug ); ?>)</h2>
-                <div class="wpgmo-grid">
+            <h1><?php _e('Grid-Inhalte','aorp'); ?></h1>
+            <form method="post">
+                <?php wp_nonce_field( 'wpgmo_save_content' ); ?>
+                <?php foreach ( $templates as $slug => $tpl ) : ?>
+                    <h2><?php echo esc_html( $tpl['label'] ); ?> (<?php echo esc_html( $slug ); ?>)</h2>
                     <?php foreach ( $tpl['layout'] as $row ) : ?>
                         <div class="wpgmo-row">
                             <?php foreach ( $row as $cell ) : ?>
-                                <div class="wpgmo-cell wpgmo-<?php echo esc_attr( $cell['size'] ); ?>"><?php echo esc_html( $cell['id'] ); ?></div>
+                                <?php $cid = $cell['id'];
+                                $val = isset( $contents[ $slug ][ $cid ] ) ? $contents[ $slug ][ $cid ] : ''; ?>
+                                <div class="wpgmo-cell wpgmo-<?php echo esc_attr( $cell['size'] ); ?>">
+                                    <?php wp_editor( $val, 'wpgmo_' . $slug . '_' . $cid, array(
+                                        'textarea_name' => 'content[' . $slug . '][' . $cid . ']',
+                                        'textarea_rows' => 5,
+                                        'teeny'         => true,
+                                        'media_buttons' => true,
+                                    ) ); ?>
+                                </div>
                             <?php endforeach; ?>
                         </div>
                     <?php endforeach; ?>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+                <p><input type="submit" name="wpgmo_save_content" class="button button-primary" value="<?php esc_attr_e( 'Inhalte speichern', 'aorp' ); ?>" /></p>
+            </form>
         </div>
         <?php
     }

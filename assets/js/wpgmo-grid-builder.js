@@ -81,7 +81,7 @@ jQuery(function($){
             $.each(row,function(j,cell){
                 var cdiv = $('<div class="wpgmo-cell"/>');
                 cdiv.append('<span>'+cell.id+'</span>');
-                var sel = $('<select><option value="large">Large</option><option value="medium">Medium</option><option value="small">Small</option></select>');
+                var sel = $('<select><option value="large">Groß</option><option value="medium">Mittel</option><option value="small">Klein</option></select>');
                 sel.val(cell.size);
                 sel.on('change',function(){ cell.size = $(this).val(); });
                 cdiv.append(sel);
@@ -89,12 +89,12 @@ jQuery(function($){
                 cdiv.append(del);
                 rdiv.append(cdiv);
             });
-            var addC = $('<button class="button">+ Column</button>').on('click',function(){ addColumn(i); });
+            var addC = $('<button class="button">+ Spalte</button>').on('click',function(){ addColumn(i); });
             var delR = $('<button class="button remove-row"/>').text(WPGMO_GB.removeRow).on('click',function(){ removeRow(i); });
             rdiv.append(addC).append(delR);
             layoutDiv.append(rdiv);
         });
-        layoutDiv.append($('<button class="button">+ Row</button>').on('click',addRow));
+        layoutDiv.append($('<button class="button">+ Zeile</button>').on('click',addRow));
         wrap.append(layoutDiv);
         var save = $('<button class="button button-primary"/>').text(WPGMO_GB.save).on('click',function(e){ e.preventDefault(); saveTemplate(); });
         var cancel = $('<button class="button"/>').text(WPGMO_GB.cancel).on('click',function(e){ e.preventDefault(); state=null; render(); });

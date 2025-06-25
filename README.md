@@ -80,16 +80,18 @@ Beim YAML-Format können Nummern und Preise ohne Anführungszeichen angegeben we
 
 ### Grid-Vorlagen
 
-Unter **Grid Templates** verwaltest du Rasterlayouts für den Shortcode `[wp_grid_menu_overlay]`.
+Unter **Grid-Vorlagen** verwaltest du Rasterlayouts für den Shortcode `[wp_grid_menu_overlay]`.
 Nach der Installation ist bereits eine Beispielvorlage vorhanden, die du bearbeiten kannst.
 
-1. Öffne im Admin-Bereich den Menüpunkt **Grid Templates**.
-2. Mit *New Template* legst du ein neues Raster an, über *Edit* passt du bestehende Vorlagen an.
+1. Öffne im Admin-Bereich den Menüpunkt **Grid-Vorlagen**.
+2. Mit *Neue Vorlage* legst du ein neues Raster an, über *Bearbeiten* passt du bestehende Vorlagen an.
 3. Innerhalb des Editors kannst du Zeilen und Spalten hinzufügen oder entfernen und für jede Zelle die Größe wählen.
 4. Speichere das Raster. In der Liste lassen sich Vorlagen duplizieren, löschen oder als Standard markieren.
 
-Auf Beitrags- und Seitenbearbeitungen erscheint die Metabox **Grid Overlay Content**.
+Auf Beitrags- und Seitenbearbeitungen erscheint die Metabox **Grid-Overlay Inhalt**.
 Dort wählst du eine Vorlage aus und fügst die Inhalte für jede Zelle ein.
 Für jede Zelle steht ein visueller Editor bereit, mit dem du Texte, Bilder oder Shortcodes komfortabel einfügst.
 Der Shortcode gibt anschließend das definierte Raster auf der Seite aus.
+
+Unter **Grid-Inhalte** kannst du außerdem Standardinhalte für jede Zelle einer Vorlage hinterlegen. Diese werden angezeigt, wenn ein Beitrag keine eigenen Inhalte besitzt.
 
