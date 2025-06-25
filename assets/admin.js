@@ -74,6 +74,7 @@ jQuery(document).ready(function($){
     });
 
     var aorp_frame;
+    var wpgmoLayout = {small:'Klein', large:'Groß'};
     $(document).on('click', '.aorp-image-upload', function(e){
         e.preventDefault();
         var button = $(this);
@@ -154,6 +155,50 @@ jQuery(document).ready(function($){
         }
         $('#aorp_icon_set').on('change',updateIconFields);
         updateIconFields();
+    }
+
+    if($('#wpgmo-layout-table').length){
+        function updateLayout(){
+            var layout = [];
+            $('#wpgmo-layout-table tbody tr').each(function(){
+                var type = $(this).find('.wpgmo-type').val();
+                var size = $(this).find('.wpgmo-size').val();
+                if(type){
+                    layout.push({type:type, size:size});
+                }
+            });
+            $('#wpgmo_layout').val(JSON.stringify(layout));
+        }
+
+        $('#wpgmo_add_row').on('click', function(e){
+            e.preventDefault();
+            var row = $('<tr>\
+                <td><select class="wpgmo-type">'+$('#wpgmo_types_options').html()+'</select></td>\
+                <td><select class="wpgmo-size"><option value="small">'+wpgmoLayout.small+'</option><option value="large">'+wpgmoLayout.large+'</option></select></td>\
+                <td><button class="button wpgmo-remove-row">×</button></td></tr>');
+            $('#wpgmo-layout-table tbody').append(row);
+        });
+
+        $(document).on('click','.wpgmo-remove-row',function(e){
+            e.preventDefault();
+            $(this).closest('tr').remove();
+            updateLayout();
+        });
+
+        $(document).on('change','#wpgmo-layout-table select', updateLayout);
+
+        try {
+            var data = JSON.parse($('#wpgmo_layout').val());
+            if(Array.isArray(data)){
+                data.forEach(function(cell){
+                    $('#wpgmo_add_row').trigger('click');
+                    var row = $('#wpgmo-layout-table tbody tr:last');
+                    row.find('.wpgmo-type').val(cell.type);
+                    row.find('.wpgmo-size').val(cell.size);
+                });
+            }
+        } catch(e){}
+        updateLayout();
     }
 
 });

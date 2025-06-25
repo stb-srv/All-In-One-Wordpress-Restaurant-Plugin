@@ -209,6 +209,27 @@ class WP_Grid_Menu_Overlay_Admin {
                         <th scope="row"><label for="wpgmo_sc_map">Karte einbetten</label></th>
                         <td><textarea id="wpgmo_sc_map" name="map_embed" rows="3" class="large-text"><?php echo esc_textarea( $current['map_embed'] ?? '' ); ?></textarea></td>
                     </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e( 'Grid Layout', 'wpgmo' ); ?></th>
+                        <td>
+                            <table class="widefat" id="wpgmo-layout-table">
+                                <thead>
+                                <tr><th><?php esc_html_e( 'Element', 'wpgmo' ); ?></th><th><?php esc_html_e( 'Größe', 'wpgmo' ); ?></th><th></th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <select id="wpgmo_types_options" style="display:none">
+                                <option value="welcome"><?php esc_html_e( 'Willkommen', 'wpgmo' ); ?></option>
+                                <option value="openings"><?php esc_html_e( 'Öffnungszeiten', 'wpgmo' ); ?></option>
+                                <option value="about"><?php esc_html_e( 'Über uns', 'wpgmo' ); ?></option>
+                                <option value="contact"><?php esc_html_e( 'Kontakt', 'wpgmo' ); ?></option>
+                                <option value="form"><?php esc_html_e( 'Formular', 'wpgmo' ); ?></option>
+                                <option value="map"><?php esc_html_e( 'Karte', 'wpgmo' ); ?></option>
+                            </select>
+                            <input type="hidden" id="wpgmo_layout" name="grid_layout" value="<?php echo esc_attr( $current['grid_layout'] ?? '' ); ?>" />
+                            <p><button type="button" class="button" id="wpgmo_add_row"><?php esc_html_e( 'Element hinzufügen', 'wpgmo' ); ?></button></p>
+                        </td>
+                    </tr>
                 </table>
                 <?php submit_button( $current ? esc_html__( 'Aktualisieren', 'wpgmo' ) : esc_html__( 'Anlegen', 'wpgmo' ) ); ?>
             </form>
@@ -234,7 +255,26 @@ class WP_Grid_Menu_Overlay_Admin {
             'contact_email'  => sanitize_email( $_POST['contact_email'] ?? '' ),
             'form_shortcode' => wp_kses_post( $_POST['form_shortcode'] ?? '' ),
             'map_embed'      => wp_kses_post( $_POST['map_embed'] ?? '' ),
+            'grid_layout'    => '',
         ];
+        if ( isset( $_POST['grid_layout'] ) ) {
+            $raw    = wp_unslash( $_POST['grid_layout'] );
+            $layout = json_decode( $raw, true );
+            $allowed = [ 'welcome', 'openings', 'about', 'contact', 'form', 'map' ];
+            $clean  = [];
+            if ( is_array( $layout ) ) {
+                foreach ( $layout as $cell ) {
+                    if ( empty( $cell['type'] ) || ! in_array( $cell['type'], $allowed, true ) ) {
+                        continue;
+                    }
+                    $clean[] = [
+                        'type' => $cell['type'],
+                        'size' => ( isset( $cell['size'] ) && 'large' === $cell['size'] ) ? 'large' : 'small',
+                    ];
+                }
+            }
+            $entry['grid_layout'] = wp_json_encode( $clean );
+        }
         if ( $id ) {
             foreach ( $shortcodes as &$sc ) {
                 if ( $sc['id'] == $id ) {
@@ -260,6 +300,7 @@ class WP_Grid_Menu_Overlay_Admin {
             'contact_email'   => '',
             'form_shortcode'  => '',
             'map_embed'       => '',
+            'grid_layout'     => '',
         ];
 
         $output                     = [];
@@ -271,6 +312,7 @@ class WP_Grid_Menu_Overlay_Admin {
         $output['contact_email']    = sanitize_email( $input['contact_email'] ?? $defaults['contact_email'] );
         $output['form_shortcode']   = wp_kses_post( $input['form_shortcode'] ?? $defaults['form_shortcode'] );
         $output['map_embed']        = wp_kses_post( $input['map_embed'] ?? $defaults['map_embed'] );
+        $output['grid_layout']      = wp_kses_post( $input['grid_layout'] ?? $defaults['grid_layout'] );
 
         return $output;
     }

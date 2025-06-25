@@ -62,49 +62,94 @@ class WP_Grid_Menu_Overlay {
         $email   = sanitize_email( $opts['contact_email'] ?? '' );
         $form    = wp_kses_post( $opts['form_shortcode'] ?? '' );
         $map     = wp_kses_post( $opts['map_embed'] ?? '' );
+        $layout  = [];
+        if ( ! empty( $opts['grid_layout'] ) ) {
+            $layout = json_decode( $opts['grid_layout'], true );
+        }
+        if ( ! is_array( $layout ) || empty( $layout ) ) {
+            $layout = [
+                [ 'type' => 'welcome',  'size' => 'small' ],
+                [ 'type' => 'openings', 'size' => 'small' ],
+                [ 'type' => 'about',    'size' => 'small' ],
+                [ 'type' => 'contact',  'size' => 'small' ],
+                [ 'type' => 'form',     'size' => 'small' ],
+                [ 'type' => 'map',      'size' => 'small' ],
+            ];
+        }
 
         ob_start();
         ?>
         <div class="wpgmo-grid">
-            <div class="wpgmo-item wpgmo-welcome">
-                <h2><?php echo esc_html( $welcome ); ?></h2>
-            </div>
-            <?php if ( $hours ) : ?>
-            <div class="wpgmo-item wpgmo-openings">
-                <h2><?php _e( 'Öffnungszeiten', 'wpgmo' ); ?></h2>
-                <p><?php echo esc_html( $hours ); ?></p>
-            </div>
-            <?php endif; ?>
-            <?php if ( $about ) : ?>
-            <div class="wpgmo-item wpgmo-about">
-                <h2><?php _e( 'Über uns', 'wpgmo' ); ?></h2>
-                <p><?php echo esc_html( $about ); ?></p>
-            </div>
-            <?php endif; ?>
-            <?php if ( $address || $phone || $email ) : ?>
-            <div class="wpgmo-item wpgmo-contact">
-                <h2><?php _e( 'Kontakt', 'wpgmo' ); ?></h2>
-                <?php if ( $address ) : ?>
-                    <p><?php echo nl2br( esc_html( $address ) ); ?></p>
-                <?php endif; ?>
-                <?php if ( $phone ) : ?>
-                    <p><?php echo esc_html( $phone ); ?></p>
-                <?php endif; ?>
-                <?php if ( $email ) : ?>
-                    <p><a href="mailto:<?php echo antispambot( esc_attr( $email ) ); ?>"><?php echo antispambot( esc_html( $email ) ); ?></a></p>
-                <?php endif; ?>
-            </div>
-            <?php endif; ?>
-            <?php if ( $form ) : ?>
-            <div class="wpgmo-item wpgmo-form">
-                <?php echo do_shortcode( $form ); ?>
-            </div>
-            <?php endif; ?>
-            <?php if ( $map ) : ?>
-            <div class="wpgmo-item wpgmo-map">
-                <?php echo $map; ?>
-            </div>
-            <?php endif; ?>
+        <?php foreach ( $layout as $cell ) :
+            $type = $cell['type'];
+            $size = ( isset( $cell['size'] ) && 'large' === $cell['size'] ) ? 'large' : 'small';
+            $classes = 'wpgmo-item wpgmo-' . esc_attr( $type ) . ' size-' . $size;
+            switch ( $type ) {
+                case 'welcome':
+                    ?>
+                    <div class="<?php echo $classes; ?>">
+                        <h2><?php echo esc_html( $welcome ); ?></h2>
+                    </div>
+                    <?php
+                    break;
+                case 'openings':
+                    if ( $hours ) :
+                    ?>
+                    <div class="<?php echo $classes; ?>">
+                        <h2><?php _e( 'Öffnungszeiten', 'wpgmo' ); ?></h2>
+                        <p><?php echo esc_html( $hours ); ?></p>
+                    </div>
+                    <?php
+                    endif;
+                    break;
+                case 'about':
+                    if ( $about ) :
+                    ?>
+                    <div class="<?php echo $classes; ?>">
+                        <h2><?php _e( 'Über uns', 'wpgmo' ); ?></h2>
+                        <p><?php echo esc_html( $about ); ?></p>
+                    </div>
+                    <?php
+                    endif;
+                    break;
+                case 'contact':
+                    if ( $address || $phone || $email ) :
+                    ?>
+                    <div class="<?php echo $classes; ?>">
+                        <h2><?php _e( 'Kontakt', 'wpgmo' ); ?></h2>
+                        <?php if ( $address ) : ?>
+                            <p><?php echo nl2br( esc_html( $address ) ); ?></p>
+                        <?php endif; ?>
+                        <?php if ( $phone ) : ?>
+                            <p><?php echo esc_html( $phone ); ?></p>
+                        <?php endif; ?>
+                        <?php if ( $email ) : ?>
+                            <p><a href="mailto:<?php echo antispambot( esc_attr( $email ) ); ?>"><?php echo antispambot( esc_html( $email ) ); ?></a></p>
+                        <?php endif; ?>
+                    </div>
+                    <?php
+                    endif;
+                    break;
+                case 'form':
+                    if ( $form ) :
+                    ?>
+                    <div class="<?php echo $classes; ?>">
+                        <?php echo do_shortcode( $form ); ?>
+                    </div>
+                    <?php
+                    endif;
+                    break;
+                case 'map':
+                    if ( $map ) :
+                    ?>
+                    <div class="<?php echo $classes; ?>">
+                        <?php echo $map; ?>
+                    </div>
+                    <?php
+                    endif;
+                    break;
+            }
+        endforeach; ?>
         </div>
         <?php
         return ob_get_clean();
