@@ -93,5 +93,8 @@ Dort wählst du eine Vorlage aus und fügst die Inhalte für jede Zelle ein.
 Für jede Zelle steht ein visueller Editor bereit, mit dem du Texte, Bilder oder Shortcodes komfortabel einfügst.
 Der Shortcode gibt anschließend das definierte Raster auf der Seite aus.
 
+Das Raster passt sich automatisch der Bildschirmgröße an. Auf mobilen Geräten
+werden alle Zellen untereinander in einer Spalte angezeigt.
+
 Unter **Grid-Inhalte** kannst du außerdem Standardinhalte für jede Zelle einer Vorlage hinterlegen. Diese werden angezeigt, wenn ein Beitrag keine eigenen Inhalte besitzt.
 
