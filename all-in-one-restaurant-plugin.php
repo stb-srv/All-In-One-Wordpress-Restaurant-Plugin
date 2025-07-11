@@ -49,6 +49,7 @@ class AIO_Restaurant_Plugin {
         add_action( 'admin_post_aorp_delete_category', array( $this, 'delete_category' ) );
         add_action( 'admin_post_aorp_bulk_delete_category', array( $this, 'bulk_delete_category' ) );
         add_action( 'admin_post_aorp_add_item', array( $this, 'add_item' ) );
+        add_action( 'admin_post_aorp_add_drink_item', array( $this, 'add_drink_item' ) );
         add_action( 'admin_post_aorp_add_ingredient', array( $this, 'add_ingredient' ) );
         add_action( 'admin_post_aorp_update_ingredient', array( $this, 'update_ingredient' ) );
         add_action( 'admin_post_aorp_delete_ingredient', array( $this, 'delete_ingredient' ) );
@@ -56,6 +57,13 @@ class AIO_Restaurant_Plugin {
         add_action( 'admin_post_aorp_update_item', array( $this, 'update_item' ) );
         add_action( 'admin_post_aorp_delete_item', array( $this, 'delete_item' ) );
         add_action( 'admin_post_aorp_bulk_delete_item', array( $this, 'bulk_delete_item' ) );
+        add_action( 'admin_post_aorp_update_drink_item', array( $this, 'update_drink_item' ) );
+        add_action( 'admin_post_aorp_delete_drink_item', array( $this, 'delete_drink_item' ) );
+        add_action( 'admin_post_aorp_bulk_delete_drink_item', array( $this, 'bulk_delete_drink_item' ) );
+        add_action( 'admin_post_aorp_add_drink_category', array( $this, 'add_drink_category' ) );
+        add_action( 'admin_post_aorp_update_drink_category', array( $this, 'update_drink_category' ) );
+        add_action( 'admin_post_aorp_delete_drink_category', array( $this, 'delete_drink_category' ) );
+        add_action( 'admin_post_aorp_bulk_delete_drink_category', array( $this, 'bulk_delete_drink_category' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_action( 'wp_head', array( $this, 'output_custom_styles' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
@@ -87,12 +95,11 @@ class AIO_Restaurant_Plugin {
             'menu_name'     => __( 'Getränke-Karte', 'aorp' )
         );
         register_post_type( 'aorp_drink_item', array(
-            'labels'        => $labels,
-            'public'        => false,
-            'show_ui'       => true,
-            'show_in_menu'  => 'aorp_manage',
-            'has_archive'   => false,
-            'supports'      => array( 'title', 'editor', 'thumbnail' )
+            'labels'      => $labels,
+            'public'      => false,
+            'show_ui'     => false,
+            'has_archive' => false,
+            'supports'    => array( 'title', 'editor', 'thumbnail' )
         ) );
     }
 
@@ -412,6 +419,163 @@ class AIO_Restaurant_Plugin {
                                 <td>
                                     <a href="<?php echo admin_url( 'admin.php?page=aorp_manage&edit=' . $item->ID ); ?>">Bearbeiten</a> |
                                     <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_item&item_id=' . $item->ID ), 'aorp_delete_item_' . $item->ID ); ?>" onclick="return confirm('Speise löschen?');">Löschen</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
+            </form>
+        <?php endif; ?>
+        </div>
+        <?php
+    }
+
+    private function render_drink_category_form( $categories, $current_cat ) {
+        ?>
+        <div class="aorp-section">
+        <h2>Getränke Kategorien</h2>
+        <?php if ( $current_cat ) : ?>
+        <h3>Kategorie bearbeiten</h3>
+        <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+            <input type="hidden" name="action" value="aorp_update_drink_category" />
+            <?php wp_nonce_field( 'aorp_edit_drink_category_' . $current_cat->term_id ); ?>
+            <input type="hidden" name="cat_id" value="<?php echo esc_attr( $current_cat->term_id ); ?>" />
+            <p><input type="text" name="cat_name" value="<?php echo esc_attr( $current_cat->name ); ?>" placeholder="Bezeichnung" required /></p>
+            <?php submit_button( 'Kategorie speichern' ); ?>
+            <a href="<?php echo admin_url( 'admin.php?page=aorp_drinks' ); ?>">Abbrechen</a>
+        </form>
+        <?php else : ?>
+        <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+            <input type="hidden" name="action" value="aorp_add_drink_category" />
+            <?php wp_nonce_field( 'aorp_add_drink_category' ); ?>
+            <p><input type="text" name="cat_name" placeholder="Bezeichnung" required /></p>
+            <?php submit_button( 'Anlegen' ); ?>
+        </form>
+        <?php endif; ?>
+        <?php if ( $categories ) : ?>
+            <input type="text" id="aorp-cat-filter" placeholder="Suche" />
+            <p>
+                <button class="button aorp-select-all" data-target="#aorp-cat-table tbody input[type=checkbox]">Alle auswählen</button>
+                <button class="button aorp-unselect-all" data-target="#aorp-cat-table tbody input[type=checkbox]">Auswahl aufheben</button>
+            </p>
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                <input type="hidden" name="action" value="aorp_bulk_delete_drink_category" />
+                <?php wp_nonce_field( 'aorp_bulk_delete_drink_category' ); ?>
+                <table class="widefat" id="aorp-cat-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Bezeichnung</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ( $categories as $cat ) : ?>
+                            <tr>
+                                <td><input type="checkbox" name="cat_ids[]" value="<?php echo esc_attr( $cat->term_id ); ?>" /></td>
+                                <td><?php echo esc_html( $cat->name ); ?></td>
+                                <td>
+                                    <a href="<?php echo admin_url( 'admin.php?page=aorp_drinks&edit_cat=' . $cat->term_id ); ?>">Bearbeiten</a> |
+                                    <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_drink_category&cat_id=' . $cat->term_id ), 'aorp_delete_drink_category_' . $cat->term_id ); ?>" onclick="return confirm('Kategorie löschen?');">Löschen</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php submit_button( 'Ausgewählte löschen', 'delete' ); ?>
+            </form>
+        <?php endif; ?>
+        </div>
+        <?php
+    }
+
+    private function render_drink_item_form( $items, $categories, $current ) {
+        ?>
+        <div class="aorp-section">
+        <h2>Getränke</h2>
+        <?php if ( $current ) : ?>
+        <h3>Getränk bearbeiten</h3>
+        <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+            <input type="hidden" name="action" value="aorp_update_drink_item" />
+            <?php wp_nonce_field( 'aorp_edit_drink_item' ); ?>
+            <input type="hidden" name="item_id" value="<?php echo esc_attr( $current->ID ); ?>" />
+            <p><input type="text" name="item_number" value="<?php echo esc_attr( get_post_meta( $current->ID, '_aorp_number', true ) ); ?>" placeholder="Nummer" /></p>
+            <p><input type="text" name="item_title" value="<?php echo esc_attr( $current->post_title ); ?>" placeholder="Name" required /></p>
+            <p><textarea name="item_description" placeholder="Beschreibung" rows="3"><?php echo esc_textarea( $current->post_content ); ?></textarea></p>
+            <p><textarea name="item_sizes" placeholder="Größe=Preis" rows="3"><?php echo esc_textarea( get_post_meta( $current->ID, '_aorp_drink_sizes', true ) ); ?></textarea></p>
+            <p>
+                <select name="item_category">
+                    <option value="">Kategorie wählen</option>
+                    <?php foreach ( $categories as $cat ) : ?>
+                        <option value="<?php echo esc_attr( $cat->term_id ); ?>" <?php selected( has_term( $cat->term_id, 'aorp_drink_category', $current->ID ) ); ?>><?php echo esc_html( $cat->name ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </p>
+            <?php submit_button( 'Getränk speichern' ); ?>
+            <a href="<?php echo admin_url( 'admin.php?page=aorp_drinks' ); ?>">Abbrechen</a>
+        </form>
+        <?php else : ?>
+        <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+            <input type="hidden" name="action" value="aorp_add_drink_item" />
+            <?php wp_nonce_field( 'aorp_add_drink_item' ); ?>
+            <p><input type="text" name="item_number" placeholder="Nummer" /></p>
+            <p><input type="text" name="item_title" placeholder="Name" required /></p>
+            <p><textarea name="item_description" placeholder="Beschreibung" rows="3"></textarea></p>
+            <p><textarea name="item_sizes" placeholder="Größe=Preis" rows="3"></textarea></p>
+            <p>
+                <select name="item_category">
+                    <option value="">Kategorie wählen</option>
+                    <?php foreach ( $categories as $cat ) : ?>
+                        <option value="<?php echo esc_attr( $cat->term_id ); ?>"><?php echo esc_html( $cat->name ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </p>
+            <?php submit_button( 'Getränk anlegen' ); ?>
+        </form>
+        <?php endif; ?>
+
+        <?php if ( $items ) : ?>
+            <h3>Alle Getränke</h3>
+            <input type="text" id="aorp-item-filter" placeholder="Suche" />
+            <p>
+                <button class="button aorp-select-all" data-target="#aorp-items-table tbody input[type=checkbox]">Alle auswählen</button>
+                <button class="button aorp-unselect-all" data-target="#aorp-items-table tbody input[type=checkbox]">Auswahl aufheben</button>
+            </p>
+            <form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>">
+                <input type="hidden" name="action" value="aorp_bulk_delete_drink_item" />
+                <?php wp_nonce_field( 'aorp_bulk_delete_drink_item' ); ?>
+                <table class="widefat" id="aorp-items-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Beschreibung</th>
+                            <th>Größen/Preise</th>
+                            <th id="aorp-number-sort" class="sortable">Nummer</th>
+                            <th>Kategorie</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ( $items as $item ) : ?>
+                            <tr>
+                                <td><input type="checkbox" name="item_ids[]" value="<?php echo esc_attr( $item->ID ); ?>" /></td>
+                                <td><?php echo esc_html( $item->post_title ); ?></td>
+                                <td><?php echo esc_html( wp_trim_words( wp_strip_all_tags( $item->post_content ), 15 ) ); ?></td>
+                                <td><?php echo nl2br( esc_html( get_post_meta( $item->ID, '_aorp_drink_sizes', true ) ) ); ?></td>
+                                <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_number', true ) ); ?></td>
+                                <td>
+                                    <?php
+                                        $terms = get_the_terms( $item->ID, 'aorp_drink_category' );
+                                        if ( $terms && ! is_wp_error( $terms ) ) {
+                                            echo esc_html( $terms[0]->name );
+                                        }
+                                    ?>
+                                </td>
+                                <td>
+                                    <a href="<?php echo admin_url( 'admin.php?page=aorp_drinks&edit=' . $item->ID ); ?>">Bearbeiten</a> |
+                                    <a href="<?php echo wp_nonce_url( admin_url( 'admin-post.php?action=aorp_delete_drink_item&item_id=' . $item->ID ), 'aorp_delete_drink_item_' . $item->ID ); ?>" onclick="return confirm('Getränk löschen?');">Löschen</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -773,6 +937,7 @@ class AIO_Restaurant_Plugin {
 
     public function admin_menu() {
         add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
+        add_submenu_page( 'aorp_manage', 'Getränke-Karte', 'Getränke-Karte', 'manage_options', 'aorp_drinks', array( $this, 'manage_drinks_page' ) );
         add_submenu_page( 'aorp_manage', 'Import/Export', 'Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
         add_submenu_page( 'aorp_manage', 'Einstellungen', 'Einstellungen', 'manage_options', 'aorp_settings', array( $this, 'settings_page' ) );
         add_menu_page( 'Dark Mode', 'Dark Mode', 'manage_options', 'aorp_dark', array( $this, 'dark_page' ), 'dashicons-lightbulb' );
@@ -1046,6 +1211,27 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+    public function manage_drinks_page() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+        $categories = get_terms( array( 'taxonomy' => 'aorp_drink_category', 'hide_empty' => false ) );
+        $items      = get_posts( array( 'post_type' => 'aorp_drink_item', 'numberposts' => -1 ) );
+
+        $edit_item = isset( $_GET['edit'] ) ? intval( $_GET['edit'] ) : 0;
+        $current   = $edit_item ? get_post( $edit_item ) : null;
+        $edit_cat    = isset( $_GET['edit_cat'] ) ? intval( $_GET['edit_cat'] ) : 0;
+        $current_cat = $edit_cat ? get_term( $edit_cat, 'aorp_drink_category' ) : null;
+        ?>
+        <div class="wrap">
+            <h1>Getränke-Karte Verwaltung</h1>
+            <p class="description">Nutze den Shortcode <code>[getraenkekarte]</code> um die Getränke-Karte auf der Website einzubinden.</p>
+            <?php $this->render_drink_category_form( $categories, $current_cat ); ?>
+            <?php $this->render_drink_item_form( $items, $categories, $current ); ?>
+        </div>
+        <?php
+    }
+
     public function export_csv() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1303,7 +1489,7 @@ class AIO_Restaurant_Plugin {
             if ( 'toplevel_page_aorp_manage' === $screen->id ) {
                 echo '<div class="notice notice-info"><p>Shortcode f\xC3\xBCr die Speisekarte: <code>[speisekarte]</code></p></div>';
             }
-            if ( in_array( $screen->id, array( 'edit-aorp_drink_item', 'aorp_drink_item' ), true ) ) {
+            if ( in_array( $screen->id, array( 'edit-aorp_drink_item', 'aorp_drink_item', 'aorp_manage_page_aorp_drinks' ), true ) ) {
                 echo '<div class="notice notice-info"><p>Shortcode f\xC3\xBCr die Getr\xC3\xA4nke-Karte: <code>[getraenkekarte]</code></p></div>';
             }
         }
@@ -1557,6 +1743,58 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+    public function add_drink_category() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_add_drink_category' );
+        if ( ! empty( $_POST['cat_name'] ) ) {
+            wp_insert_term( sanitize_text_field( $_POST['cat_name'] ), 'aorp_drink_category' );
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_drinks' ) );
+        exit;
+    }
+
+    public function update_drink_category() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        $term_id = intval( $_POST['cat_id'] );
+        check_admin_referer( 'aorp_edit_drink_category_' . $term_id );
+        if ( $term_id && ! empty( $_POST['cat_name'] ) ) {
+            wp_update_term( $term_id, 'aorp_drink_category', array( 'name' => sanitize_text_field( $_POST['cat_name'] ) ) );
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_drinks' ) );
+        exit;
+    }
+
+    public function delete_drink_category() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        $term_id = isset( $_GET['cat_id'] ) ? intval( $_GET['cat_id'] ) : 0;
+        check_admin_referer( 'aorp_delete_drink_category_' . $term_id );
+        if ( $term_id ) {
+            wp_delete_term( $term_id, 'aorp_drink_category' );
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_drinks' ) );
+        exit;
+    }
+
+    public function bulk_delete_drink_category() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_bulk_delete_drink_category' );
+        if ( ! empty( $_POST['cat_ids'] ) && is_array( $_POST['cat_ids'] ) ) {
+            foreach ( $_POST['cat_ids'] as $id ) {
+                wp_delete_term( intval( $id ), 'aorp_drink_category' );
+            }
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_drinks' ) );
+        exit;
+    }
+
     public function add_item() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1645,6 +1883,85 @@ class AIO_Restaurant_Plugin {
             }
         }
         wp_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        exit;
+    }
+
+    public function add_drink_item() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_add_drink_item' );
+        $post_id = wp_insert_post( array(
+            'post_type'   => 'aorp_drink_item',
+            'post_status' => 'publish',
+            'post_title'  => sanitize_text_field( $_POST['item_title'] ),
+            'post_content'=> sanitize_textarea_field( $_POST['item_description'] )
+        ) );
+        if ( $post_id ) {
+            if ( ! empty( $_POST['item_category'] ) ) {
+                wp_set_object_terms( $post_id, intval( $_POST['item_category'] ), 'aorp_drink_category' );
+            }
+            if ( isset( $_POST['item_number'] ) ) {
+                update_post_meta( $post_id, '_aorp_number', sanitize_text_field( $_POST['item_number'] ) );
+            }
+            if ( isset( $_POST['item_sizes'] ) ) {
+                update_post_meta( $post_id, '_aorp_drink_sizes', sanitize_textarea_field( $_POST['item_sizes'] ) );
+            }
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_drinks' ) );
+        exit;
+    }
+
+    public function update_drink_item() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_edit_drink_item' );
+        $post_id = intval( $_POST['item_id'] );
+        wp_update_post( array(
+            'ID'           => $post_id,
+            'post_title'   => sanitize_text_field( $_POST['item_title'] ),
+            'post_content' => sanitize_textarea_field( $_POST['item_description'] )
+        ) );
+        if ( ! empty( $_POST['item_category'] ) ) {
+            wp_set_object_terms( $post_id, intval( $_POST['item_category'] ), 'aorp_drink_category' );
+        } else {
+            wp_set_object_terms( $post_id, array(), 'aorp_drink_category' );
+        }
+        if ( isset( $_POST['item_number'] ) ) {
+            update_post_meta( $post_id, '_aorp_number', sanitize_text_field( $_POST['item_number'] ) );
+        }
+        if ( isset( $_POST['item_sizes'] ) ) {
+            update_post_meta( $post_id, '_aorp_drink_sizes', sanitize_textarea_field( $_POST['item_sizes'] ) );
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_drinks' ) );
+        exit;
+    }
+
+    public function delete_drink_item() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        $post_id = isset( $_GET['item_id'] ) ? intval( $_GET['item_id'] ) : 0;
+        check_admin_referer( 'aorp_delete_drink_item_' . $post_id );
+        if ( $post_id ) {
+            wp_delete_post( $post_id, true );
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_drinks' ) );
+        exit;
+    }
+
+    public function bulk_delete_drink_item() {
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( 'Nicht erlaubt' );
+        }
+        check_admin_referer( 'aorp_bulk_delete_drink_item' );
+        if ( ! empty( $_POST['item_ids'] ) && is_array( $_POST['item_ids'] ) ) {
+            foreach ( $_POST['item_ids'] as $id ) {
+                wp_delete_post( intval( $id ), true );
+            }
+        }
+        wp_redirect( admin_url( 'admin.php?page=aorp_drinks' ) );
         exit;
     }
 
