@@ -82,15 +82,17 @@ class AIO_Restaurant_Plugin {
 
     public function register_drink_post_type() {
         $labels = array(
-            'name' => __( 'Getränke', 'aorp' ),
-            'singular_name' => __( 'Getränk', 'aorp' )
+            'name'          => __( 'Getränke', 'aorp' ),
+            'singular_name' => __( 'Getränk', 'aorp' ),
+            'menu_name'     => __( 'Getränke-Karte', 'aorp' )
         );
         register_post_type( 'aorp_drink_item', array(
-            'labels' => $labels,
-            'public' => false,
-            'show_ui' => true,
-            'has_archive' => false,
-            'supports' => array( 'title', 'editor', 'thumbnail' )
+            'labels'        => $labels,
+            'public'        => false,
+            'show_ui'       => true,
+            'show_in_menu'  => 'aorp_manage',
+            'has_archive'   => false,
+            'supports'      => array( 'title', 'editor', 'thumbnail' )
         ) );
     }
 
@@ -118,11 +120,27 @@ class AIO_Restaurant_Plugin {
             'show_admin_column' => true,
             'show_ui' => false,
         ) );
+
+        $drink_labels = array(
+            'name'          => __( 'Getränke Kategorien', 'aorp' ),
+            'singular_name' => __( 'Getränke Kategorie', 'aorp' )
+        );
+        register_taxonomy( 'aorp_drink_category', 'aorp_drink_item', array(
+            'labels'            => $drink_labels,
+            'hierarchical'      => true,
+            'show_admin_column' => true,
+            'show_ui'           => true,
+        ) );
         // Term Meta for Styling
         add_action( 'aorp_menu_category_add_form_fields', array( $this, 'add_category_fields' ) );
         add_action( 'aorp_menu_category_edit_form_fields', array( $this, 'edit_category_fields' ), 10, 2 );
         add_action( 'created_aorp_menu_category', array( $this, 'save_category_fields' ) );
         add_action( 'edited_aorp_menu_category', array( $this, 'save_category_fields' ) );
+
+        add_action( 'aorp_drink_category_add_form_fields', array( $this, 'add_category_fields' ) );
+        add_action( 'aorp_drink_category_edit_form_fields', array( $this, 'edit_category_fields' ), 10, 2 );
+        add_action( 'created_aorp_drink_category', array( $this, 'save_category_fields' ) );
+        add_action( 'edited_aorp_drink_category', array( $this, 'save_category_fields' ) );
     }
 
     public function add_category_fields() {
@@ -648,23 +666,74 @@ class AIO_Restaurant_Plugin {
     }
 
     public function getraenkekarte_shortcode( $atts ) {
-        $query = new WP_Query( array(
-            'post_type'      => 'aorp_drink_item',
-            'posts_per_page' => -1,
-            'meta_key'       => '_aorp_number',
-            'orderby'        => 'meta_value_num',
-            'order'          => 'ASC',
-        ) );
+        $default = (int) get_option( 'aorp_menu_columns', 1 );
+        $atts = shortcode_atts( array( 'columns' => $default, 'kategorien' => '' ), $atts, 'getraenkekarte' );
+        $columns = max( 1, min( 3, intval( $atts['columns'] ) ) );
+
         ob_start();
-        if ( $query->have_posts() ) {
-            echo '<div class="aorp-menu">';
-            while ( $query->have_posts() ) {
-                $query->the_post();
-                $this->render_drink_item();
-            }
-            echo '</div>';
-            wp_reset_postdata();
+        echo '<p class="aorp-note">🔽 Klicke auf eine Kategorie, um die Getränke einzublenden.</p>';
+        echo '<div class="aorp-search-wrapper"><div id="aorp-search-overlay"><input type="text" id="aorp-search-input" placeholder="Suche nach Getränken …" /><div id="aorp-search-results"></div></div><button type="button" id="aorp-close-cats" class="aorp-close-cats">Alle Kategorien schließen</button></div>';
+
+        echo '<div class="aorp-menu columns-' . $columns . '">';
+
+        $args = array( 'taxonomy' => 'aorp_drink_category', 'hide_empty' => false );
+        if ( ! empty( $atts['kategorien'] ) ) {
+            $args['slug'] = array_map( 'trim', explode( ',', $atts['kategorien'] ) );
         }
+        $terms = get_terms( $args );
+
+        if ( empty( $terms ) ) {
+            $query = new WP_Query( array(
+                'post_type'      => 'aorp_drink_item',
+                'posts_per_page' => -1,
+                'meta_key'       => '_aorp_number',
+                'orderby'        => 'meta_value_num',
+                'order'          => 'ASC',
+            ) );
+            if ( $query->have_posts() ) {
+                echo '<h3 class="aorp-category">Alle Getränke</h3>';
+                echo '<div class="aorp-items">';
+                while ( $query->have_posts() ) {
+                    $query->the_post();
+                    $this->render_drink_item();
+                }
+                echo '</div>';
+                wp_reset_postdata();
+            }
+        } else {
+            foreach ( $terms as $term ) {
+                $query = new WP_Query( array(
+                    'post_type'      => 'aorp_drink_item',
+                    'tax_query'      => array( array( 'taxonomy' => 'aorp_drink_category', 'field' => 'term_id', 'terms' => $term->term_id ) ),
+                    'meta_key'       => '_aorp_number',
+                    'orderby'        => 'meta_value_num',
+                    'order'          => 'ASC',
+                ) );
+                if ( $query->have_posts() ) {
+                    $bg = get_term_meta( $term->term_id, 'aorp_bg', true );
+                    $color = get_term_meta( $term->term_id, 'aorp_color', true );
+                    $size = get_term_meta( $term->term_id, 'aorp_font_size', true );
+                    $width = get_term_meta( $term->term_id, 'aorp_width', true );
+                    $height = get_term_meta( $term->term_id, 'aorp_height', true );
+                    $style = '';
+                    if ( $bg ) $style .= 'background:' . esc_attr( $bg ) . ';';
+                    if ( $color ) $style .= 'color:' . esc_attr( $color ) . ';';
+                    if ( $size ) $style .= 'font-size:' . esc_attr( $size ) . ';';
+                    if ( $width ) $style .= 'width:' . esc_attr( $width ) . ';';
+                    if ( $height ) $style .= 'height:' . esc_attr( $height ) . ';';
+
+                    echo '<h3 class="aorp-category" style="' . esc_attr( $style ) . '">' . esc_html( $term->name ) . '</h3>';
+                    echo '<div class="aorp-items">';
+                    while ( $query->have_posts() ) {
+                        $query->the_post();
+                        $this->render_drink_item();
+                    }
+                    echo '</div>';
+                    wp_reset_postdata();
+                }
+            }
+        }
+        echo '</div>';
         return ob_get_clean();
     }
 
