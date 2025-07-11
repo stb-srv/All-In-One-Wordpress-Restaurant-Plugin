@@ -23,6 +23,24 @@ jQuery(document).ready(function($){
         });
     });
 
+    var aorpSortDir = 'asc';
+    $('#aorp-number-sort').on('click', function(e){
+        e.preventDefault();
+        var rows = $('#aorp-items-table tbody tr').get();
+        rows.sort(function(a,b){
+            var A = parseFloat($(a).find('td').eq(4).text()) || 0;
+            var B = parseFloat($(b).find('td').eq(4).text()) || 0;
+            if(aorpSortDir === 'asc'){
+                return A - B;
+            }
+            return B - A;
+        });
+        $.each(rows, function(i,row){
+            $('#aorp-items-table tbody').append(row);
+        });
+        aorpSortDir = aorpSortDir === 'asc' ? 'desc' : 'asc';
+    });
+
     function updateInput(container){
         var list = [];
         container.find('.aorp-ing-chip').each(function(){
