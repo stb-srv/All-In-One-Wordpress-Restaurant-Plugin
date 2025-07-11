@@ -1038,6 +1038,7 @@ class AIO_Restaurant_Plugin {
         ?>
         <div class="wrap">
             <h1>Speisekarte Verwaltung</h1>
+            <p class="description">Nutze den Shortcode <code>[speisekarte]</code> um die Speisekarte auf der Website einzubinden.</p>
             <?php $this->render_category_form( $categories, $current_cat ); ?>
             <?php $this->render_ingredient_form( $ingredients_posts, $current_ing ); ?>
             <?php $this->render_item_form( $items, $categories, $ingredients_list, $current ); ?>
@@ -1295,6 +1296,16 @@ class AIO_Restaurant_Plugin {
             $type = isset( $msg['type'] ) ? $msg['type'] : 'notice-success';
             printf( '<div class="%s notice is-dismissible"><p>%s</p></div>', esc_attr( $type ), esc_html( $msg['text'] ) );
             delete_transient( 'aorp_import_msg' );
+        }
+
+        $screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+        if ( $screen ) {
+            if ( 'toplevel_page_aorp_manage' === $screen->id ) {
+                echo '<div class="notice notice-info"><p>Shortcode f\xC3\xBCr die Speisekarte: <code>[speisekarte]</code></p></div>';
+            }
+            if ( in_array( $screen->id, array( 'edit-aorp_drink_item', 'aorp_drink_item' ), true ) ) {
+                echo '<div class="notice notice-info"><p>Shortcode f\xC3\xBCr die Getr\xC3\xA4nke-Karte: <code>[getraenkekarte]</code></p></div>';
+            }
         }
     }
 
