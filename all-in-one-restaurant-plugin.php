@@ -2,7 +2,7 @@
 /*
 Plugin Name: All-In-One WordPress Restaurant Plugin
 Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode, Suchfunktion und Import/Export.
-Version: 1.4.1
+Version: 1.5
 Author: stb-srv
 */
 
@@ -925,6 +925,7 @@ class AIO_Restaurant_Plugin {
         $terms = get_terms( $args );
 
         if ( empty( $terms ) ) {
+            $this->ingredient_numbers = array();
             $query = new WP_Query( array(
                 'post_type'      => 'aorp_drink_item',
                 'posts_per_page' => -1,
@@ -947,10 +948,12 @@ class AIO_Restaurant_Plugin {
                 }
                 echo '</tbody></table>';
                 echo '</div>';
+                echo $this->render_ingredient_legend();
                 wp_reset_postdata();
             }
         } else {
             foreach ( $terms as $term ) {
+                $this->ingredient_numbers = array();
                 $query = new WP_Query( array(
                     'post_type'      => 'aorp_drink_item',
                     'tax_query'      => array( array( 'taxonomy' => 'aorp_drink_category', 'field' => 'term_id', 'terms' => $term->term_id ) ),
@@ -985,12 +988,12 @@ class AIO_Restaurant_Plugin {
                     }
                     echo '</tbody></table>';
                     echo '</div>';
+                    echo $this->render_ingredient_legend();
                     wp_reset_postdata();
                 }
             }
         }
         echo '</div>';
-        echo $this->render_ingredient_legend();
         return ob_get_clean();
     }
 
