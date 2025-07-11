@@ -19,6 +19,7 @@ body.aorp-dark .aorp-close-cats{background:#444;color:#fff;border-color:#666}
 .aorp-drink-sizes li{display:flex;justify-content:space-between}
 .aorp-drink-table{width:100%;border-collapse:collapse;margin:0 0 2em}
 .aorp-drink-table th,.aorp-drink-table td{padding:0.4em 0.5em;text-align:left}
+.aorp-drink-table th:not(:first-child),.aorp-drink-table td:not(:first-child){padding-left:2em}
 .aorp-drink-table th{font-weight:bold}
 .aorp-drink-table tbody tr{border-bottom:1px solid #ddd}
 .aorp-drink-table tbody tr:last-child{border-bottom:none}
