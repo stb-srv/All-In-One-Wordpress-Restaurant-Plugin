@@ -914,7 +914,7 @@ class AIO_Restaurant_Plugin {
 
         ob_start();
         echo '<p class="aorp-note">🔽 Klicke auf eine Kategorie, um die Getränke einzublenden.</p>';
-        echo '<div class="aorp-search-wrapper"><div id="aorp-search-overlay"><input type="text" id="aorp-search-input" placeholder="Suche nach Getränken …" /><div id="aorp-search-results"></div></div><button type="button" id="aorp-close-cats" class="aorp-close-cats">Alle Kategorien schließen</button></div>';
+        echo '<div class="aorp-search-wrapper"><button type="button" id="aorp-close-cats" class="aorp-close-cats">Alle Kategorien schließen</button></div>';
 
         echo '<div class="aorp-menu columns-' . $columns . '">';
 
