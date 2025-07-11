@@ -17,6 +17,9 @@ body.aorp-dark .aorp-close-cats{background:#444;color:#fff;border-color:#666}
 .aorp-ingredients{font-size:0.8em;color:#666}
 .aorp-drink-sizes{list-style:none;margin:0 0 .5em 0;padding:0}
 .aorp-drink-sizes li{display:flex;justify-content:space-between}
+.aorp-drink-table{width:100%;border-collapse:collapse;margin:0 0 .5em}
+.aorp-drink-table th,.aorp-drink-table td{padding:0.2em 0.5em;text-align:left}
+.aorp-drink-table th{font-weight:bold}
 .columns-2 .aorp-category{width:48%;float:left;margin-right:1%}
 .columns-3 .aorp-category{width:31%;float:left;margin-right:1%}
 .columns-2 .aorp-items,.columns-3 .aorp-items{width:100%;float:none;clear:both;margin-right:0}
