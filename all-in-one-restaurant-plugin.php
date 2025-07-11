@@ -858,7 +858,7 @@ class AIO_Restaurant_Plugin {
         echo '</div>';
     }
 
-    private function render_drink_item_row() {
+    private function render_drink_item_row( $volumes = array() ) {
         $sizes_raw        = get_post_meta( get_the_ID(), '_aorp_drink_sizes', true );
         $ingredients      = get_post_meta( get_the_ID(), '_aorp_ingredients', true );
         $ingredient_names = $this->get_ingredient_names( $ingredients );
@@ -871,6 +871,10 @@ class AIO_Restaurant_Plugin {
             }
         }
 
+        if ( empty( $volumes ) ) {
+            $volumes = array_keys( $size_map );
+        }
+
         echo '<tr>';
         echo '<td class="aorp-title">' . get_the_title();
         $content = apply_filters( 'the_content', get_the_content() );
@@ -881,7 +885,7 @@ class AIO_Restaurant_Plugin {
             echo '<div class="aorp-ingredients"><em>' . esc_html( $ingredient_names ) . '</em></div>';
         }
         echo '</td>';
-        foreach ( $this->drink_volumes as $vol ) {
+        foreach ( $volumes as $vol ) {
             if ( isset( $size_map[ $vol ] ) ) {
                 echo '<td>' . esc_html( $this->format_price( $size_map[ $vol ] ) ) . '</td>';
             } else {
@@ -921,17 +925,18 @@ class AIO_Restaurant_Plugin {
                 'order'          => 'ASC',
             ) );
             if ( $query->have_posts() ) {
+                $vols = $this->get_used_drink_volumes( $query->posts );
                 echo '<h3 class="aorp-category">Alle Getränke</h3>';
                 echo '<div class="aorp-items">';
                 echo '<table class="aorp-drink-table">';
                 echo '<thead><tr><th></th>';
-                foreach ( $this->drink_volumes as $vol ) {
+                foreach ( $vols as $vol ) {
                     echo '<th>' . esc_html( $vol ) . '</th>';
                 }
                 echo '</tr></thead><tbody>';
                 while ( $query->have_posts() ) {
                     $query->the_post();
-                    $this->render_drink_item_row();
+                    $this->render_drink_item_row( $vols );
                 }
                 echo '</tbody></table>';
                 echo '</div>';
@@ -958,17 +963,18 @@ class AIO_Restaurant_Plugin {
                     if ( $width ) $style .= 'width:' . esc_attr( $width ) . ';';
                     if ( $height ) $style .= 'height:' . esc_attr( $height ) . ';';
 
+                    $vols = $this->get_used_drink_volumes( $query->posts );
                     echo '<h3 class="aorp-category" style="' . esc_attr( $style ) . '">' . esc_html( $term->name ) . '</h3>';
                     echo '<div class="aorp-items">';
                     echo '<table class="aorp-drink-table">';
                     echo '<thead><tr><th></th>';
-                    foreach ( $this->drink_volumes as $vol ) {
+                    foreach ( $vols as $vol ) {
                         echo '<th>' . esc_html( $vol ) . '</th>';
                     }
                     echo '</tr></thead><tbody>';
                     while ( $query->have_posts() ) {
                         $query->the_post();
-                        $this->render_drink_item_row();
+                        $this->render_drink_item_row( $vols );
                     }
                     echo '</tbody></table>';
                     echo '</div>';
@@ -1774,6 +1780,32 @@ class AIO_Restaurant_Plugin {
             }
         }
         return implode( ', ', $labels );
+    }
+
+    /**
+     * Determine which drink volumes are used within a set of posts.
+     *
+     * @param array $posts Array of WP_Post objects.
+     * @return array Ordered list of used volumes.
+     */
+    private function get_used_drink_volumes( $posts ) {
+        $found = array();
+        foreach ( $posts as $post ) {
+            $raw = get_post_meta( $post->ID, '_aorp_drink_sizes', true );
+            foreach ( explode( "\n", $raw ) as $line ) {
+                $parts = array_map( 'trim', explode( '=', $line ) );
+                if ( 2 === count( $parts ) && $parts[1] !== '' ) {
+                    $found[ $parts[0] ] = true;
+                }
+            }
+        }
+        $vols = array();
+        foreach ( $this->drink_volumes as $vol ) {
+            if ( isset( $found[ $vol ] ) ) {
+                $vols[] = $vol;
+            }
+        }
+        return $vols;
     }
 
     private function format_price( $price ) {
