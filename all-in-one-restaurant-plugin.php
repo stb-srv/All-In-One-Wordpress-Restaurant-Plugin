@@ -36,6 +36,12 @@ class AIO_Restaurant_Plugin {
      */
     private $drink_volumes = array( '0,2l', '0,3l', '0,4l', '0,5l', '0,33l', '2cl' );
     private $default_drink_cat_slug = 'kategorielos';
+    /**
+     * Mapping of ingredient codes to numeric references for legends.
+     *
+     * @var array
+     */
+    private $ingredient_numbers = array();
 
     public function __construct() {
         add_action( 'init', array( $this, 'register_post_type' ) );
@@ -859,9 +865,9 @@ class AIO_Restaurant_Plugin {
     }
 
     private function render_drink_item_row( $volumes = array() ) {
-        $sizes_raw        = get_post_meta( get_the_ID(), '_aorp_drink_sizes', true );
-        $ingredients      = get_post_meta( get_the_ID(), '_aorp_ingredients', true );
-        $ingredient_names = $this->get_ingredient_names( $ingredients );
+        $sizes_raw   = get_post_meta( get_the_ID(), '_aorp_drink_sizes', true );
+        $ingredients = get_post_meta( get_the_ID(), '_aorp_ingredients', true );
+        $numbers     = $this->assign_ingredient_numbers( $ingredients );
 
         $size_map = array();
         foreach ( explode( "\n", $sizes_raw ) as $line ) {
@@ -877,12 +883,12 @@ class AIO_Restaurant_Plugin {
 
         echo '<tr>';
         echo '<td class="aorp-title">' . get_the_title();
+        if ( $numbers ) {
+            echo ' <sup class="aorp-ing-num">' . esc_html( $numbers ) . '</sup>';
+        }
         $content = apply_filters( 'the_content', get_the_content() );
         if ( $content ) {
             echo '<div class="aorp-desc">' . $content . '</div>';
-        }
-        if ( $ingredient_names ) {
-            echo '<div class="aorp-ingredients"><em>' . esc_html( $ingredient_names ) . '</em></div>';
         }
         echo '</td>';
         foreach ( $volumes as $vol ) {
@@ -904,6 +910,7 @@ class AIO_Restaurant_Plugin {
         $default = (int) get_option( 'aorp_menu_columns', 1 );
         $atts = shortcode_atts( array( 'columns' => $default, 'kategorien' => '' ), $atts, 'getraenkekarte' );
         $columns = max( 1, min( 3, intval( $atts['columns'] ) ) );
+        $this->ingredient_numbers = array();
 
         ob_start();
         echo '<p class="aorp-note">🔽 Klicke auf eine Kategorie, um die Getränke einzublenden.</p>';
@@ -983,6 +990,7 @@ class AIO_Restaurant_Plugin {
             }
         }
         echo '</div>';
+        echo $this->render_ingredient_legend();
         return ob_get_clean();
     }
 
@@ -1780,6 +1788,48 @@ class AIO_Restaurant_Plugin {
             }
         }
         return implode( ', ', $labels );
+    }
+
+    /**
+     * Assign numeric references to ingredient codes and return a comma
+     * separated list of these numbers for display next to a menu item.
+     *
+     * @param string $codes Comma separated ingredient codes.
+     * @return string Comma separated list of numeric references.
+     */
+    private function assign_ingredient_numbers( $codes ) {
+        $codes = array_filter( array_map( 'trim', explode( ',', $codes ) ) );
+        if ( empty( $codes ) ) {
+            return '';
+        }
+        $numbers = array();
+        foreach ( $codes as $code ) {
+            if ( ! isset( $this->ingredient_numbers[ $code ] ) ) {
+                $this->ingredient_numbers[ $code ] = count( $this->ingredient_numbers ) + 1;
+            }
+            $numbers[] = $this->ingredient_numbers[ $code ];
+        }
+        return implode( ',', $numbers );
+    }
+
+    /**
+     * Render an ingredient legend based on collected ingredient numbers.
+     *
+     * @return string HTML list of ingredient numbers and names.
+     */
+    private function render_ingredient_legend() {
+        if ( empty( $this->ingredient_numbers ) ) {
+            return '';
+        }
+        $legend  = '<div class="aorp-ingredients-legend"><ul>';
+        $sorted  = array_flip( $this->ingredient_numbers ); // number => code
+        ksort( $sorted );
+        foreach ( $sorted as $num => $code ) {
+            $name    = $this->get_ingredient_names( $code );
+            $legend .= '<li><sup>' . $num . '</sup> ' . esc_html( $name ) . '</li>';
+        }
+        $legend .= '</ul></div>';
+        return $legend;
     }
 
     /**

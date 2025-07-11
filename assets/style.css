@@ -33,6 +33,10 @@ body.aorp-dark .aorp-category{background:#333;color:#fff}
 .aorp-selected{margin-bottom:.5em}
 .aorp-ing-chip{background:#eee;padding:2px 5px;margin-right:4px;display:inline-block;border-radius:3px}
 .aorp-ing-chip a{text-decoration:none;margin-left:3px}
+.aorp-ing-num{font-size:.7em;vertical-align:super;margin-left:2px}
+.aorp-ingredients-legend{font-size:.8em;margin-top:1em}
+.aorp-ingredients-legend ul{list-style:none;margin:0;padding:0}
+.aorp-ingredients-legend li{margin:0 0 .2em 0}
 
 @media (max-width:600px){
     .columns-2 .aorp-category,
