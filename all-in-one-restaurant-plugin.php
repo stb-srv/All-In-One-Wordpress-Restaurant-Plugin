@@ -29,6 +29,13 @@ function aorp_wp_kses_post_iframe( $content ) {
 
 class AIO_Restaurant_Plugin {
 
+    /**
+     * Default drink volumes used across the plugin.
+     *
+     * @var array
+     */
+    private $drink_volumes = array( '0,2l', '0,3l', '0,4l', '0,5l', '0,33l', '2cl' );
+
     public function __construct() {
         add_action( 'init', array( $this, 'register_post_type' ) );
         add_action( 'init', array( $this, 'register_drink_post_type' ) );
@@ -511,8 +518,7 @@ class AIO_Restaurant_Plugin {
                         $size_vals[ $parts[0] ] = $parts[1];
                     }
                 }
-                $volumes = array( '0,2l','0,3l','0,4l','0,5l','0,33l','2cl' );
-                foreach ( $volumes as $vol ) {
+                foreach ( $this->drink_volumes as $vol ) {
                     $val = isset( $size_vals[ $vol ] ) ? $size_vals[ $vol ] : '';
                     echo '<p><label>' . esc_html( $vol ) . ' <input type="text" name="item_sizes[' . esc_attr( $vol ) . ']" value="' . esc_attr( $val ) . '" placeholder="Preis" /></label></p>';
                 }
@@ -544,8 +550,7 @@ class AIO_Restaurant_Plugin {
             <?php wp_nonce_field( 'aorp_add_drink_item' ); ?>
             <p><input type="text" name="item_title" placeholder="Name" required /></p>
             <p><textarea name="item_description" placeholder="Beschreibung" rows="3"></textarea></p>
-            <?php $volumes = array( '0,2l','0,3l','0,4l','0,5l','0,33l','2cl' );
-                foreach ( $volumes as $vol ) {
+            <?php foreach ( $this->drink_volumes as $vol ) {
                     echo '<p><label>' . esc_html( $vol ) . ' <input type="text" name="item_sizes[' . esc_attr( $vol ) . ']" placeholder="Preis" /></label></p>';
                 }
             ?>
@@ -706,8 +711,7 @@ class AIO_Restaurant_Plugin {
                 $size_vals[ $parts[0] ] = $parts[1];
             }
         }
-        $volumes = array( '0,2l','0,3l','0,4l','0,5l','0,33l','2cl' );
-        foreach ( $volumes as $vol ) {
+        foreach ( $this->drink_volumes as $vol ) {
             $val = isset( $size_vals[ $vol ] ) ? $size_vals[ $vol ] : '';
             echo '<p><label>' . esc_html( $vol ) . ' <input type="text" name="aorp_drink_sizes[' . esc_attr( $vol ) . ']" value="' . esc_attr( $val ) . '" placeholder="Preis" /></label></p>';
         }
@@ -845,28 +849,39 @@ class AIO_Restaurant_Plugin {
     }
 
     private function render_drink_item() {
-        $sizes_raw = get_post_meta( get_the_ID(), '_aorp_drink_sizes', true );
-        $ingredients = get_post_meta( get_the_ID(), '_aorp_ingredients', true );
+        $sizes_raw       = get_post_meta( get_the_ID(), '_aorp_drink_sizes', true );
+        $ingredients     = get_post_meta( get_the_ID(), '_aorp_ingredients', true );
         $ingredient_names = $this->get_ingredient_names( $ingredients );
-        $sizes = array();
+
+        $size_map = array();
         foreach ( explode( "\n", $sizes_raw ) as $line ) {
             $parts = array_map( 'trim', explode( '=', $line ) );
             if ( count( $parts ) === 2 ) {
-                $sizes[] = esc_html( $parts[0] ) . ' - ' . esc_html( $this->format_price( $parts[1] ) );
+                $size_map[ $parts[0] ] = $parts[1];
             }
         }
+
         echo '<div class="aorp-item">';
         echo '<div class="aorp-text">';
-        echo '<div class="aorp-header">';
-        echo '<span class="aorp-title">' . get_the_title() . '</span>';
-        echo '</div>';
-        if ( $sizes ) {
-            echo '<ul class="aorp-drink-sizes">';
-            foreach ( $sizes as $s ) {
-                echo '<li>' . $s . '</li>';
+
+        echo '<table class="aorp-drink-table">';
+        echo '<thead><tr><th></th>';
+        foreach ( $this->drink_volumes as $vol ) {
+            if ( isset( $size_map[ $vol ] ) ) {
+                echo '<th>' . esc_html( $vol ) . '</th>';
             }
-            echo '</ul>';
         }
+        echo '</tr></thead>';
+
+        echo '<tbody><tr>';
+        echo '<td class="aorp-title">' . get_the_title() . '</td>';
+        foreach ( $this->drink_volumes as $vol ) {
+            if ( isset( $size_map[ $vol ] ) ) {
+                echo '<td>' . esc_html( $this->format_price( $size_map[ $vol ] ) ) . '</td>';
+            }
+        }
+        echo '</tr></tbody></table>';
+
         $content = apply_filters( 'the_content', get_the_content() );
         if ( $content ) {
             echo '<div class="aorp-desc">' . $content . '</div>';
@@ -874,6 +889,7 @@ class AIO_Restaurant_Plugin {
         if ( $ingredient_names ) {
             echo '<div class="aorp-ingredients"><em>' . esc_html( $ingredient_names ) . '</em></div>';
         }
+
         echo '</div>';
         echo '</div>';
     }
@@ -1546,6 +1562,13 @@ class AIO_Restaurant_Plugin {
             delete_transient( 'aorp_import_msg' );
         }
 
+        $drink_msg = get_transient( 'aorp_drink_msg' );
+        if ( $drink_msg ) {
+            $type = isset( $drink_msg['type'] ) ? $drink_msg['type'] : 'notice-success';
+            printf( '<div class="%s notice is-dismissible"><p>%s</p></div>', esc_attr( $type ), esc_html( $drink_msg['text'] ) );
+            delete_transient( 'aorp_drink_msg' );
+        }
+
         $screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
         if ( $screen ) {
             if ( 'toplevel_page_aorp_manage' === $screen->id ) {
@@ -1953,10 +1976,18 @@ class AIO_Restaurant_Plugin {
             wp_die( 'Nicht erlaubt' );
         }
         check_admin_referer( 'aorp_add_drink_item' );
+        $title = sanitize_text_field( $_POST['item_title'] );
+        $existing = get_page_by_title( $title, OBJECT, 'aorp_drink_item' );
+        if ( $existing ) {
+            set_transient( 'aorp_drink_msg', array( 'type' => 'notice-error', 'text' => 'Getränk existiert bereits.' ), 30 );
+            wp_redirect( admin_url( 'admin.php?page=aorp_drinks' ) );
+            exit;
+        }
+
         $post_id = wp_insert_post( array(
             'post_type'   => 'aorp_drink_item',
             'post_status' => 'publish',
-            'post_title'  => sanitize_text_field( $_POST['item_title'] ),
+            'post_title'  => $title,
             'post_content'=> sanitize_textarea_field( $_POST['item_description'] )
         ) );
         if ( $post_id ) {
@@ -1987,9 +2018,17 @@ class AIO_Restaurant_Plugin {
         }
         check_admin_referer( 'aorp_edit_drink_item' );
         $post_id = intval( $_POST['item_id'] );
+        $title   = sanitize_text_field( $_POST['item_title'] );
+        $existing = get_page_by_title( $title, OBJECT, 'aorp_drink_item' );
+        if ( $existing && intval( $existing->ID ) !== $post_id ) {
+            set_transient( 'aorp_drink_msg', array( 'type' => 'notice-error', 'text' => 'Getränk existiert bereits.' ), 30 );
+            wp_redirect( admin_url( 'admin.php?page=aorp_drinks&edit=' . $post_id ) );
+            exit;
+        }
+
         wp_update_post( array(
             'ID'           => $post_id,
-            'post_title'   => sanitize_text_field( $_POST['item_title'] ),
+            'post_title'   => $title,
             'post_content' => sanitize_textarea_field( $_POST['item_description'] )
         ) );
         if ( ! empty( $_POST['item_category'] ) ) {
