@@ -3,8 +3,19 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Manages the Leaflet map settings and shortcode.
+ *
+ * @package AIO_Restaurant_Plugin
+ */
 class AIO_Leaflet_Map {
 
+
+/**
+ * __construct
+ *
+ * @return void
+ */
     public function __construct() {
         add_action( 'admin_menu', array( $this, 'admin_menu' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
@@ -13,6 +24,12 @@ class AIO_Leaflet_Map {
         add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_assets' ) );
     }
 
+
+/**
+ * register_settings
+ *
+ * @return void
+ */
     public function register_settings() {
         register_setting( 'aio_leaflet_map', 'aio_leaflet_lat', array(
             'sanitize_callback' => 'floatval',
@@ -28,6 +45,12 @@ class AIO_Leaflet_Map {
         ) );
     }
 
+
+/**
+ * admin_enqueue_assets
+ *
+ * @return void
+ */
     public function admin_enqueue_assets( $hook ) {
         if ( 'toplevel_page_aio_leaflet_map' !== $hook ) {
             return;
@@ -36,13 +59,25 @@ class AIO_Leaflet_Map {
         wp_enqueue_style( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.css' );
         wp_enqueue_script( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.js', array(), null, true );
         wp_enqueue_style( 'aio-leaflet-map', $plugin_url . '../assets/css/map.css' );
-        wp_enqueue_script( 'aio-leaflet-map-admin', $plugin_url . '../assets/js/map-admin.js', array( 'leaflet' ), null, true );
+        wp_enqueue_script( 'aio-leaflet-map-admin', $plugin_url . '../assets/js/admin/map-admin.js', array( 'leaflet' ), null, true );
     }
 
+
+/**
+ * admin_menu
+ *
+ * @return void
+ */
     public function admin_menu() {
         add_menu_page( 'AIO-Karten', 'AIO-Karten', 'manage_options', 'aio_leaflet_map', array( $this, 'settings_page' ), 'dashicons-location-alt' );
     }
 
+
+/**
+ * settings_page
+ *
+ * @return void
+ */
     public function settings_page() {
         ?>
         <div class="wrap">
@@ -74,6 +109,12 @@ class AIO_Leaflet_Map {
         <?php
     }
 
+
+/**
+ * maybe_enqueue_assets
+ *
+ * @return void
+ */
     public function maybe_enqueue_assets() {
         if ( ! is_singular() ) {
             return;
@@ -101,7 +142,7 @@ class AIO_Leaflet_Map {
             wp_enqueue_style( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.css' );
             wp_enqueue_script( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.js', array(), null, true );
             wp_enqueue_style( 'aio-leaflet-map', $plugin_url . '../assets/css/map.css' );
-            wp_enqueue_script( 'aio-leaflet-map', $plugin_url . '../assets/js/map.js', array( 'leaflet' ), null, true );
+            wp_enqueue_script( 'aio-leaflet-map', $plugin_url . '../assets/js/frontend/map.js', array( 'leaflet' ), null, true );
             $data = array(
                 'lat'   => get_option( 'aio_leaflet_lat', 0 ),
                 'lng'   => get_option( 'aio_leaflet_lng', 0 ),
@@ -112,6 +153,12 @@ class AIO_Leaflet_Map {
         }
     }
 
+
+/**
+ * render_shortcode
+ *
+ * @return void
+ */
     public function render_shortcode() {
         $plugin_url = plugin_dir_url( __FILE__ );
 
@@ -119,7 +166,7 @@ class AIO_Leaflet_Map {
         wp_enqueue_style( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.css' );
         wp_enqueue_script( 'leaflet', $plugin_url . '../assets/leaflet/leaflet.js', array(), null, true );
         wp_enqueue_style( 'aio-leaflet-map', $plugin_url . '../assets/css/map.css' );
-        wp_enqueue_script( 'aio-leaflet-map', $plugin_url . '../assets/js/map.js', array( 'leaflet' ), null, true );
+        wp_enqueue_script( 'aio-leaflet-map', $plugin_url . '../assets/js/frontend/map.js', array( 'leaflet' ), null, true );
 
         // Pass saved coordinates to the initialization script
         $data = array(

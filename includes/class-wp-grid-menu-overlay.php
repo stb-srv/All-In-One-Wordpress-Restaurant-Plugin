@@ -3,6 +3,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Outputs grid overlays on the frontend.
+ *
+ * @package AIO_Restaurant_Plugin
+ */
 class WP_Grid_Menu_Overlay {
     private static $instance = null;
 
@@ -13,15 +18,33 @@ class WP_Grid_Menu_Overlay {
         return self::$instance;
     }
 
+
+/**
+ * __construct
+ *
+ * @return void
+ */
     private function __construct() {
         add_shortcode( 'wp_grid_menu_overlay', array( $this, 'shortcode' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ) );
     }
 
+
+/**
+ * enqueue
+ *
+ * @return void
+ */
     public function enqueue() {
         wp_enqueue_style( 'wp-grid-menu-overlay', plugin_dir_url( __FILE__ ) . '../assets/css/wp-grid-menu-overlay.css' );
     }
 
+
+/**
+ * get_templates
+ *
+ * @return void
+ */
     private function get_templates() {
         if ( is_multisite() ) {
             return array_merge( get_site_option( 'wpgmo_templates_network', array() ), get_option( 'wpgmo_templates', array() ) );
@@ -29,6 +52,12 @@ class WP_Grid_Menu_Overlay {
         return get_option( 'wpgmo_templates', array() );
     }
 
+
+/**
+ * shortcode
+ *
+ * @return void
+ */
     public function shortcode( $atts ) {
         global $post;
         $default = get_option( 'wpgmo_default_template', is_multisite() ? get_site_option( 'wpgmo_default_template_network', '' ) : '' );

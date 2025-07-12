@@ -3,6 +3,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Meta box allowing grid template selection on posts.
+ *
+ * @package AIO_Restaurant_Plugin
+ */
 class WPGMO_Meta_Box {
     private static $instance = null;
 
@@ -13,15 +18,33 @@ class WPGMO_Meta_Box {
         return self::$instance;
     }
 
+
+/**
+ * __construct
+ *
+ * @return void
+ */
     private function __construct() {
         add_action( 'add_meta_boxes', array( $this, 'add_box' ) );
         add_action( 'save_post', array( $this, 'save' ) );
     }
 
+
+/**
+ * add_box
+ *
+ * @return void
+ */
     public function add_box() {
         add_meta_box( 'wpgmo_box', __('Grid-Overlay Inhalt','aorp'), array( $this, 'render_box' ), ['post','page'], 'normal', 'high' );
     }
 
+
+/**
+ * render_box
+ *
+ * @return void
+ */
     public function render_box( $post ) {
         $templates_net  = get_site_option( 'wpgmo_templates_network', array() );
         $templates_site = get_option( 'wpgmo_templates', array() );
@@ -59,6 +82,12 @@ class WPGMO_Meta_Box {
         }
     }
 
+
+/**
+ * save
+ *
+ * @return void
+ */
     public function save( $post_id ) {
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
             return;

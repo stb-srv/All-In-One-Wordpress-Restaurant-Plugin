@@ -1,3 +1,4 @@
+/***** Grid overlay styles for front-end layout */
 .wpgmo-grid{display:flex;flex-direction:column;gap:10px}
 .wpgmo-row{display:flex;gap:10px;flex-wrap:wrap}
 .wpgmo-cell{border:1px solid #eee;padding:10px;flex:1}
