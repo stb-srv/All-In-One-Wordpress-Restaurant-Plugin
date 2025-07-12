@@ -140,7 +140,8 @@ class AORP_Ajax_Handler {
                 set_post_thumbnail( $post_id, intval( $_POST['item_image_id'] ) );
             }
             if ( isset( $_POST['item_ingredients'] ) ) {
-                update_post_meta( $post_id, '_aorp_ingredients', sanitize_textarea_field( $_POST['item_ingredients'] ) );
+                $ings = array_filter( array_map( 'sanitize_text_field', explode( ',', $_POST['item_ingredients'] ) ) );
+                update_post_meta( $post_id, '_aorp_ingredients', implode( ', ', $ings ) );
             }
             wp_send_json_success( array( 'row' => $this->food_row_html( $post_id ) ) );
         }
@@ -173,7 +174,8 @@ class AORP_Ajax_Handler {
             set_post_thumbnail( $post_id, intval( $_POST['item_image_id'] ) );
         }
         if ( isset( $_POST['item_ingredients'] ) ) {
-            update_post_meta( $post_id, '_aorp_ingredients', sanitize_textarea_field( $_POST['item_ingredients'] ) );
+            $ings = array_filter( array_map( 'sanitize_text_field', explode( ',', $_POST['item_ingredients'] ) ) );
+            update_post_meta( $post_id, '_aorp_ingredients', implode( ', ', $ings ) );
         }
         wp_send_json_success( array( 'row' => $this->food_row_html( $post_id ) ) );
     }
@@ -229,7 +231,8 @@ class AORP_Ajax_Handler {
                 update_post_meta( $post_id, '_aorp_drink_sizes', implode( "\n", $lines ) );
             }
             if ( isset( $_POST['item_ingredients'] ) ) {
-                update_post_meta( $post_id, '_aorp_ingredients', sanitize_textarea_field( $_POST['item_ingredients'] ) );
+                $ings = array_filter( array_map( 'sanitize_text_field', explode( ',', $_POST['item_ingredients'] ) ) );
+                update_post_meta( $post_id, '_aorp_ingredients', implode( ', ', $ings ) );
             }
             wp_send_json_success( array( 'row' => $this->drink_row_html( $post_id ) ) );
         }
@@ -266,7 +269,8 @@ class AORP_Ajax_Handler {
             update_post_meta( $post_id, '_aorp_drink_sizes', implode( "\n", $lines ) );
         }
         if ( isset( $_POST['item_ingredients'] ) ) {
-            update_post_meta( $post_id, '_aorp_ingredients', sanitize_textarea_field( $_POST['item_ingredients'] ) );
+            $ings = array_filter( array_map( 'sanitize_text_field', explode( ',', $_POST['item_ingredients'] ) ) );
+            update_post_meta( $post_id, '_aorp_ingredients', implode( ', ', $ings ) );
         }
         wp_send_json_success( array( 'row' => $this->drink_row_html( $post_id ) ) );
     }
