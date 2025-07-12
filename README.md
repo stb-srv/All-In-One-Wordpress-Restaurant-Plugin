@@ -1,50 +1,27 @@
-All-In-One-WordPress-Restaurant-Plugin (AIWRP)
+# All-In-One WordPress Restaurant Plugin
 
-Version: 1.6
-Autor: Dein Name
+Dieses Plugin bietet eine moderne Verwaltung von Speise- und Getränkekarten für WordPress. Die Funktionen sind in einzelne Klassen aufgeteilt und können leicht erweitert werden.
 
-## Funktionen
+## Features
 
-- Digitale Speisekarte mit Suchfunktion
-- Getränkekarte mit optionaler Legende der Inhaltsstoffe per Shortcode
-- Dark‑Mode Umschalter mit auswählbaren Icon-Sets oder eigenen Symbolen
-- Import/Export mit Historie und Mustervorlagen (CSV, JSON, YAML)
-- Widgets und Shortcodes für Speisekarte, Getränkekarte, Lightswitcher und Leaflet-Karte
-- Grid‑Overlay Generator für individuelle Rasters
-- Verwaltung einer Leaflet-Karte zur Einbettung über Shortcode
-- Umfangreiche Einstellungen für Schriftgrößen, Spaltenanzahl und Farben
+- Eigene Post Types für Speisen, Getränke und Inhaltsstoffe
+- Shortcodes für die Ausgabe im Frontend
+- REST-API Endpunkte `\aorp\v1\foods` und `\aorp\v1\drinks`
+- Einstellungsseite mit vorbereiteter Lizenzverwaltung
+- Import/Export Platzhalter
+- Darkmode Umschalter
 
 ## Installation
 
-1. ZIP hochladen über **Plugins → Installieren → Plugin hochladen**
-2. Plugin aktivieren
-3. Kategorien und Speisen bzw. Getränke unter den entsprechenden Menüpunkten anlegen
+1. Plugin in den Ordner `wp-content/plugins` kopieren
+2. Im Backend aktivieren
 
 ## Shortcodes
 
-- `[speisekarte]` – gibt die Speisekarte aus
-- `[getraenkekarte]` – zeigt die Getränkekarte
-- `[aio_ingredients_legend]` – zeigt die Legende der Inhaltsstoffe
-- `[restaurant_lightswitcher]` – Dark‑Mode Schalter
-- `[aio_leaflet_map]` – Leaflet-Karte
-- `[wp_grid_menu_overlay]` – Grid-Overlay
+- `[speisekarte]` – zeigt alle angelegten Speisen
+- `[getraenkekarte]` – zeigt alle angelegten Getränke
+- `[restaurant_lightswitcher]` – Button zum Umschalten des Darkmode
 
-## Leaflet Karte
+## Entwicklerhinweise
 
-Über **Karten** legst du Breiten- und Längengrad, Zoomstufe und einen Text für das Popup fest. Das Popup enthält automatisch einen Link zur Navigation.
-
-```
-[aio_leaflet_map]
-```
-
-## Dark‑Mode Icons
-
-Im Bereich **Dark Mode** wählst du ein Icon-Set oder lädst eigene Bilder hoch. Anschließend bestimmst du die Farben des Dark Modes.
-
-## Import/Export
-
-Im Bereich **Import/Export** findest du Beispieldateien, die dir beim Aufbau eigener CSV-, JSON- oder YAML-Dateien helfen. Nach Anpassung lädst du die Datei wieder hoch und alle Daten werden übernommen.
-
-## Grid‑Vorlagen
-
-Unter **Grid-Vorlagen** erstellst du Rasterlayouts für den `[wp_grid_menu_overlay]`‑Shortcode. Jede Zelle kann einen eigenen Inhalt oder Shortcode enthalten. Auf mobilen Geräten werden die Zellen automatisch untereinander angezeigt.
+Die Hauptfunktionen befinden sich im Verzeichnis `includes/`. Jede Komponente ist über Filter und Actions erweiterbar. Ein einfacher Autoloader lädt alle Klassen automatisch.
