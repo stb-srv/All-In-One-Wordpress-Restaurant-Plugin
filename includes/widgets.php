@@ -23,6 +23,7 @@ class AORP_Menu_Widget extends WP_Widget {
         echo do_shortcode('[speisekarte]');
         echo $args['after_widget'];
     }
+}
 /**
  * Widget providing a dark mode switcher.
  */
