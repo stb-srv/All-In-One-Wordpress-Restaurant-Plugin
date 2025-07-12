@@ -40,13 +40,13 @@ class AIO_Leaflet_Map {
     }
 
     public function admin_menu() {
-        add_menu_page( 'Karten', 'Karten', 'manage_options', 'aio_leaflet_map', array( $this, 'settings_page' ), 'dashicons-location-alt' );
+        add_menu_page( 'AIO-Karten', 'AIO-Karten', 'manage_options', 'aio_leaflet_map', array( $this, 'settings_page' ), 'dashicons-location-alt' );
     }
 
     public function settings_page() {
         ?>
         <div class="wrap">
-            <h1>Karten Einstellungen</h1>
+            <h1>AIO-Karten Einstellungen</h1>
             <div id="aio-leaflet-map-admin"></div>
             <form method="post" action="options.php">
                 <?php settings_fields( 'aio_leaflet_map' ); ?>

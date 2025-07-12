@@ -2,7 +2,7 @@
 /*
 Plugin Name: All-In-One WordPress Restaurant Plugin
 Description: Umfangreiches Speisekarten-Plugin mit Dark‑Mode, Suchfunktion und Import/Export.
-Version: 1.5
+Version: 1.6
 Author: stb-srv
 */
 
@@ -53,6 +53,7 @@ class AIO_Restaurant_Plugin {
         add_shortcode( 'speisekarte', array( $this, 'speisekarte_shortcode' ) );
         add_shortcode( 'restaurant_lightswitcher', array( $this, 'lightswitcher_shortcode' ) );
         add_shortcode( 'getraenkekarte', array( $this, 'getraenkekarte_shortcode' ) );
+        add_shortcode( 'aio_ingredients_legend', array( $this, 'ingredient_legend_shortcode' ) );
         add_action( 'admin_menu', array( $this, 'admin_menu' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_post_aorp_export_csv', array( $this, 'export_csv' ) );
@@ -906,6 +907,10 @@ class AIO_Restaurant_Plugin {
         return '<div id="aorp-toggle" aria-label="Dark Mode umschalten" role="button" tabindex="0">' . $light . '</div>';
     }
 
+    public function ingredient_legend_shortcode() {
+        return $this->render_ingredient_legend();
+    }
+
     public function getraenkekarte_shortcode( $atts ) {
         $default = (int) get_option( 'aorp_menu_columns', 1 );
         $atts = shortcode_atts( array( 'columns' => $default, 'kategorien' => '' ), $atts, 'getraenkekarte' );
@@ -989,7 +994,6 @@ class AIO_Restaurant_Plugin {
                 }
             }
         }
-        echo $this->render_ingredient_legend();
         echo '</div>';
         return ob_get_clean();
     }
@@ -1029,18 +1033,18 @@ class AIO_Restaurant_Plugin {
     }
 
     public function admin_menu() {
-        add_menu_page( 'Speisekarte', 'Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
-        add_submenu_page( 'aorp_manage', 'Getränke-Karte', 'Getränke-Karte', 'manage_options', 'aorp_drinks', array( $this, 'manage_drinks_page' ) );
-        add_submenu_page( 'aorp_manage', 'Import/Export', 'Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
-        add_submenu_page( 'aorp_manage', 'Einstellungen', 'Einstellungen', 'manage_options', 'aorp_settings', array( $this, 'settings_page' ) );
-        add_menu_page( 'Dark Mode', 'Dark Mode', 'manage_options', 'aorp_dark', array( $this, 'dark_page' ), 'dashicons-lightbulb' );
+        add_menu_page( 'AIO-Speisekarte', 'AIO-Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
+        add_submenu_page( 'aorp_manage', 'AIO-Import/Export', 'AIO-Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
+        add_submenu_page( 'aorp_manage', 'AIO-Einstellungen', 'AIO-Einstellungen', 'manage_options', 'aorp_settings', array( $this, 'settings_page' ) );
+        add_menu_page( 'AIO-Getränke-Karte', 'AIO-Getränke-Karte', 'manage_options', 'aorp_drinks', array( $this, 'manage_drinks_page' ), 'dashicons-beer' );
+        add_menu_page( 'AIO-Dark Mode', 'AIO-Dark Mode', 'manage_options', 'aorp_dark', array( $this, 'dark_page' ), 'dashicons-lightbulb' );
         // Historie wird direkt auf der Import/Export Seite angezeigt
     }
 
     public function export_page() {
         ?>
         <div class="wrap">
-            <h1>Import/Export</h1>
+            <h1>AIO-Import/Export</h1>
             <h2>Mustervorlagen</h2>
             <ul>
                 <li><a href="<?php echo esc_url( plugin_dir_url( __FILE__ ) . 'samples/import-template.csv' ); ?>">CSV Vorlage</a></li>
@@ -1074,7 +1078,7 @@ class AIO_Restaurant_Plugin {
     public function settings_page() {
         ?>
         <div class="wrap">
-            <h1>Einstellungen</h1>
+            <h1>AIO-Einstellungen</h1>
             <form method="post" action="options.php">
                 <?php settings_fields( 'aorp_settings' ); ?>
                 <?php
@@ -1171,7 +1175,7 @@ class AIO_Restaurant_Plugin {
     public function dark_page() {
         ?>
         <div class="wrap">
-            <h1>Dark Mode</h1>
+            <h1>AIO-Dark Mode</h1>
             <p class="description">Wähle zunächst ein Icon-Set oder lade eigene Icons hoch.
             Nach deinen Anpassungen klicke auf „Änderungen speichern“.</p>
             <form method="post" action="options.php">
@@ -1295,7 +1299,7 @@ class AIO_Restaurant_Plugin {
         $current_ing  = $edit_ing ? get_post( $edit_ing ) : null;
         ?>
         <div class="wrap">
-            <h1>Speisekarte Verwaltung</h1>
+            <h1>AIO-Speisekarte Verwaltung</h1>
             <p class="description">Nutze den Shortcode <code>[speisekarte]</code> um die Speisekarte auf der Website einzubinden.</p>
             <?php $this->render_category_form( $categories, $current_cat ); ?>
             <?php $this->render_ingredient_form( $ingredients_posts, $current_ing ); ?>
@@ -1327,7 +1331,7 @@ class AIO_Restaurant_Plugin {
         $current_cat = $edit_cat ? get_term( $edit_cat, 'aorp_drink_category' ) : null;
         ?>
         <div class="wrap">
-            <h1>Getränke-Karte Verwaltung</h1>
+            <h1>AIO-Getränke-Karte Verwaltung</h1>
             <p class="description">Nutze den Shortcode <code>[getraenkekarte]</code> um die Getränke-Karte auf der Website einzubinden.</p>
             <?php $this->render_drink_category_form( $categories, $current_cat ); ?>
             <?php $this->render_drink_item_form( $items, $categories, $ingredients_list, $current ); ?>
@@ -2246,7 +2250,7 @@ class AIO_Restaurant_Plugin {
 
 
     public function history_page() {
-        echo '<div class="wrap"><h1>Import/Export Historie</h1>';
+        echo '<div class="wrap"><h1>AIO-Import/Export Historie</h1>';
         $this->render_history_table();
         echo '</div>';
     }

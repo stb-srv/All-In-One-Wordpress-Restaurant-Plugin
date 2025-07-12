@@ -27,11 +27,11 @@ class WPGMO_Template_Manager {
 
     public function admin_menu() {
         if ( is_network_admin() ) {
-            $this->page_hook = add_menu_page( __('Grid-Vorlagen','aorp'), __('Grid-Vorlagen','aorp'), 'manage_network_options', 'wpgmo-templates', array( $this, 'render_page' ) );
-            $this->overview_hook = add_submenu_page( 'wpgmo-templates', __('Grid-Inhalte','aorp'), __('Grid-Inhalte','aorp'), 'manage_network_options', 'wpgmo-overview', array( $this, 'render_overview_page' ) );
+            $this->page_hook = add_menu_page( __('AIO-Grid-Vorlagen','aorp'), __('AIO-Grid-Vorlagen','aorp'), 'manage_network_options', 'wpgmo-templates', array( $this, 'render_page' ) );
+            $this->overview_hook = add_submenu_page( 'wpgmo-templates', __('AIO-Grid-Inhalte','aorp'), __('AIO-Grid-Inhalte','aorp'), 'manage_network_options', 'wpgmo-overview', array( $this, 'render_overview_page' ) );
         } else {
-            $this->page_hook = add_menu_page( __('Grid-Vorlagen','aorp'), __('Grid-Vorlagen','aorp'), 'manage_options', 'wpgmo-templates', array( $this, 'render_page' ) );
-            $this->overview_hook = add_submenu_page( 'wpgmo-templates', __('Grid-Inhalte','aorp'), __('Grid-Inhalte','aorp'), 'manage_options', 'wpgmo-overview', array( $this, 'render_overview_page' ) );
+            $this->page_hook = add_menu_page( __('AIO-Grid-Vorlagen','aorp'), __('AIO-Grid-Vorlagen','aorp'), 'manage_options', 'wpgmo-templates', array( $this, 'render_page' ) );
+            $this->overview_hook = add_submenu_page( 'wpgmo-templates', __('AIO-Grid-Inhalte','aorp'), __('AIO-Grid-Inhalte','aorp'), 'manage_options', 'wpgmo-overview', array( $this, 'render_overview_page' ) );
         }
     }
 
@@ -80,7 +80,7 @@ class WPGMO_Template_Manager {
         $default    = $is_network ? get_site_option( 'wpgmo_default_template_network', '' ) : get_option( 'wpgmo_default_template', '' );
         ?>
         <div class="wrap">
-            <h1><?php _e('Grid Templates','aorp'); ?></h1>
+            <h1><?php _e('AIO-Grid Templates','aorp'); ?></h1>
             <div id="wpgmo-template-manager" data-network="<?php echo $is_network ? 1 : 0; ?>" data-default="<?php echo esc_attr( $default ); ?>"></div>
         </div>
         <?php
@@ -107,7 +107,7 @@ class WPGMO_Template_Manager {
         }
         ?>
         <div class="wrap">
-            <h1><?php _e('Grid-Inhalte','aorp'); ?></h1>
+            <h1><?php _e('AIO-Grid-Inhalte','aorp'); ?></h1>
             <form method="post">
                 <?php wp_nonce_field( 'wpgmo_save_content' ); ?>
                 <?php foreach ( $templates as $slug => $tpl ) : ?>
