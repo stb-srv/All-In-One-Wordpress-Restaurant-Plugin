@@ -12,6 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once plugin_dir_path( __FILE__ ) . 'includes/ajax-handler.php';
 
+
+/**
+ * aorp_wp_kses_post_iframe
+ *
+ * @return void
+ */
 function aorp_wp_kses_post_iframe( $content ) {
     $allowed = wp_kses_allowed_html( 'post' );
     $allowed['iframe'] = array(
@@ -23,11 +29,15 @@ function aorp_wp_kses_post_iframe( $content ) {
         'title'           => true,
         'loading'         => true,
         'style'           => true,
-        'class'           => true,
         'id'              => true,
     );
     return wp_kses( $content, $allowed );
 }
+/**
+ * Main plugin class. Registers post types and admin logic.
+ *
+ * @package AIO_Restaurant_Plugin
+ */
 
 class AIO_Restaurant_Plugin {
 
@@ -45,6 +55,12 @@ class AIO_Restaurant_Plugin {
      */
     private $ingredient_numbers = array();
 
+
+/**
+ * __construct
+ *
+ * @return void
+ */
     public function __construct() {
         add_action( 'init', array( $this, 'register_post_type' ) );
         add_action( 'init', array( $this, 'register_drink_post_type' ) );
@@ -91,6 +107,12 @@ class AIO_Restaurant_Plugin {
         add_action( 'admin_notices', array( $this, 'admin_notices' ) );
     }
 
+
+/**
+ * register_post_type
+ *
+ * @return void
+ */
     public function register_post_type() {
         $labels = array(
             'name' => __( 'Speisen', 'aorp' ),
@@ -105,6 +127,12 @@ class AIO_Restaurant_Plugin {
         ) );
     }
 
+
+/**
+ * register_drink_post_type
+ *
+ * @return void
+ */
     public function register_drink_post_type() {
         $labels = array(
             'name'          => __( 'Getränke', 'aorp' ),
@@ -120,6 +148,12 @@ class AIO_Restaurant_Plugin {
         ) );
     }
 
+
+/**
+ * register_ingredient_type
+ *
+ * @return void
+ */
     public function register_ingredient_type() {
         $labels = array(
             'name' => __( 'Inhaltsstoffe', 'aorp' ),
@@ -133,6 +167,12 @@ class AIO_Restaurant_Plugin {
         ) );
     }
 
+
+/**
+ * register_taxonomy
+ *
+ * @return void
+ */
     public function register_taxonomy() {
         $labels = array(
             'name' => __( 'Kategorien', 'aorp' ),
@@ -170,6 +210,12 @@ class AIO_Restaurant_Plugin {
         add_action( 'edited_aorp_drink_category', array( $this, 'save_category_fields' ) );
     }
 
+
+/**
+ * add_category_fields
+ *
+ * @return void
+ */
     public function add_category_fields() {
         ?>
         <div class="form-field">
@@ -199,6 +245,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * render_category_form
+ *
+ * @return void
+ */
     private function render_category_form( $categories, $current_cat ) {
         ?>
         <div class="aorp-section">
@@ -258,6 +310,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * render_ingredient_form
+ *
+ * @return void
+ */
     private function render_ingredient_form( $ingredients_posts, $current_ing ) {
         ?>
         <div class="aorp-section">
@@ -321,6 +379,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * render_item_form
+ *
+ * @return void
+ */
     private function render_item_form( $items, $categories, $ingredients_list, $current ) {
         ?>
         <div class="aorp-section">
@@ -404,6 +468,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * render_drink_category_form
+ *
+ * @return void
+ */
     private function render_drink_category_form( $categories, $current_cat ) {
         ?>
         <div class="aorp-section">
@@ -469,6 +539,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * render_drink_item_form
+ *
+ * @return void
+ */
     private function render_drink_item_form( $items, $categories, $ingredients_list, $current ) {
         ?>
         <div class="aorp-section">
@@ -556,6 +632,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * edit_category_fields
+ *
+ * @return void
+ */
     public function edit_category_fields( $term, $taxonomy ) {
         $bg    = get_term_meta( $term->term_id, 'aorp_bg', true );
         $color = get_term_meta( $term->term_id, 'aorp_color', true );
@@ -592,6 +674,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * save_category_fields
+ *
+ * @return void
+ */
     public function save_category_fields( $term_id ) {
         $fields = array( 'aorp_bg', 'aorp_color', 'aorp_font_size', 'aorp_width', 'aorp_height' );
         foreach ( $fields as $field ) {
@@ -601,12 +689,24 @@ class AIO_Restaurant_Plugin {
         }
     }
 
+
+/**
+ * add_meta_boxes
+ *
+ * @return void
+ */
     public function add_meta_boxes() {
         add_meta_box( 'aorp_meta', __( 'Speise Details', 'aorp' ), array( $this, 'render_meta_box' ), 'aorp_menu_item', 'normal', 'default' );
         add_meta_box( 'aorp_drink_meta', __( 'Getränk Details', 'aorp' ), array( $this, 'render_drink_meta_box' ), 'aorp_drink_item', 'normal', 'default' );
     }
 
 
+
+/**
+ * render_meta_box
+ *
+ * @return void
+ */
     public function render_meta_box( $post ) {
         wp_nonce_field( basename( __FILE__ ), 'aorp_nonce' );
         $price = get_post_meta( $post->ID, '_aorp_price', true );
@@ -628,6 +728,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * render_drink_meta_box
+ *
+ * @return void
+ */
     public function render_drink_meta_box( $post ) {
         wp_nonce_field( basename( __FILE__ ), 'aorp_nonce' );
         $raw = get_post_meta( $post->ID, '_aorp_drink_sizes', true );
@@ -647,6 +753,12 @@ class AIO_Restaurant_Plugin {
     }
 
 
+
+/**
+ * save_meta_boxes
+ *
+ * @return void
+ */
     public function save_meta_boxes( $post_id ) {
         if ( ! isset( $_POST['aorp_nonce'] ) || ! wp_verify_nonce( $_POST['aorp_nonce'], basename( __FILE__ ) ) ) {
             return $post_id;
@@ -676,6 +788,12 @@ class AIO_Restaurant_Plugin {
     }
 
 
+
+/**
+ * speisekarte_shortcode
+ *
+ * @return void
+ */
     public function speisekarte_shortcode( $atts ) {
         $default = (int) get_option( 'aorp_menu_columns', 1 );
         $atts = shortcode_atts( array( 'columns' => $default, 'kategorien' => '' ), $atts, 'speisekarte' );
@@ -749,6 +867,12 @@ class AIO_Restaurant_Plugin {
     }
 
 
+
+/**
+ * render_menu_item
+ *
+ * @return void
+ */
     private function render_menu_item() {
         $price = get_post_meta( get_the_ID(), '_aorp_price', true );
         $number = get_post_meta( get_the_ID(), '_aorp_number', true );
@@ -775,6 +899,12 @@ class AIO_Restaurant_Plugin {
         echo '</div>';
     }
 
+
+/**
+ * render_drink_item_row
+ *
+ * @return void
+ */
     private function render_drink_item_row( $volumes = array() ) {
         $sizes_raw   = get_post_meta( get_the_ID(), '_aorp_drink_sizes', true );
         $ingredients = get_post_meta( get_the_ID(), '_aorp_ingredients', true );
@@ -812,15 +942,33 @@ class AIO_Restaurant_Plugin {
         echo '</tr>';
     }
 
+
+/**
+ * lightswitcher_shortcode
+ *
+ * @return void
+ */
     public function lightswitcher_shortcode() {
         $light = $this->get_icon_html( 'light' );
         return '<div id="aorp-toggle" aria-label="Dark Mode umschalten" role="button" tabindex="0">' . $light . '</div>';
     }
 
+
+/**
+ * ingredient_legend_shortcode
+ *
+ * @return void
+ */
     public function ingredient_legend_shortcode() {
         return $this->render_ingredient_legend();
     }
 
+
+/**
+ * getraenkekarte_shortcode
+ *
+ * @return void
+ */
     public function getraenkekarte_shortcode( $atts ) {
         $default = (int) get_option( 'aorp_menu_columns', 1 );
         $atts = shortcode_atts( array( 'columns' => $default, 'kategorien' => '' ), $atts, 'getraenkekarte' );
@@ -908,6 +1056,12 @@ class AIO_Restaurant_Plugin {
         return ob_get_clean();
     }
 
+
+/**
+ * get_icon_html
+ *
+ * @return void
+ */
     private function get_icon_html( $type = 'light' ) {
         $set = get_option( 'aorp_icon_set', 'default' );
         if ( 'custom' === $set ) {
@@ -942,6 +1096,12 @@ class AIO_Restaurant_Plugin {
         }
     }
 
+
+/**
+ * admin_menu
+ *
+ * @return void
+ */
     public function admin_menu() {
         add_menu_page( 'AIO-Speisekarte', 'AIO-Speisekarte', 'manage_options', 'aorp_manage', array( $this, 'manage_page' ), 'dashicons-list-view' );
         add_submenu_page( 'aorp_manage', 'AIO-Import/Export', 'AIO-Import/Export', 'manage_options', 'aorp_export', array( $this, 'export_page' ) );
@@ -951,6 +1111,12 @@ class AIO_Restaurant_Plugin {
         // Historie wird direkt auf der Import/Export Seite angezeigt
     }
 
+
+/**
+ * export_page
+ *
+ * @return void
+ */
     public function export_page() {
         ?>
         <div class="wrap">
@@ -985,6 +1151,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * settings_page
+ *
+ * @return void
+ */
     public function settings_page() {
         ?>
         <div class="wrap">
@@ -1082,6 +1254,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * dark_page
+ *
+ * @return void
+ */
     public function dark_page() {
         ?>
         <div class="wrap">
@@ -1155,6 +1333,12 @@ class AIO_Restaurant_Plugin {
     }
 
 
+
+/**
+ * register_settings
+ *
+ * @return void
+ */
     public function register_settings() {
         register_setting( 'aorp_settings', 'aorp_menu_columns', array( 'type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 1 ) );
         register_setting( 'aorp_settings', 'aorp_size_number', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field', 'default' => '' ) );
@@ -1169,6 +1353,12 @@ class AIO_Restaurant_Plugin {
         register_setting( 'aorp_dark', 'aorp_icon_dark_img', array( 'type' => 'integer', 'sanitize_callback' => 'absint', 'default' => 0 ) );
     }
 
+
+/**
+ * render_history_table
+ *
+ * @return void
+ */
     private function render_history_table() {
         echo '<h2>Historie</h2><table class="widefat"><thead><tr><th>Aktion</th><th>Zeit</th><th>Benutzer</th><th>Format</th><th>Undo</th></tr></thead><tbody>';
         $history = array_reverse( get_option( 'aorp_history', array() ) );
@@ -1184,6 +1374,12 @@ class AIO_Restaurant_Plugin {
         echo '</tbody></table>';
     }
 
+
+/**
+ * manage_page
+ *
+ * @return void
+ */
     public function manage_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
             return;
@@ -1242,6 +1438,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * manage_drinks_page
+ *
+ * @return void
+ */
     public function manage_drinks_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
             return;
@@ -1294,6 +1496,12 @@ class AIO_Restaurant_Plugin {
         <?php
     }
 
+
+/**
+ * export_csv
+ *
+ * @return void
+ */
     public function export_csv() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1325,6 +1533,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * import_csv
+ *
+ * @return void
+ */
     public function import_csv() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1471,10 +1685,16 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * enqueue_assets
+ *
+ * @return void
+ */
     public function enqueue_assets() {
         if ( ! is_admin() ) {
             wp_enqueue_style( 'aorp-style', plugin_dir_url( __FILE__ ) . 'assets/style.css' );
-            wp_enqueue_script( 'aorp-script', plugin_dir_url( __FILE__ ) . 'assets/script.js', array('jquery'), false, true );
+            wp_enqueue_script( 'aorp-script', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array('jquery'), false, true );
             wp_localize_script( 'aorp-script', 'aorp_ajax', array(
                 'url'        => admin_url( 'admin-ajax.php' ),
                 'icon_light' => $this->get_icon_html( 'light' ),
@@ -1483,6 +1703,12 @@ class AIO_Restaurant_Plugin {
         }
     }
 
+
+/**
+ * output_custom_styles
+ *
+ * @return void
+ */
     public function output_custom_styles() {
         $num   = trim( get_option( 'aorp_size_number', '' ) );
         $title = trim( get_option( 'aorp_size_title', '' ) );
@@ -1506,14 +1732,20 @@ class AIO_Restaurant_Plugin {
         }
     }
 
+
+/**
+ * admin_assets
+ *
+ * @return void
+ */
     public function admin_assets( $hook ) {
         if ( strpos( $hook, 'aorp' ) !== false ) {
             wp_enqueue_style( 'wp-color-picker' );
             wp_enqueue_script( 'wp-color-picker' );
             wp_enqueue_media();
             wp_enqueue_style( 'aorp-admin-style', plugin_dir_url( __FILE__ ) . 'assets/admin.css' );
-            wp_enqueue_script( 'aorp-admin', plugin_dir_url( __FILE__ ) . 'assets/admin.js', array( 'jquery' ), false, true );
-            wp_enqueue_script( 'aorp-admin-ajax', plugin_dir_url( __FILE__ ) . 'assets/js/admin.js', array( 'jquery' ), false, true );
+            wp_enqueue_script( 'aorp-admin', plugin_dir_url( __FILE__ ) . 'assets/js/admin/filters.js', array( 'jquery' ), false, true );
+            wp_enqueue_script( 'aorp-admin-ajax', plugin_dir_url( __FILE__ ) . 'assets/js/admin/item-management.js', array( 'jquery' ), false, true );
             wp_localize_script( 'aorp-admin-ajax', 'aorp_admin', array(
                 'ajax_url'   => admin_url( 'admin-ajax.php' ),
                 'nonce_add'  => wp_create_nonce( 'aorp_add_item' ),
@@ -1525,25 +1757,55 @@ class AIO_Restaurant_Plugin {
         }
     }
 
+
+/**
+ * load_textdomain
+ *
+ * @return void
+ */
     public function load_textdomain() {
         load_plugin_textdomain( 'aorp', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
     }
 
+
+/**
+ * ajax_toggle_dark
+ *
+ * @return void
+ */
     public function ajax_toggle_dark() {
         $count = (int) get_option( 'aorp_dark_count', 0 );
         update_option( 'aorp_dark_count', $count + 1 );
         wp_send_json_success();
     }
 
+
+/**
+ * add_dashboard_widgets
+ *
+ * @return void
+ */
     public function add_dashboard_widgets() {
         wp_add_dashboard_widget( 'aorp_dashboard', 'Dark-Mode Umschaltungen', array( $this, 'dashboard_widget_output' ) );
     }
 
+
+/**
+ * dashboard_widget_output
+ *
+ * @return void
+ */
     public function dashboard_widget_output() {
         $count = (int) get_option( 'aorp_dark_count', 0 );
         echo '<p>Gesamtanzahl: <strong>' . $count . '</strong></p>';
     }
 
+
+/**
+ * admin_notices
+ *
+ * @return void
+ */
     public function admin_notices() {
         $msg = get_transient( 'aorp_import_msg' );
         if ( $msg ) {
@@ -1570,6 +1832,12 @@ class AIO_Restaurant_Plugin {
         }
     }
 
+
+/**
+ * get_export_data
+ *
+ * @return void
+ */
     private function get_export_data() {
         $data = array(
             'categories'  => array(),
@@ -1618,6 +1886,12 @@ class AIO_Restaurant_Plugin {
         return $data;
     }
 
+
+/**
+ * array_to_yaml
+ *
+ * @return void
+ */
     private function array_to_yaml( $data, $indent = 0 ) {
         if ( function_exists( 'yaml_emit' ) ) {
             return yaml_emit( $data );
@@ -1648,6 +1922,12 @@ class AIO_Restaurant_Plugin {
         return $yaml;
     }
 
+
+/**
+ * yaml_to_array
+ *
+ * @return void
+ */
     private function yaml_to_array( $text ) {
         if ( function_exists( 'yaml_parse' ) ) {
             return yaml_parse( $text );
@@ -1696,6 +1976,12 @@ class AIO_Restaurant_Plugin {
         return $data;
     }
 
+
+/**
+ * trim_quotes
+ *
+ * @return void
+ */
     private function trim_quotes( $value ) {
         if ( is_string( $value ) && strlen( $value ) > 1 ) {
             if ( ( $value[0] === '"' && substr( $value, -1 ) === '"' ) || ( $value[0] === "'" && substr( $value, -1 ) === "'" ) ) {
@@ -1707,6 +1993,12 @@ class AIO_Restaurant_Plugin {
 
     private $ingredient_lookup = null;
 
+
+/**
+ * get_ingredient_labels
+ *
+ * @return void
+ */
     private function get_ingredient_labels( $codes ) {
         $codes = array_filter( array_map( 'trim', explode( ',', $codes ) ) );
         if ( empty( $codes ) ) {
@@ -1731,6 +2023,12 @@ class AIO_Restaurant_Plugin {
         return implode( ', ', $labels );
     }
 
+
+/**
+ * get_ingredient_names
+ *
+ * @return void
+ */
     private function get_ingredient_names( $codes ) {
         $codes = array_filter( array_map( 'trim', explode( ',', $codes ) ) );
         if ( empty( $codes ) ) {
@@ -1762,6 +2060,12 @@ class AIO_Restaurant_Plugin {
      * @param string $codes Comma separated ingredient codes.
      * @return string Comma separated list of numeric references.
      */
+
+/**
+ * assign_ingredient_numbers
+ *
+ * @return void
+ */
     private function assign_ingredient_numbers( $codes ) {
         $codes = array_filter( array_map( 'trim', explode( ',', $codes ) ) );
         if ( empty( $codes ) ) {
@@ -1782,6 +2086,12 @@ class AIO_Restaurant_Plugin {
      *
      * @return string HTML list of ingredient numbers and names.
      */
+
+/**
+ * render_ingredient_legend
+ *
+ * @return void
+ */
     private function render_ingredient_legend() {
         if ( empty( $this->ingredient_numbers ) ) {
             return '';
@@ -1803,6 +2113,12 @@ class AIO_Restaurant_Plugin {
      * @param array $posts Array of WP_Post objects.
      * @return array Ordered list of used volumes.
      */
+
+/**
+ * get_used_drink_volumes
+ *
+ * @return void
+ */
     private function get_used_drink_volumes( $posts ) {
         $found = array();
         foreach ( $posts as $post ) {
@@ -1823,6 +2139,12 @@ class AIO_Restaurant_Plugin {
         return $vols;
     }
 
+
+/**
+ * format_price
+ *
+ * @return void
+ */
     private function format_price( $price ) {
         $price = trim( (string) $price );
         if ( '' === $price ) {
@@ -1834,6 +2156,12 @@ class AIO_Restaurant_Plugin {
         return $price;
     }
 
+
+/**
+ * add_category
+ *
+ * @return void
+ */
     public function add_category() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1846,6 +2174,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * update_category
+ *
+ * @return void
+ */
     public function update_category() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1859,6 +2193,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * delete_category
+ *
+ * @return void
+ */
     public function delete_category() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1872,6 +2212,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * bulk_delete_category
+ *
+ * @return void
+ */
     public function bulk_delete_category() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1886,6 +2232,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * add_drink_category
+ *
+ * @return void
+ */
     public function add_drink_category() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1898,6 +2250,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * update_drink_category
+ *
+ * @return void
+ */
     public function update_drink_category() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1911,6 +2269,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * delete_drink_category
+ *
+ * @return void
+ */
     public function delete_drink_category() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1929,6 +2293,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * bulk_delete_drink_category
+ *
+ * @return void
+ */
     public function bulk_delete_drink_category() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1947,6 +2317,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * add_item
+ *
+ * @return void
+ */
     public function add_item() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -1979,6 +2355,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * update_item
+ *
+ * @return void
+ */
     public function update_item() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2011,6 +2393,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * delete_item
+ *
+ * @return void
+ */
     public function delete_item() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2024,6 +2412,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * bulk_delete_item
+ *
+ * @return void
+ */
     public function bulk_delete_item() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2038,6 +2432,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * add_drink_item
+ *
+ * @return void
+ */
     public function add_drink_item() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2081,6 +2481,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * update_drink_item
+ *
+ * @return void
+ */
     public function update_drink_item() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2122,6 +2528,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * delete_drink_item
+ *
+ * @return void
+ */
     public function delete_drink_item() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2135,6 +2547,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * bulk_delete_drink_item
+ *
+ * @return void
+ */
     public function bulk_delete_drink_item() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2149,6 +2567,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * add_ingredient
+ *
+ * @return void
+ */
     public function add_ingredient() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2166,6 +2590,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * update_ingredient
+ *
+ * @return void
+ */
     public function update_ingredient() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2182,6 +2612,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * delete_ingredient
+ *
+ * @return void
+ */
     public function delete_ingredient() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2195,6 +2631,12 @@ class AIO_Restaurant_Plugin {
         exit;
     }
 
+
+/**
+ * bulk_delete_ingredient
+ *
+ * @return void
+ */
     public function bulk_delete_ingredient() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2210,12 +2652,24 @@ class AIO_Restaurant_Plugin {
     }
 
 
+
+/**
+ * history_page
+ *
+ * @return void
+ */
     public function history_page() {
         echo '<div class="wrap"><h1>AIO-Import/Export Historie</h1>';
         $this->render_history_table();
         echo '</div>';
     }
 
+
+/**
+ * undo_import
+ *
+ * @return void
+ */
     public function undo_import() {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_die( 'Nicht erlaubt' );
@@ -2241,6 +2695,12 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpgmo-meta-box.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-grid-menu-overlay.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/maps.php';
 
+
+/**
+ * aio_restaurant_activate
+ *
+ * @return void
+ */
 function aio_restaurant_activate() {
     $templates = is_multisite()
         ? get_site_option( 'wpgmo_templates_network', array() )

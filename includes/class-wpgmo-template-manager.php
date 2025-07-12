@@ -3,6 +3,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Admin UI for creating and editing grid templates.
+ *
+ * @package AIO_Restaurant_Plugin
+ */
 class WPGMO_Template_Manager {
     private static $instance = null;
     private $page_hook = '';
@@ -15,6 +20,12 @@ class WPGMO_Template_Manager {
         return self::$instance;
     }
 
+
+/**
+ * __construct
+ *
+ * @return void
+ */
     private function __construct() {
         add_action( 'admin_menu', array( $this, 'admin_menu' ) );
         add_action( 'network_admin_menu', array( $this, 'admin_menu' ) );
@@ -25,6 +36,12 @@ class WPGMO_Template_Manager {
         add_action( 'wp_ajax_wpgmo_duplicate_template', array( $this, 'duplicate_template' ) );
     }
 
+
+/**
+ * admin_menu
+ *
+ * @return void
+ */
     public function admin_menu() {
         if ( is_network_admin() ) {
             $this->page_hook = add_menu_page( __('AIO-Grid-Vorlagen','aorp'), __('AIO-Grid-Vorlagen','aorp'), 'manage_network_options', 'wpgmo-templates', array( $this, 'render_page' ) );
@@ -35,10 +52,16 @@ class WPGMO_Template_Manager {
         }
     }
 
+
+/**
+ * enqueue
+ *
+ * @return void
+ */
     public function enqueue( $hook ) {
         if ( $hook === $this->page_hook ) {
             wp_enqueue_style( 'wpgmo-gb-css', plugin_dir_url( __FILE__ ) . '../assets/css/wpgmo-grid-builder.css' );
-            wp_enqueue_script( 'wpgmo-gb-js', plugin_dir_url( __FILE__ ) . '../assets/js/wpgmo-grid-builder.js', array( 'jquery' ), false, true );
+            wp_enqueue_script( 'wpgmo-gb-js', plugin_dir_url( __FILE__ ) . '../assets/js/admin/wpgmo-grid-builder.js', array( 'jquery' ), false, true );
             $network_templates = get_site_option( 'wpgmo_templates_network', array() );
             $templates = is_network_admin()
                 ? $network_templates
@@ -72,6 +95,12 @@ class WPGMO_Template_Manager {
         }
     }
 
+
+/**
+ * render_page
+ *
+ * @return void
+ */
     public function render_page() {
         if ( ! current_user_can( is_network_admin() ? 'manage_network_options' : 'manage_options' ) ) {
             return;
@@ -86,6 +115,12 @@ class WPGMO_Template_Manager {
         <?php
     }
 
+
+/**
+ * render_overview_page
+ *
+ * @return void
+ */
     public function render_overview_page() {
         if ( ! current_user_can( is_network_admin() ? 'manage_network_options' : 'manage_options' ) ) {
             return;
@@ -135,6 +170,12 @@ class WPGMO_Template_Manager {
         <?php
     }
 
+
+/**
+ * sanitize_template
+ *
+ * @return void
+ */
     private function sanitize_template( $data ) {
         $out = array();
         $out['label']  = sanitize_text_field( $data['label'] );
@@ -142,6 +183,12 @@ class WPGMO_Template_Manager {
         return $out;
     }
 
+
+/**
+ * save_template
+ *
+ * @return void
+ */
     public function save_template() {
         check_ajax_referer( is_network_admin() ? 'wpgmo_gb_network' : 'wpgmo_gb', 'nonce' );
         if ( ! current_user_can( is_network_admin() ? 'manage_network_options' : 'manage_options' ) ) {
@@ -161,6 +208,12 @@ class WPGMO_Template_Manager {
         wp_send_json_success();
     }
 
+
+/**
+ * delete_template
+ *
+ * @return void
+ */
     public function delete_template() {
         check_ajax_referer( is_network_admin() ? 'wpgmo_gb_network' : 'wpgmo_gb', 'nonce' );
         if ( ! current_user_can( is_network_admin() ? 'manage_network_options' : 'manage_options' ) ) {
@@ -179,6 +232,12 @@ class WPGMO_Template_Manager {
         wp_send_json_success();
     }
 
+
+/**
+ * duplicate_template
+ *
+ * @return void
+ */
     public function duplicate_template() {
         check_ajax_referer( is_network_admin() ? 'wpgmo_gb_network' : 'wpgmo_gb', 'nonce' );
         if ( ! current_user_can( is_network_admin() ? 'manage_network_options' : 'manage_options' ) ) {
@@ -203,6 +262,12 @@ class WPGMO_Template_Manager {
         wp_send_json_success();
     }
 
+
+/**
+ * set_default
+ *
+ * @return void
+ */
     public function set_default() {
         check_ajax_referer( is_network_admin() ? 'wpgmo_gb_network' : 'wpgmo_gb', 'nonce' );
         if ( ! current_user_can( is_network_admin() ? 'manage_network_options' : 'manage_options' ) ) {
