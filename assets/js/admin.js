@@ -1,4 +1,5 @@
 jQuery(function($){
+    var ingOptions = $('.aorp-ing-select:first').html() || '';
     function showToast(text){
         var toast = $('<div class="aorp-toast" />').text(text);
         $('body').append(toast);
@@ -14,8 +15,10 @@ jQuery(function($){
                     if(form.hasClass('aorp-add-form')){
                         $('#aorp-items-table tbody').append(resp.data.row);
                         form[0].reset();
+                        form.find('.aorp-selected').empty();
                     }else{
                         form.closest('tr').replaceWith(resp.data.row);
+                        form.prev('tr').remove();
                     }
                 }
                 showToast('Gespeichert');
@@ -25,8 +28,37 @@ jQuery(function($){
         });
     }
 
+    function updateIngInput(form){
+        var list = [];
+        form.find('.aorp-ing-chip').each(function(){
+            list.push($(this).data('val'));
+        });
+        form.find('.aorp-ing-text').val(list.join(', '));
+    }
+
+    function initIngredients(form){
+        var val = form.find('.aorp-ing-text').val();
+        if(val){
+            var map = {};
+            form.find('.aorp-ing-select option').each(function(){
+                map[$(this).val()] = $(this).text();
+            });
+            val.split(',').forEach(function(i){
+                var ing = $.trim(i);
+                if(!ing) return;
+                var label = map[ing] || ing;
+                form.find('.aorp-selected').append('<span class="aorp-ing-chip" data-val="'+ing+'" data-label="'+label+'">'+label+' <a href="#" class="aorp-remove-ing">x</a></span> ');
+                form.find('.aorp-ing-select option[value="'+ing+'"]').remove();
+            });
+        }
+    }
+
     $(document).on('submit','.aorp-add-form',function(e){
         e.preventDefault();
+        if($(this).find('.aorp-ing-text').val().length > 200){
+            alert('Zu viele Inhaltsstoffe');
+            return;
+        }
         ajaxForm($(this), $(this).data('action'));
     });
 
@@ -44,11 +76,38 @@ jQuery(function($){
             '<p><input type="text" name="item_title" value="'+data.title+'" required /></p>'+
             '<p><textarea name="item_description">'+data.description+'</textarea></p>'+
             '<p><input type="text" name="item_price" value="'+data.price+'" /></p>'+
+            '<p><select class="aorp-ing-select">'+ingOptions+'</select></p>'+
+            '<div class="aorp-selected"></div>'+
+            '<input type="hidden" name="item_ingredients" class="aorp-ing-text" value="'+(data.ingredients||'')+'" />'+
             '<button type="submit" class="button button-primary">Speichern</button> '+
             '<button class="button aorp-cancel">Abbrechen</button>'
         );
         cols.find('td').append(form);
         row.after(cols); row.hide();
+        initIngredients(form);
+    });
+
+    $(document).on('change','.aorp-ing-select',function(){
+        var ing = $(this).val();
+        var label = $(this).find('option:selected').text();
+        if(ing){
+            var form = $(this).closest('form');
+            form.find('.aorp-selected').append('<span class="aorp-ing-chip" data-val="'+ing+'" data-label="'+label+'">'+label+' <a href="#" class="aorp-remove-ing">x</a></span> ');
+            $(this).find('option:selected').remove();
+            $(this).val('');
+            updateIngInput(form);
+        }
+    });
+
+    $(document).on('click','.aorp-remove-ing',function(e){
+        e.preventDefault();
+        var chip = $(this).closest('.aorp-ing-chip');
+        var ing = chip.data('val');
+        var label = chip.data('label');
+        var form = chip.closest('form');
+        form.find('.aorp-ing-select').append('<option value="'+ing+'">'+label+'</option>');
+        chip.remove();
+        updateIngInput(form);
     });
 
     $(document).on('click','.aorp-cancel',function(e){
@@ -60,6 +119,10 @@ jQuery(function($){
 
     $(document).on('submit','.aorp-inline-edit',function(e){
         e.preventDefault();
+        if($(this).find('.aorp-ing-text').val().length > 200){
+            alert('Zu viele Inhaltsstoffe');
+            return;
+        }
         ajaxForm($(this), 'aorp_update_item');
     });
 
