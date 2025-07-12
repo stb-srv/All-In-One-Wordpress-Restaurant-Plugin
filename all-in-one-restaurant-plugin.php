@@ -14,6 +14,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once __DIR__ . '/includes/class-loader.php';
 AIO_Restaurant_Plugin\Loader::register();
 
+require_once __DIR__ . '/includes/ajax-handler.php';
+require_once __DIR__ . '/includes/widgets.php';
+require_once __DIR__ . '/includes/class-wp-grid-menu-overlay.php';
+require_once __DIR__ . '/includes/class-wpgmo-meta-box.php';
+require_once __DIR__ . '/includes/class-wpgmo-template-manager.php';
+require_once __DIR__ . '/includes/maps.php';
+
+if ( ! function_exists( 'aorp_wp_kses_post_iframe' ) ) {
+    /**
+     * Sanitize content but allow iframes.
+     */
+    function aorp_wp_kses_post_iframe( $content ) {
+        $allowed = wp_kses_allowed_html( 'post' );
+        $allowed['iframe'] = array(
+            'src'             => true,
+            'width'           => true,
+            'height'          => true,
+            'frameborder'     => true,
+            'allowfullscreen' => true,
+            'loading'         => true,
+        );
+        return wp_kses( $content, $allowed );
+    }
+}
+
 use AIO_Restaurant_Plugin\AORP_Post_Types;
 use AIO_Restaurant_Plugin\AORP_Shortcodes;
 use AIO_Restaurant_Plugin\AORP_Admin_Pages;
@@ -42,6 +67,16 @@ function aorp_init_plugin(): void {
 
     $rest = new AORP_REST_API();
     $rest->register();
+
+    if ( class_exists( 'WP_Grid_Menu_Overlay' ) ) {
+        WP_Grid_Menu_Overlay::instance();
+    }
+    if ( class_exists( 'WPGMO_Meta_Box' ) ) {
+        WPGMO_Meta_Box::instance();
+    }
+    if ( class_exists( 'WPGMO_Template_Manager' ) ) {
+        WPGMO_Template_Manager::instance();
+    }
 }
 add_action( 'plugins_loaded', 'aorp_init_plugin' );
 
