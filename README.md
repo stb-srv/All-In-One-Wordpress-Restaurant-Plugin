@@ -1,12 +1,12 @@
 All-In-One-WordPress-Restaurant-Plugin (AIWRP)
 
-Version: 1.5
+Version: 1.6
 Autor: Dein Name
 
 ## Funktionen
 
 - Digitale Speisekarte mit Suchfunktion
-- Getränkekarte inklusive Legende der Inhaltsstoffe je Kategorie
+- Getränkekarte mit optionaler Legende der Inhaltsstoffe per Shortcode
 - Dark‑Mode Umschalter mit auswählbaren Icon-Sets oder eigenen Symbolen
 - Import/Export mit Historie und Mustervorlagen (CSV, JSON, YAML)
 - Widgets und Shortcodes für Speisekarte, Getränkekarte, Lightswitcher und Leaflet-Karte
@@ -24,6 +24,7 @@ Autor: Dein Name
 
 - `[speisekarte]` – gibt die Speisekarte aus
 - `[getraenkekarte]` – zeigt die Getränkekarte
+- `[aio_ingredients_legend]` – zeigt die Legende der Inhaltsstoffe
 - `[restaurant_lightswitcher]` – Dark‑Mode Schalter
 - `[aio_leaflet_map]` – Leaflet-Karte
 - `[wp_grid_menu_overlay]` – Grid-Overlay
