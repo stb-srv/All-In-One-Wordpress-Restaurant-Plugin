@@ -22,14 +22,37 @@ class AORP_Admin_Pages {
      */
     public function menu(): void {
         add_menu_page(
-            'Speisekarte',
-            'Speisekarte',
+            'AIO-Speisekarte',
+            'AIO-Speisekarte',
             'manage_options',
             'aorp_manage',
             array( $this, 'render_page' ),
             'dashicons-carrot',
             26
         );
+
+        add_submenu_page(
+            'aorp_manage',
+            'AIO-Speisekarte',
+            'AIO-Speisekarte',
+            'manage_options',
+            'aorp_manage',
+            array( $this, 'render_page' )
+        );
+
+        add_submenu_page(
+            'aorp_manage',
+            'AIO-Getraenkekarte',
+            'AIO-Getraenkekarte',
+            'manage_options',
+            'aorp_manage_drinks',
+            array( $this, 'render_drink_page' )
+        );
+    }
+
+    public function render_drink_page(): void {
+        $_GET['tab'] = 'drinks';
+        $this->render_page();
     }
 
     /**

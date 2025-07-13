@@ -18,8 +18,8 @@ Dieses Plugin bietet eine moderne Verwaltung von Speise- und Getränkekarten fü
 
 ## Shortcodes
 
-- `[speisekarte]` – zeigt alle angelegten Speisen
-- `[getraenkekarte]` – zeigt alle angelegten Getränke
+- `[speisekarte columns="2"]` – zeigt alle Speisen, optional 2 oder 3 Spalten
+- `[getraenkekarte columns="2"]` – zeigt alle Getränke, optional 2 oder 3 Spalten
 - `[restaurant_lightswitcher]` – Button zum Umschalten des Darkmode
 
 ## Entwicklerhinweise
