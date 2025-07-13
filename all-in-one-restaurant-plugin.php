@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once __DIR__ . '/includes/class-loader.php';
 AIO_Restaurant_Plugin\Loader::register();
+require_once __DIR__ . '/includes/functions.php';
 
 require_once __DIR__ . '/includes/ajax-handler.php';
 require_once __DIR__ . '/includes/widgets.php';
@@ -84,13 +85,18 @@ add_action( 'plugins_loaded', 'aorp_init_plugin' );
  * Enqueue assets.
  */
 function aorp_enqueue_assets(): void {
-    wp_enqueue_style( 'aorp-frontend', plugins_url( 'assets/css/frontend.css', __FILE__ ), array(), '1.0' );
-    wp_enqueue_script( 'aorp-frontend', plugins_url( 'assets/js/frontend.js', __FILE__ ), array( 'jquery' ), '1.0', true );
+    wp_enqueue_style( 'aorp-frontend', plugins_url( 'assets/style.css', __FILE__ ), array(), '1.0' );
+    wp_enqueue_script( 'aorp-frontend', plugins_url( 'assets/js/frontend/script.js', __FILE__ ), array( 'jquery' ), '1.0', true );
 }
 add_action( 'wp_enqueue_scripts', 'aorp_enqueue_assets' );
 
 function aorp_admin_assets(): void {
     wp_enqueue_style( 'aorp-admin', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), '1.0' );
-    wp_enqueue_script( 'aorp-admin', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), '1.0', true );
+    wp_enqueue_script( 'aorp-admin-filters', plugins_url( 'assets/js/admin/filters.js', __FILE__ ), array( 'jquery' ), '1.0', true );
+    wp_enqueue_script( 'aorp-admin-items', plugins_url( 'assets/js/admin/item-management.js', __FILE__ ), array( 'jquery' ), '1.0', true );
+    wp_localize_script( 'aorp-admin-items', 'aorp_admin', array(
+        'ajax_url'   => admin_url( 'admin-ajax.php' ),
+        'nonce_edit' => wp_create_nonce( 'aorp_edit_item' ),
+    ) );
 }
 add_action( 'admin_enqueue_scripts', 'aorp_admin_assets' );
