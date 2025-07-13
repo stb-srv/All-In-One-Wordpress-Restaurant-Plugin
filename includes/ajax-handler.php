@@ -42,14 +42,7 @@ class AORP_Ajax_Handler {
  * @return void
  */
     private function format_price( $price ) {
-        $price = trim( (string) $price );
-        if ( '' === $price ) {
-            return '';
-        }
-        if ( strpos( $price, '€' ) === false ) {
-            $price .= ' €';
-        }
-        return $price;
+        return \AIO_Restaurant_Plugin\format_price( (string) $price );
     }
 
 
@@ -59,25 +52,7 @@ class AORP_Ajax_Handler {
  * @return void
  */
     private function get_ingredient_labels( $codes ) {
-        $codes = array_filter( array_map( 'trim', explode( ',', $codes ) ) );
-        if ( empty( $codes ) ) {
-            return '';
-        }
-        $lookup = array();
-        $ings = get_posts( array( 'post_type' => 'aorp_ingredient', 'numberposts' => -1 ) );
-        foreach ( $ings as $ing ) {
-            $code = get_post_meta( $ing->ID, '_aorp_ing_code', true );
-            $lookup[ $code ] = $ing->post_title;
-        }
-        $labels = array();
-        foreach ( $codes as $code ) {
-            if ( isset( $lookup[ $code ] ) ) {
-                $labels[] = $lookup[ $code ] . ' (' . $code . ')';
-            } else {
-                $labels[] = $code;
-            }
-        }
-        return implode( ', ', $labels );
+        return \AIO_Restaurant_Plugin\ingredient_labels( (string) $codes );
     }
 
 

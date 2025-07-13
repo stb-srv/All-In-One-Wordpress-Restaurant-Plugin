@@ -64,10 +64,10 @@
                 <?php if ( $mode === 'drink' ) : ?>
                     <td><?php echo nl2br( esc_html( get_post_meta( $item->ID, '_aorp_drink_sizes', true ) ) ); ?></td>
                 <?php else : ?>
-                    <td><?php echo esc_html( $this->format_price( get_post_meta( $item->ID, '_aorp_price', true ) ) ); ?></td>
+                    <td><?php echo esc_html( \AIO_Restaurant_Plugin\format_price( get_post_meta( $item->ID, '_aorp_price', true ) ) ); ?></td>
                     <td><?php echo esc_html( get_post_meta( $item->ID, '_aorp_number', true ) ); ?></td>
                 <?php endif; ?>
-                <td><?php echo esc_html( $this->get_ingredient_labels( get_post_meta( $item->ID, '_aorp_ingredients', true ) ) ); ?></td>
+                <td><?php echo esc_html( \AIO_Restaurant_Plugin\ingredient_labels( get_post_meta( $item->ID, '_aorp_ingredients', true ) ) ); ?></td>
                 <td><?php echo $cat ? esc_html( $cat->name ) : ''; ?></td>
                 <td>
                     <?php if ( $mode === 'drink' ) : ?>
