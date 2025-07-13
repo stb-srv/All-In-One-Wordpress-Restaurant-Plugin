@@ -20,13 +20,25 @@ class AORP_Shortcodes {
     /**
      * Render food list.
      */
-    public function render_foods(): string {
+    public function render_foods( array $atts = array() ): string {
+        $atts = shortcode_atts( array(
+            'columns' => 2,
+        ), $atts, 'speisekarte' );
+
+        $columns_class = '';
+        $col = intval( $atts['columns'] );
+        if ( in_array( $col, array( 2, 3 ), true ) ) {
+            $columns_class = ' columns-' . $col;
+        }
+
         $categories = get_terms( 'aorp_menu_category', array( 'hide_empty' => false ) );
         if ( empty( $categories ) ) {
             $categories = array();
         }
         ob_start();
-        echo '<div class="aorp-menu">';
+        echo '<div class="aorp-search-wrapper"><input type="text" id="aorp-search-input" placeholder="Suche..." /><button id="aorp-close-cats" class="aorp-close-cats">Kategorien schließen</button><div id="aorp-search-results"></div></div>';
+        echo '<p class="aorp-note">Bitte klicken Sie auf die Kategorien, um die Speisen zu sehen.</p>';
+        echo '<div class="aorp-menu' . esc_attr( $columns_class ) . '">';
         foreach ( $categories as $cat ) {
             echo '<div class="aorp-category">' . esc_html( $cat->name ) . '</div>';
             echo '<div class="aorp-items">';
@@ -66,13 +78,25 @@ class AORP_Shortcodes {
     /**
      * Render drink list.
      */
-    public function render_drinks(): string {
+    public function render_drinks( array $atts = array() ): string {
+        $atts = shortcode_atts( array(
+            'columns' => 2,
+        ), $atts, 'getraenkekarte' );
+
+        $columns_class = '';
+        $col = intval( $atts['columns'] );
+        if ( in_array( $col, array( 2, 3 ), true ) ) {
+            $columns_class = ' columns-' . $col;
+        }
+
         $categories = get_terms( 'aorp_drink_category', array( 'hide_empty' => false ) );
         if ( empty( $categories ) ) {
             $categories = array();
         }
         ob_start();
-        echo '<div class="aorp-menu">';
+        echo '<div class="aorp-search-wrapper"><input type="text" id="aorp-search-input" placeholder="Suche..." /><button id="aorp-close-cats" class="aorp-close-cats">Kategorien schließen</button><div id="aorp-search-results"></div></div>';
+        echo '<p class="aorp-note">Bitte klicken Sie auf die Kategorien, um die Speisen zu sehen.</p>';
+        echo '<div class="aorp-menu' . esc_attr( $columns_class ) . '">';
         foreach ( $categories as $cat ) {
             echo '<div class="aorp-category">' . esc_html( $cat->name ) . '</div>';
             echo '<div class="aorp-items">';
