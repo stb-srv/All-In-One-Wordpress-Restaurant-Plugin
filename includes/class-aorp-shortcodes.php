@@ -21,12 +21,9 @@ class AORP_Shortcodes {
      * Render food list.
      */
     public function render_foods( array $atts = array() ): string {
-        $atts = shortcode_atts( array(
-            'columns' => 2,
-        ), $atts, 'speisekarte' );
-
+        $options = get_option( 'aorp_options', array() );
+        $col     = isset( $options['food_columns'] ) ? intval( $options['food_columns'] ) : 2;
         $columns_class = '';
-        $col = intval( $atts['columns'] );
         if ( in_array( $col, array( 2, 3 ), true ) ) {
             $columns_class = ' columns-' . $col;
         }
@@ -79,12 +76,9 @@ class AORP_Shortcodes {
      * Render drink list.
      */
     public function render_drinks( array $atts = array() ): string {
-        $atts = shortcode_atts( array(
-            'columns' => 2,
-        ), $atts, 'getraenkekarte' );
-
+        $options = get_option( 'aorp_options', array() );
+        $col     = isset( $options['drink_columns'] ) ? intval( $options['drink_columns'] ) : 2;
         $columns_class = '';
-        $col = intval( $atts['columns'] );
         if ( in_array( $col, array( 2, 3 ), true ) ) {
             $columns_class = ' columns-' . $col;
         }

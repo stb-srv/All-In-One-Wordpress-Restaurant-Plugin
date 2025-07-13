@@ -34,6 +34,9 @@ Important hooks register post types, taxonomies and enqueue scripts. The most
 visible shortcodes are `[speisekarte]`, `[getraenkekarte]`,
 `[aio_ingredients_legend]`, `[restaurant_lightswitcher]` and `[aio_leaflet_map]`.
 
+The number of columns displayed by the food and drink menus can be configured
+from the plugin settings page in the WordPress administration.
+
 ## Translations and Samples
 
 Translations are managed with `languages/aorp.pot`. Example import files for CSV,
