@@ -17,7 +17,7 @@ class AORP_Settings {
      * Add settings page.
      */
     public function add_settings_page(): void {
-        add_options_page( 'Restaurant Einstellungen', 'Restaurant', 'manage_options', 'aorp_settings', array( $this, 'render_settings_page' ) );
+        add_submenu_page( 'aorp_manage', 'Einstellungen', 'Einstellungen', 'manage_options', 'aorp_settings', array( $this, 'render_settings_page' ) );
     }
 
     /**

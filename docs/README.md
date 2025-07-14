@@ -35,7 +35,7 @@ visible shortcodes are `[speisekarte]`, `[getraenkekarte]`,
 `[aio_ingredients_legend]`, `[restaurant_lightswitcher]` and `[aio_leaflet_map]`.
 
 The number of columns displayed by the food and drink menus can be configured
-from the plugin settings page in the WordPress administration.
+from the plugin settings page located under the "AIO-Restaurant" menu in the WordPress administration.
 
 ## Translations and Samples
 

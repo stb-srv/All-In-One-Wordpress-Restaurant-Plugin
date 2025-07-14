@@ -15,6 +15,7 @@ Dieses Plugin bietet eine moderne Verwaltung von Speise- und Getränkekarten fü
 
 1. Plugin in den Ordner `wp-content/plugins` kopieren
 2. Im Backend aktivieren
+3. Die Administration erfolgt über den neuen Menüpunkt "AIO-Restaurant"
 
 ## Shortcodes
 
