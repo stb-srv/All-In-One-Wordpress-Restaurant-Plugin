@@ -7,7 +7,7 @@ Dieses Plugin bietet eine moderne Verwaltung von Speise- und Getränkekarten fü
 - Eigene Post Types für Speisen, Getränke und Inhaltsstoffe
 - Shortcodes für die Ausgabe im Frontend
 - REST-API Endpunkte `\aorp\v1\foods` und `\aorp\v1\drinks`
-- Einstellungsseite mit vorbereiteter Lizenzverwaltung
+- Einstellungsseite mit übersichtlichen Untertabs
 - Import/Export Platzhalter
 - Darkmode Umschalter
 
