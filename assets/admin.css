@@ -32,6 +32,13 @@
     margin-left: 5px;
 }
 
+.aorp-image-preview img {
+    max-width: 80px;
+    height: auto;
+    display: block;
+    margin-top: 5px;
+}
+
 @keyframes aorp-spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }

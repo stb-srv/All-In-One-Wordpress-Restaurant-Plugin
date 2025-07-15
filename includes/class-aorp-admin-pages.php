@@ -103,6 +103,9 @@ class AORP_Admin_Pages {
         echo '</select></p>';
         echo '<div class="aorp-selected"></div>';
         echo '<input type="hidden" name="item_ingredients" class="aorp-ing-text" />';
+        echo '<p><button class="button aorp-upload-image">' . __( 'Bild auswählen', 'aorp' ) . '</button> ';
+        echo '<input type="hidden" name="item_image_id" class="aorp-image-id" />';
+        echo '<span class="aorp-image-preview"></span></p>';
         echo '<p><button type="submit" class="button button-primary">Hinzufügen</button></p>';
         echo '</form>';
 

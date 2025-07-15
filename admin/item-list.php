@@ -49,6 +49,8 @@
                     'description' => $item->post_content,
                     'ingredients' => get_post_meta( $item->ID, '_aorp_ingredients', true ),
                     'category'    => $cat ? $cat->term_id : 0,
+                    'imageid'     => get_post_thumbnail_id( $item->ID ),
+                    'imageurl'    => get_post_thumbnail_id( $item->ID ) ? wp_get_attachment_image_url( get_post_thumbnail_id( $item->ID ), 'thumbnail' ) : '',
                 );
                 if ( $mode === 'drink' ) {
                     $data['sizes'] = get_post_meta( $item->ID, '_aorp_drink_sizes', true );
