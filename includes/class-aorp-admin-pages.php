@@ -170,7 +170,14 @@ class AORP_Admin_Pages {
         }
 
         $items = get_posts( array( 'post_type' => $post_type, 'numberposts' => -1, 'orderby' => $orderby, 'order' => $order ) );
-        $cats  = get_terms( ( 'drinks' === $tab ) ? 'aorp_drink_category' : 'aorp_menu_category', array( 'hide_empty' => false ) );
+        $cats  = get_terms(
+            ( 'drinks' === $tab ) ? 'aorp_drink_category' : 'aorp_menu_category',
+            array(
+                'hide_empty' => false,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
+            )
+        );
         $ings  = get_posts( array( 'post_type' => 'aorp_ingredient', 'numberposts' => -1 ) );
 
         $nonce = wp_create_nonce( 'aorp_add_' . ( 'drinks' === $tab ? 'drink_item' : 'item' ) );
@@ -220,7 +227,14 @@ class AORP_Admin_Pages {
             wp_delete_term( intval( $_GET['delete_cat'] ), $taxonomy );
         }
 
-        $terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
+        $terms = get_terms(
+            $taxonomy,
+            array(
+                'hide_empty' => false,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
+            )
+        );
         echo '<form method="post">';
         wp_nonce_field( 'aorp_add_cat' );
         echo '<p><input type="text" name="new_cat" /> ';

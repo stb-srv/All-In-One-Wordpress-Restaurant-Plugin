@@ -17,8 +17,25 @@ class AORP_PDF_Export {
      */
     public function export_pdf(): void {
         check_admin_referer( 'aorp_export_pdf' );
-        $foods  = get_posts( array( 'post_type' => 'aorp_menu_item', 'numberposts' => -1 ) );
-        $drinks = get_posts( array( 'post_type' => 'aorp_drink_item', 'numberposts' => -1 ) );
+        $foods  = get_posts(
+            array(
+                'post_type'   => 'aorp_menu_item',
+                'numberposts' => -1,
+                'meta_key'    => '_aorp_number',
+                'orderby'     => 'meta_value_num',
+                'order'       => 'ASC',
+                'post_status' => 'publish',
+            )
+        );
+        $drinks = get_posts(
+            array(
+                'post_type'   => 'aorp_drink_item',
+                'numberposts' => -1,
+                'orderby'     => 'title',
+                'order'       => 'ASC',
+                'post_status' => 'publish',
+            )
+        );
 
         $lines   = array();
         $lines[] = 'Speisekarte';

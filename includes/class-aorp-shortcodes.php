@@ -28,7 +28,14 @@ class AORP_Shortcodes {
             $columns_class = ' columns-' . $col;
         }
 
-        $categories = get_terms( 'aorp_menu_category', array( 'hide_empty' => false ) );
+        $categories = get_terms(
+            'aorp_menu_category',
+            array(
+                'hide_empty' => false,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
+            )
+        );
         if ( empty( $categories ) ) {
             $categories = array();
         }
@@ -83,7 +90,14 @@ class AORP_Shortcodes {
             $columns_class = ' columns-' . $col;
         }
 
-        $categories = get_terms( 'aorp_drink_category', array( 'hide_empty' => false ) );
+        $categories = get_terms(
+            'aorp_drink_category',
+            array(
+                'hide_empty' => false,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
+            )
+        );
         if ( empty( $categories ) ) {
             $categories = array();
         }
