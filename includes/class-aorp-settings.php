@@ -27,18 +27,8 @@ class AORP_Settings {
         register_setting( 'aorp_settings', 'aorp_options' );
 
         add_settings_section( 'aorp_general', __( 'Allgemein', 'aorp' ), '__return_false', 'aorp_settings' );
-        add_settings_field( 'license_key', __( 'Lizenzschlüssel', 'aorp' ), array( $this, 'field_license_key' ), 'aorp_settings', 'aorp_general' );
         add_settings_field( 'food_columns', __( 'Spalten Speisekarte', 'aorp' ), array( $this, 'field_food_columns' ), 'aorp_settings', 'aorp_general' );
         add_settings_field( 'drink_columns', __( 'Spalten Getränkekarte', 'aorp' ), array( $this, 'field_drink_columns' ), 'aorp_settings', 'aorp_general' );
-    }
-
-    /**
-     * Render license field.
-     */
-    public function field_license_key(): void {
-        $options = get_option( 'aorp_options', array() );
-        $value   = isset( $options['license_key'] ) ? esc_attr( $options['license_key'] ) : '';
-        echo '<input type="text" name="aorp_options[license_key]" value="' . $value . '" class="regular-text" />';
     }
 
     /**
@@ -71,16 +61,36 @@ class AORP_Settings {
      * Output settings page.
      */
     public function render_settings_page(): void {
+        $tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'general';
         ?>
         <div class="wrap">
             <h1><?php esc_html_e( 'Restaurant Einstellungen', 'aorp' ); ?></h1>
-            <form action="options.php" method="post">
-                <?php
-                settings_fields( 'aorp_settings' );
-                do_settings_sections( 'aorp_settings' );
-                submit_button();
-                ?>
-            </form>
+            <h2 class="nav-tab-wrapper">
+                <a href="?page=aorp_settings&tab=general" class="nav-tab<?php echo ( 'general' === $tab ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Allgemein', 'aorp' ); ?></a>
+                <a href="?page=aorp_settings&tab=importexport" class="nav-tab<?php echo ( 'importexport' === $tab ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Import/Export', 'aorp' ); ?></a>
+            </h2>
+            <?php if ( 'importexport' === $tab ) : ?>
+                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
+                    <?php wp_nonce_field( 'aorp_import_csv' ); ?>
+                    <input type="hidden" name="action" value="aorp_import_csv" />
+                    <p><input type="file" name="csv_file" accept=".csv" /></p>
+                    <?php submit_button( __( 'Importieren', 'aorp' ) ); ?>
+                </form>
+                <hr />
+                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                    <?php wp_nonce_field( 'aorp_export_csv' ); ?>
+                    <input type="hidden" name="action" value="aorp_export_csv" />
+                    <?php submit_button( __( 'Exportieren', 'aorp' ) ); ?>
+                </form>
+            <?php else : ?>
+                <form action="options.php" method="post">
+                    <?php
+                    settings_fields( 'aorp_settings' );
+                    do_settings_sections( 'aorp_settings' );
+                    submit_button();
+                    ?>
+                </form>
+            <?php endif; ?>
         </div>
         <?php
     }
