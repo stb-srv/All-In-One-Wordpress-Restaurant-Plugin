@@ -43,7 +43,7 @@ jQuery(document).ready(function($){
             $('#aorp-toggle').html(aorp_ajax.icon_light);
             localStorage.setItem('aorp-dark-mode','off');
         }
-        $.post(aorp_ajax.url,{action:'aorp_toggle_dark'});
+        $.post(aorp_ajax.url,{action:'aorp_toggle_dark',mode:active?'on':'off'});
     }
 
     $('#aorp-toggle').on('click', function(){
@@ -57,8 +57,11 @@ jQuery(document).ready(function($){
     });
 
     var stored = localStorage.getItem('aorp-dark-mode');
+    var cookieMatch = document.cookie.match(/aorp_dark_mode=(on|off)/);
     if(stored){
         setDark(stored==='on');
+    }else if(cookieMatch){
+        setDark(cookieMatch[1]==='on');
     }else if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
         setDark(true);
     }

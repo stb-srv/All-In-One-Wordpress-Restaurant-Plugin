@@ -72,9 +72,11 @@ class AORP_Ajax_Handler {
         $terms = get_the_terms( $id, 'aorp_menu_category' );
         $cat = ( $terms && ! is_wp_error( $terms ) ) ? $terms[0]->name : '';
         $cat_id = ( $terms && ! is_wp_error( $terms ) ) ? $terms[0]->term_id : 0;
+        $img_id = get_post_thumbnail_id( $id );
+        $img_url = $img_id ? wp_get_attachment_image_url( $img_id, 'thumbnail' ) : '';
         ob_start();
         ?>
-        <tr data-id="<?php echo esc_attr( $id ); ?>" data-title="<?php echo esc_attr( $item->post_title ); ?>" data-description="<?php echo esc_attr( $item->post_content ); ?>" data-price="<?php echo esc_attr( $price ); ?>" data-number="<?php echo esc_attr( $number ); ?>" data-ingredients="<?php echo esc_attr( $ingredients ); ?>" data-category="<?php echo esc_attr( $cat_id ); ?>">
+        <tr data-id="<?php echo esc_attr( $id ); ?>" data-title="<?php echo esc_attr( $item->post_title ); ?>" data-description="<?php echo esc_attr( $item->post_content ); ?>" data-price="<?php echo esc_attr( $price ); ?>" data-number="<?php echo esc_attr( $number ); ?>" data-ingredients="<?php echo esc_attr( $ingredients ); ?>" data-category="<?php echo esc_attr( $cat_id ); ?>" data-imageid="<?php echo esc_attr( $img_id ); ?>" data-imageurl="<?php echo esc_attr( $img_url ); ?>">
             <td><input type="checkbox" name="item_ids[]" value="<?php echo esc_attr( $id ); ?>" /></td>
             <td><?php echo esc_html( $item->post_title ); ?></td>
             <td><?php echo esc_html( wp_trim_words( wp_strip_all_tags( $item->post_content ), 15 ) ); ?></td>
@@ -107,9 +109,11 @@ class AORP_Ajax_Handler {
         $terms = get_the_terms( $id, 'aorp_drink_category' );
         $cat = ( $terms && ! is_wp_error( $terms ) ) ? $terms[0]->name : '';
         $cat_id = ( $terms && ! is_wp_error( $terms ) ) ? $terms[0]->term_id : 0;
+        $img_id = get_post_thumbnail_id( $id );
+        $img_url = $img_id ? wp_get_attachment_image_url( $img_id, 'thumbnail' ) : '';
         ob_start();
         ?>
-        <tr data-id="<?php echo esc_attr( $id ); ?>" data-title="<?php echo esc_attr( $item->post_title ); ?>" data-description="<?php echo esc_attr( $item->post_content ); ?>" data-sizes="<?php echo esc_attr( get_post_meta( $id, '_aorp_drink_sizes', true ) ); ?>" data-ingredients="<?php echo esc_attr( $ingredients ); ?>" data-category="<?php echo esc_attr( $cat_id ); ?>">
+        <tr data-id="<?php echo esc_attr( $id ); ?>" data-title="<?php echo esc_attr( $item->post_title ); ?>" data-description="<?php echo esc_attr( $item->post_content ); ?>" data-sizes="<?php echo esc_attr( get_post_meta( $id, '_aorp_drink_sizes', true ) ); ?>" data-ingredients="<?php echo esc_attr( $ingredients ); ?>" data-category="<?php echo esc_attr( $cat_id ); ?>" data-imageid="<?php echo esc_attr( $img_id ); ?>" data-imageurl="<?php echo esc_attr( $img_url ); ?>">
             <td><input type="checkbox" name="item_ids[]" value="<?php echo esc_attr( $id ); ?>" /></td>
             <td><?php echo esc_html( $item->post_title ); ?></td>
             <td><?php echo esc_html( wp_trim_words( wp_strip_all_tags( $item->post_content ), 15 ) ); ?></td>

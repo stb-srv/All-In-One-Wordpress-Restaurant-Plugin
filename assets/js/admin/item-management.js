@@ -1,5 +1,6 @@
 jQuery(function($){
     var ingOptions = $('.aorp-ing-select:first').html() || '';
+    bindImageUpload($('.aorp-add-form'));
     function showToast(text){
         var toast = $('<div class="aorp-toast" />').text(text);
         $('body').append(toast);
@@ -16,6 +17,7 @@ jQuery(function($){
                         $('#aorp-items-table tbody').append(resp.data.row);
                         form[0].reset();
                         form.find('.aorp-selected').empty();
+                        form.find('.aorp-image-preview').empty();
                     }else{
                         form.closest('tr').replaceWith(resp.data.row);
                         form.prev('tr').remove();
@@ -25,6 +27,20 @@ jQuery(function($){
             }else if(resp.data && resp.data.message){
                 alert(resp.data.message);
             }
+        });
+    }
+
+    function bindImageUpload(form){
+        form.find('.aorp-upload-image').off('click').on('click',function(e){
+            e.preventDefault();
+            var btn = $(this);
+            var frame = wp.media({title:'Bild auswählen',button:{text:'Auswählen'},multiple:false});
+            frame.on('select',function(){
+                var att = frame.state().get('selection').first().toJSON();
+                btn.siblings('.aorp-image-id').val(att.id);
+                btn.siblings('.aorp-image-preview').html('<img src="'+att.sizes.thumbnail.url+'" />');
+            });
+            frame.open();
         });
     }
 
@@ -79,12 +95,14 @@ jQuery(function($){
             '<p><select class="aorp-ing-select">'+ingOptions+'</select></p>'+
             '<div class="aorp-selected"></div>'+
             '<input type="hidden" name="item_ingredients" class="aorp-ing-text" value="'+(data.ingredients||'')+'" />'+
+            '<p><button class="button aorp-upload-image">Bild auswählen</button> <input type="hidden" name="item_image_id" class="aorp-image-id" value="'+(data.imageid||'')+'" /> <span class="aorp-image-preview">'+(data.imageurl?'<img src="'+data.imageurl+'" />':'')+'</span></p>'+
             '<button type="submit" class="button button-primary">Speichern</button> '+
             '<button class="button aorp-cancel">Abbrechen</button>'
         );
         cols.find('td').append(form);
         row.after(cols); row.hide();
         initIngredients(form);
+        bindImageUpload(form);
     });
 
     $(document).on('change','.aorp-ing-select',function(){

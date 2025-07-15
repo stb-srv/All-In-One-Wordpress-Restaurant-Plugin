@@ -87,6 +87,11 @@ add_action( 'plugins_loaded', 'aorp_init_plugin' );
 function aorp_enqueue_assets(): void {
     wp_enqueue_style( 'aorp-frontend', plugins_url( 'assets/style.css', __FILE__ ), array(), '1.0' );
     wp_enqueue_script( 'aorp-frontend', plugins_url( 'assets/js/frontend/script.js', __FILE__ ), array( 'jquery' ), '1.0', true );
+    wp_localize_script( 'aorp-frontend', 'aorp_ajax', array(
+        'url'        => admin_url( 'admin-ajax.php' ),
+        'icon_light' => '☀️',
+        'icon_dark'  => '🌙',
+    ) );
 }
 add_action( 'wp_enqueue_scripts', 'aorp_enqueue_assets' );
 
@@ -94,9 +99,18 @@ function aorp_admin_assets(): void {
     wp_enqueue_style( 'aorp-admin', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), '1.0' );
     wp_enqueue_script( 'aorp-admin-filters', plugins_url( 'assets/js/admin/filters.js', __FILE__ ), array( 'jquery' ), '1.0', true );
     wp_enqueue_script( 'aorp-admin-items', plugins_url( 'assets/js/admin/item-management.js', __FILE__ ), array( 'jquery' ), '1.0', true );
+    wp_enqueue_media();
     wp_localize_script( 'aorp-admin-items', 'aorp_admin', array(
         'ajax_url'   => admin_url( 'admin-ajax.php' ),
         'nonce_edit' => wp_create_nonce( 'aorp_edit_item' ),
     ) );
 }
 add_action( 'admin_enqueue_scripts', 'aorp_admin_assets' );
+
+function aorp_toggle_dark_callback() {
+    $mode = ( isset( $_POST['mode'] ) && 'on' === $_POST['mode'] ) ? 'on' : 'off';
+    setcookie( 'aorp_dark_mode', $mode, time() + YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+    wp_die();
+}
+add_action( 'wp_ajax_aorp_toggle_dark', 'aorp_toggle_dark_callback' );
+add_action( 'wp_ajax_nopriv_aorp_toggle_dark', 'aorp_toggle_dark_callback' );
