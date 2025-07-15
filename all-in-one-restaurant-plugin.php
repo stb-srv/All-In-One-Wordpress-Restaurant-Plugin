@@ -44,6 +44,7 @@ use AIO_Restaurant_Plugin\AORP_Post_Types;
 use AIO_Restaurant_Plugin\AORP_Shortcodes;
 use AIO_Restaurant_Plugin\AORP_Admin_Pages;
 use AIO_Restaurant_Plugin\AORP_CSV_Handler;
+use AIO_Restaurant_Plugin\AORP_PDF_Export;
 use AIO_Restaurant_Plugin\AORP_Settings;
 use AIO_Restaurant_Plugin\AORP_REST_API;
 
@@ -62,6 +63,9 @@ function aorp_init_plugin(): void {
 
     $csv = new AORP_CSV_Handler();
     $csv->register();
+
+    $pdf = new AORP_PDF_Export();
+    $pdf->register();
 
     $settings = new AORP_Settings();
     $settings->register();

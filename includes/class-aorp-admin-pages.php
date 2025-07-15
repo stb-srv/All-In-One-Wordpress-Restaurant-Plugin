@@ -116,6 +116,11 @@ class AORP_Admin_Pages {
                 <input type="hidden" name="action" value="aorp_export_csv" />
                 <?php submit_button( __( 'CSV Export', 'aorp' ) ); ?>
             </form>
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                <?php wp_nonce_field( 'aorp_export_pdf' ); ?>
+                <input type="hidden" name="action" value="aorp_export_pdf" />
+                <?php submit_button( __( 'PDF Export', 'aorp' ) ); ?>
+            </form>
             <p><button class="button button-primary" disabled>YAML Export</button> <button class="button button-primary" disabled>JSON Export</button></p>
         </div>
         <?php
