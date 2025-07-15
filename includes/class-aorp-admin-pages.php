@@ -2,6 +2,7 @@
 namespace AIO_Restaurant_Plugin;
 
 use WP_List_Table;
+use AIO_Restaurant_Plugin\AORP_Settings;
 
 /**
  * Handles admin pages.
@@ -26,18 +27,27 @@ class AORP_Admin_Pages {
             'AIO-Restaurant',
             'manage_options',
             'aorp_manage',
-            array( $this, 'render_page' ),
+            array( $this, 'render_dashboard' ),
             'dashicons-carrot',
             26
         );
 
         add_submenu_page(
             'aorp_manage',
+            'Dashboard',
+            'Dashboard',
+            'manage_options',
+            'aorp_manage',
+            array( $this, 'render_dashboard' )
+        );
+
+        add_submenu_page(
+            'aorp_manage',
             'Speisekarte',
             'Speisekarte',
             'manage_options',
-            'aorp_manage',
-            array( $this, 'render_page' )
+            'aorp_foods',
+            array( $this, 'render_food_page' )
         );
 
         add_submenu_page(
@@ -45,38 +55,119 @@ class AORP_Admin_Pages {
             'Getränkekarte',
             'Getränkekarte',
             'manage_options',
-            'aorp_manage_drinks',
+            'aorp_drinks',
             array( $this, 'render_drink_page' )
         );
 
+        add_submenu_page(
+            'aorp_manage',
+            'Import/Export',
+            'Import/Export',
+            'manage_options',
+            'aorp_import_export',
+            array( $this, 'render_import_export_page' )
+        );
+
+        $settings = new AORP_Settings();
+        add_submenu_page(
+            'aorp_manage',
+            'Einstellungen',
+            'Einstellungen',
+            'manage_options',
+            'aorp_settings',
+            array( $settings, 'render_settings_page' )
+        );
     }
 
     public function render_drink_page(): void {
-        $_GET['tab'] = 'drinks';
-        $this->render_page();
+        $this->render_manage_page( 'drinks' );
+    }
+
+    public function render_food_page(): void {
+        $this->render_manage_page( 'foods' );
+    }
+
+    public function render_dashboard(): void {
+        $foods  = wp_count_posts( 'aorp_menu_item' );
+        $drinks = wp_count_posts( 'aorp_drink_item' );
+        $ings   = wp_count_posts( 'aorp_ingredient' );
+        echo '<div class="wrap">';
+        echo '<h1>AIO-Restaurant</h1>';
+        echo '<p>' . sprintf( __( 'Es gibt %1$d Speisen, %2$d Getränke und %3$d Inhaltsstoffe.', 'aorp' ), $foods->publish, $drinks->publish, $ings->publish ) . '</p>';
+        echo '</div>';
+    }
+
+    public function render_import_export_page(): void {
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e( 'Import/Export', 'aorp' ); ?></h1>
+            <h2><?php esc_html_e( 'Import', 'aorp' ); ?></h2>
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
+                <?php wp_nonce_field( 'aorp_import_csv' ); ?>
+                <input type="hidden" name="action" value="aorp_import_csv" />
+                <p><input type="file" name="csv_file" accept=".csv" /></p>
+                <?php submit_button( __( 'CSV Import', 'aorp' ) ); ?>
+            </form>
+            <p><button class="button button-primary" disabled>YAML Import</button> <button class="button button-primary" disabled>JSON Import</button></p>
+            <hr />
+            <h2><?php esc_html_e( 'Export', 'aorp' ); ?></h2>
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                <?php wp_nonce_field( 'aorp_export_csv' ); ?>
+                <input type="hidden" name="action" value="aorp_export_csv" />
+                <?php submit_button( __( 'CSV Export', 'aorp' ) ); ?>
+            </form>
+            <p><button class="button button-primary" disabled>YAML Export</button> <button class="button button-primary" disabled>JSON Export</button></p>
+        </div>
+        <?php
     }
 
     /**
      * Render manage page.
      */
     public function render_page(): void {
-        $tab = ( isset( $_GET['tab'] ) && 'drinks' === $_GET['tab'] ) ? 'drinks' : 'foods';
+        $this->render_manage_page( 'foods' );
+    }
+
+    private function render_manage_page( string $tab ): void {
+        $section = isset( $_GET['section'] ) ? sanitize_key( wp_unslash( $_GET['section'] ) ) : 'entries';
         $orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'title';
         $order   = isset( $_GET['order'] ) && 'DESC' === strtoupper( $_GET['order'] ) ? 'DESC' : 'ASC';
 
         $post_type = ( 'drinks' === $tab ) ? 'aorp_drink_item' : 'aorp_menu_item';
+        $page_slug = ( 'drinks' === $tab ) ? 'aorp_drinks' : 'aorp_foods';
+
+        echo '<div class="wrap">';
+        echo '<h1>' . ( 'drinks' === $tab ? __( 'Getränkekarte', 'aorp' ) : __( 'Speisekarte', 'aorp' ) ) . '</h1>';
+        echo '<h2 class="nav-tab-wrapper">';
+        $sections = array(
+            'entries'     => __( 'Einträge', 'aorp' ),
+            'categories'  => __( 'Kategorien', 'aorp' ),
+            'ingredients' => __( 'Inhaltsstoffe', 'aorp' ),
+        );
+        foreach ( $sections as $key => $label ) {
+            $url = add_query_arg( array( 'page' => $page_slug, 'section' => $key ), admin_url( 'admin.php' ) );
+            $active = ( $section === $key ) ? ' nav-tab-active' : '';
+            echo '<a href="' . esc_url( $url ) . '" class="nav-tab' . $active . '">' . esc_html( $label ) . '</a>';
+        }
+        echo '</h2>';
+
+        if ( 'categories' === $section ) {
+            $taxonomy = ( 'drinks' === $tab ) ? 'aorp_drink_category' : 'aorp_menu_category';
+            $this->render_categories( $taxonomy );
+            echo '</div>';
+            return;
+        }
+
+        if ( 'ingredients' === $section ) {
+            $this->render_ingredients();
+            echo '</div>';
+            return;
+        }
+
         $items = get_posts( array( 'post_type' => $post_type, 'numberposts' => -1, 'orderby' => $orderby, 'order' => $order ) );
         $cats  = get_terms( ( 'drinks' === $tab ) ? 'aorp_drink_category' : 'aorp_menu_category', array( 'hide_empty' => false ) );
         $ings  = get_posts( array( 'post_type' => 'aorp_ingredient', 'numberposts' => -1 ) );
 
-        echo '<div class="wrap">';
-        echo '<h1>Speisekarte</h1>';
-        echo '<h2 class="nav-tab-wrapper">';
-        echo '<a href="?page=aorp_manage&tab=foods" class="nav-tab' . ( 'foods' === $tab ? ' nav-tab-active' : '' ) . '">Speisen</a>';
-        echo '<a href="?page=aorp_manage&tab=drinks" class="nav-tab' . ( 'drinks' === $tab ? ' nav-tab-active' : '' ) . '">Getränke</a>';
-        echo '</h2>';
-
-        // Add form
         $nonce = wp_create_nonce( 'aorp_add_' . ( 'drinks' === $tab ? 'drink_item' : 'item' ) );
         echo '<form class="aorp-add-form" data-action="aorp_add_' . ( 'drinks' === $tab ? 'drink_item' : 'item' ) . '">';
         echo '<input type="hidden" name="nonce" value="' . esc_attr( $nonce ) . '" />';
@@ -110,10 +201,70 @@ class AORP_Admin_Pages {
         echo '</form>';
 
         $mode    = ( 'drinks' === $tab ) ? 'drink' : 'food';
-        $orderby = $orderby;
-        $order   = $order;
         include dirname( __DIR__ ) . '/admin/item-list.php';
 
-        echo '</div>'; // wrap
+        echo '</div>';
+    }
+
+    private function render_categories( string $taxonomy ): void {
+        if ( isset( $_POST['new_cat'] ) && check_admin_referer( 'aorp_add_cat' ) ) {
+            wp_insert_term( sanitize_text_field( wp_unslash( $_POST['new_cat'] ) ), $taxonomy );
+        }
+
+        if ( isset( $_GET['delete_cat'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'aorp_delete_cat_' . intval( $_GET['delete_cat'] ) ) ) {
+            wp_delete_term( intval( $_GET['delete_cat'] ), $taxonomy );
+        }
+
+        $terms = get_terms( $taxonomy, array( 'hide_empty' => false ) );
+        echo '<form method="post">';
+        wp_nonce_field( 'aorp_add_cat' );
+        echo '<p><input type="text" name="new_cat" /> ';
+        submit_button( __( 'Hinzufügen', 'aorp' ), 'primary', 'submit', false );
+        echo '</p></form>';
+        if ( $terms ) {
+            echo '<ul>';
+            foreach ( $terms as $term ) {
+                $del = '';
+                if ( 'aorp_drink_category' !== $taxonomy || 'kategorielos' !== $term->slug ) {
+                    $del = ' <a href="' . esc_url( wp_nonce_url( add_query_arg( array( 'delete_cat' => $term->term_id ) ), 'aorp_delete_cat_' . $term->term_id ) ) . '">x</a>';
+                }
+                echo '<li>' . esc_html( $term->name ) . $del . '</li>';
+            }
+            echo '</ul>';
+        }
+    }
+
+    private function render_ingredients(): void {
+        if ( isset( $_POST['new_ing'] ) && check_admin_referer( 'aorp_add_ing' ) ) {
+            $id = wp_insert_post( array(
+                'post_type'   => 'aorp_ingredient',
+                'post_status' => 'publish',
+                'post_title'  => sanitize_text_field( wp_unslash( $_POST['new_ing'] ) ),
+            ) );
+            if ( $id && ! empty( $_POST['new_code'] ) ) {
+                update_post_meta( $id, '_aorp_ing_code', sanitize_text_field( wp_unslash( $_POST['new_code'] ) ) );
+            }
+        }
+
+        if ( isset( $_GET['delete_ing'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'aorp_delete_ing_' . intval( $_GET['delete_ing'] ) ) ) {
+            wp_delete_post( intval( $_GET['delete_ing'] ), true );
+        }
+
+        $ings = get_posts( array( 'post_type' => 'aorp_ingredient', 'numberposts' => -1 ) );
+        echo '<form method="post">';
+        wp_nonce_field( 'aorp_add_ing' );
+        echo '<p><input type="text" name="new_ing" placeholder="Name" /> <input type="text" name="new_code" placeholder="Code" /> ';
+        submit_button( __( 'Hinzufügen', 'aorp' ), 'primary', 'submit', false );
+        echo '</p></form>';
+        if ( $ings ) {
+            echo '<ul>';
+            foreach ( $ings as $ing ) {
+                $code     = get_post_meta( $ing->ID, '_aorp_ing_code', true );
+                $del_link = wp_nonce_url( add_query_arg( array( 'delete_ing' => $ing->ID ) ), 'aorp_delete_ing_' . $ing->ID );
+                echo '<li>' . esc_html( $ing->post_title . ( $code ? ' (' . $code . ')' : '' ) ) . ' <a href="' . esc_url( $del_link ) . '">x</a></li>';
+            }
+            echo '</ul>';
+        }
     }
 }
+
