@@ -19,7 +19,7 @@ class AORP_CSV_Handler {
     public function export_csv(): void {
         check_admin_referer( 'aorp_export_csv' );
         // TODO: implement export logic.
-        wp_safe_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        wp_safe_redirect( admin_url( 'admin.php?page=aio-restaurant' ) );
         exit;
     }
 
@@ -29,7 +29,7 @@ class AORP_CSV_Handler {
     public function import_csv(): void {
         check_admin_referer( 'aorp_import_csv' );
         // TODO: implement import logic.
-        wp_safe_redirect( admin_url( 'admin.php?page=aorp_manage' ) );
+        wp_safe_redirect( admin_url( 'admin.php?page=aio-restaurant' ) );
         exit;
     }
 }

@@ -26,56 +26,146 @@ class AORP_Admin_Pages {
             'AIO-Restaurant',
             'AIO-Restaurant',
             'manage_options',
-            'aorp_manage',
+            'aio-restaurant',
             array( $this, 'render_dashboard' ),
-            'dashicons-carrot',
+            'dashicons-store',
             26
         );
 
         add_submenu_page(
-            'aorp_manage',
-            'Dashboard',
-            'Dashboard',
+            'aio-restaurant',
+            'Speisen anzeigen',
+            "\xF0\x9F\x8D\xBD Speisen anzeigen",
             'manage_options',
-            'aorp_manage',
-            array( $this, 'render_dashboard' )
-        );
-
-        add_submenu_page(
-            'aorp_manage',
-            'Speisekarte',
-            'Speisekarte',
-            'manage_options',
-            'aorp_foods',
+            'aio-dishes',
             array( $this, 'render_food_page' )
         );
 
         add_submenu_page(
-            'aorp_manage',
-            'Getränkekarte',
-            'Getränkekarte',
+            'aio-restaurant',
+            'Neue Speise hinzufügen',
+            "\xE2\x9E\x95 Neue Speise",
             'manage_options',
-            'aorp_drinks',
+            'aio-add-dish',
+            array( $this, 'render_food_page' )
+        );
+
+        add_submenu_page(
+            'aio-restaurant',
+            'Kategorien & Inhaltsstoffe',
+            "\xF0\x9F\x8F\xB7\xEF\xB8\x8F Kategorien & Inhaltsstoffe",
+            'manage_options',
+            'aio-dish-categories',
+            array( $this, 'render_food_page' )
+        );
+
+        add_submenu_page(
+            'aio-restaurant',
+            'Getränke anzeigen',
+            "\xF0\x9F\xA5\xA4 Getränke anzeigen",
+            'manage_options',
+            'aio-drinks',
             array( $this, 'render_drink_page' )
         );
 
         add_submenu_page(
-            'aorp_manage',
-            'Import/Export',
-            'Import/Export',
+            'aio-restaurant',
+            'Neues Getränk hinzufügen',
+            "\xE2\x9E\x95 Neues Getränk",
             'manage_options',
-            'aorp_import_export',
+            'aio-add-drink',
+            array( $this, 'render_drink_page' )
+        );
+
+        add_submenu_page(
+            'aio-restaurant',
+            'Getränkekategorien',
+            "\xF0\x9F\x8F\xB7\xEF\xB8\x8F Getränkekategorien",
+            'manage_options',
+            'aio-drink-categories',
+            array( $this, 'render_drink_page' )
+        );
+
+        add_submenu_page(
+            'aio-restaurant',
+            'Grid Templates',
+            "\xF0\x9F\x93\x90 Grid Templates",
+            'manage_options',
+            'aio-grid-templates',
+            array( $this, 'render_grid_templates_page' )
+        );
+
+        add_submenu_page(
+            'aio-restaurant',
+            'Overlay Builder',
+            "\xF0\x9F\xA7\xB1 Overlay Builder",
+            'manage_options',
+            'aio-overlay-builder',
+            array( $this, 'render_overlay_builder_page' )
+        );
+
+        add_submenu_page(
+            'aio-restaurant',
+            'Layout Preview',
+            "\xF0\x9F\x94\x8D Layout Preview",
+            'manage_options',
+            'aio-layout-preview',
+            array( $this, 'render_layout_preview_page' )
+        );
+
+        add_submenu_page(
+            'aio-restaurant',
+            'CSV Import/Export',
+            "\xE2\xAC\x86\xE2\xAC\x87 CSV Import/Export",
+            'manage_options',
+            'aio-import-export',
             array( $this, 'render_import_export_page' )
+        );
+
+        add_submenu_page(
+            'aio-restaurant',
+            'PDF Export',
+            "\xF0\x9F\x93\x84 PDF Export",
+            'manage_options',
+            'aio-pdf-export',
+            array( $this, 'render_pdf_export_page' )
+        );
+
+        add_submenu_page(
+            'aio-restaurant',
+            'REST API',
+            "\xF0\x9F\x94\x97 REST API",
+            'manage_options',
+            'aio-rest-api',
+            array( $this, 'render_rest_api_page' )
         );
 
         $settings = new AORP_Settings();
         add_submenu_page(
-            'aorp_manage',
+            'aio-restaurant',
             'Einstellungen',
-            'Einstellungen',
+            "\xE2\x9A\x99\xEF\xB8\x8F Einstellungen",
             'manage_options',
-            'aorp_settings',
+            'aio-settings',
             array( $settings, 'render_settings_page' )
+        );
+
+        add_submenu_page(
+            'aio-restaurant',
+            'Darkmode',
+            "\xF0\x9F\x95\x83 Darkmode",
+            'manage_options',
+            'aio-darkmode',
+            array( $this, 'render_darkmode_page' )
+        );
+
+        add_submenu_page(
+            'aio-restaurant',
+            'Enable/Disable Features',
+            "\xE2\x9C\x85 Features",
+            'manage_options',
+            'aio-features',
+            array( $this, 'render_features_page' )
         );
     }
 
@@ -126,6 +216,34 @@ class AORP_Admin_Pages {
         <?php
     }
 
+    public function render_grid_templates_page(): void {
+        echo '<div class="wrap"><h1>Grid Templates</h1><p>Coming soon</p></div>';
+    }
+
+    public function render_overlay_builder_page(): void {
+        echo '<div class="wrap"><h1>Overlay Builder</h1><p>Coming soon</p></div>';
+    }
+
+    public function render_layout_preview_page(): void {
+        echo '<div class="wrap"><h1>Layout Preview</h1><p>Coming soon</p></div>';
+    }
+
+    public function render_pdf_export_page(): void {
+        echo '<div class="wrap"><h1>PDF Export</h1><p>Coming soon</p></div>';
+    }
+
+    public function render_rest_api_page(): void {
+        echo '<div class="wrap"><h1>REST API</h1><p>Coming soon</p></div>';
+    }
+
+    public function render_darkmode_page(): void {
+        echo '<div class="wrap"><h1>Darkmode</h1><p>Coming soon</p></div>';
+    }
+
+    public function render_features_page(): void {
+        echo '<div class="wrap"><h1>Features</h1><p>Coming soon</p></div>';
+    }
+
     /**
      * Render manage page.
      */
@@ -139,7 +257,7 @@ class AORP_Admin_Pages {
         $order   = isset( $_GET['order'] ) && 'DESC' === strtoupper( $_GET['order'] ) ? 'DESC' : 'ASC';
 
         $post_type = ( 'drinks' === $tab ) ? 'aorp_drink_item' : 'aorp_menu_item';
-        $page_slug = ( 'drinks' === $tab ) ? 'aorp_drinks' : 'aorp_foods';
+        $page_slug = ( 'drinks' === $tab ) ? 'aio-drinks' : 'aio-dishes';
 
         echo '<div class="wrap">';
         echo '<h1>' . ( 'drinks' === $tab ? __( 'Getränkekarte', 'aorp' ) : __( 'Speisekarte', 'aorp' ) ) . '</h1>';
