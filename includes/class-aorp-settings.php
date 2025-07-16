@@ -17,7 +17,7 @@ class AORP_Settings {
      * Add settings page.
      */
     public function add_settings_page(): void {
-        add_submenu_page( 'aorp_manage', 'Einstellungen', 'Einstellungen', 'manage_options', 'aorp_settings', array( $this, 'render_settings_page' ) );
+        add_submenu_page( 'aio-restaurant', 'Einstellungen', 'Einstellungen', 'manage_options', 'aio-settings', array( $this, 'render_settings_page' ) );
     }
 
     /**
@@ -106,9 +106,9 @@ class AORP_Settings {
         <div class="wrap">
             <h1><?php esc_html_e( 'Restaurant Einstellungen', 'aorp' ); ?></h1>
             <h2 class="nav-tab-wrapper">
-                <a href="?page=aorp_settings&tab=general" class="nav-tab<?php echo ( 'general' === $tab ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Allgemein', 'aorp' ); ?></a>
-                <a href="?page=aorp_settings&tab=design" class="nav-tab<?php echo ( 'design' === $tab ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Design', 'aorp' ); ?></a>
-                <a href="?page=aorp_settings&tab=license" class="nav-tab<?php echo ( 'license' === $tab ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Lizenz', 'aorp' ); ?></a>
+                <a href="?page=aio-settings&tab=general" class="nav-tab<?php echo ( 'general' === $tab ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Allgemein', 'aorp' ); ?></a>
+                <a href="?page=aio-settings&tab=design" class="nav-tab<?php echo ( 'design' === $tab ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Design', 'aorp' ); ?></a>
+                <a href="?page=aio-settings&tab=license" class="nav-tab<?php echo ( 'license' === $tab ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Lizenz', 'aorp' ); ?></a>
             </h2>
             <form action="options.php" method="post">
                 <?php
