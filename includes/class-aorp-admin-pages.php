@@ -186,7 +186,14 @@ class AORP_Admin_Pages {
                 <p><input type="file" name="csv_file" accept=".csv" /></p>
                 <?php submit_button( __( 'CSV Import', 'aorp' ) ); ?>
             </form>
-            <p><button class="button button-primary" disabled>YAML Import</button> <button class="button button-primary" disabled>JSON Import</button></p>
+            <p>
+                <?php
+                $base = plugin_dir_url( dirname( __DIR__ ) . '/all-in-one-restaurant-plugin.php' ) . 'samples/';
+                ?>
+                <a class="button" href="<?php echo esc_url( $base . 'import-template.csv' ); ?>">CSV&nbsp;Vorlage</a>
+                <a class="button" href="<?php echo esc_url( $base . 'import-template.yaml' ); ?>">YAML&nbsp;Vorlage</a>
+                <a class="button" href="<?php echo esc_url( $base . 'import-template.json' ); ?>">JSON&nbsp;Vorlage</a>
+            </p>
             <hr />
             <h2><?php esc_html_e( 'Export', 'aorp' ); ?></h2>
             <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">

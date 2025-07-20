@@ -8,7 +8,7 @@ Dieses Plugin bietet eine moderne Verwaltung von Speise- und Getränkekarten fü
 - Shortcodes für die Ausgabe im Frontend
 - REST-API Endpunkte `\aorp\v1\foods` und `\aorp\v1\drinks`
 - Einstellungsseite mit übersichtlichen Untertabs
-- CSV- und PDF-Export
+- CSV-Import sowie CSV- und PDF-Export
 - Darkmode Umschalter
 
 ## Installation
