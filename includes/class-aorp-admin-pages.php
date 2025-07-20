@@ -320,6 +320,10 @@ class AORP_Admin_Pages {
             wp_insert_term( sanitize_text_field( wp_unslash( $_POST['new_cat'] ) ), $taxonomy );
         }
 
+        if ( isset( $_POST['update_cat'] ) && check_admin_referer( 'aorp_update_cat' ) ) {
+            wp_update_term( intval( $_POST['cat_id'] ), $taxonomy, array( 'name' => sanitize_text_field( wp_unslash( $_POST['cat_name'] ) ) ) );
+        }
+
         if ( isset( $_GET['delete_cat'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'aorp_delete_cat_' . intval( $_GET['delete_cat'] ) ) ) {
             wp_delete_term( intval( $_GET['delete_cat'] ), $taxonomy );
         }
@@ -338,15 +342,25 @@ class AORP_Admin_Pages {
         submit_button( __( 'Hinzufügen', 'aorp' ), 'primary', 'submit', false );
         echo '</p></form>';
         if ( $terms ) {
-            echo '<ul>';
+            echo '<table class="widefat" id="aorp-cat-table"><thead><tr><th>' . esc_html__( 'Name', 'aorp' ) . '</th><th>' . esc_html__( 'Aktionen', 'aorp' ) . '</th></tr></thead><tbody>';
             foreach ( $terms as $term ) {
                 $del = '';
                 if ( 'aorp_drink_category' !== $taxonomy || 'kategorielos' !== $term->slug ) {
-                    $del = ' <a href="' . esc_url( wp_nonce_url( add_query_arg( array( 'delete_cat' => $term->term_id ) ), 'aorp_delete_cat_' . $term->term_id ) ) . '">x</a>';
+                    $del = '<a href="' . esc_url( wp_nonce_url( add_query_arg( array( 'delete_cat' => $term->term_id ) ), 'aorp_delete_cat_' . $term->term_id ) ) . '">x</a>';
                 }
-                echo '<li>' . esc_html( $term->name ) . $del . '</li>';
+                $edit_url = esc_url( add_query_arg( array( 'edit_cat' => $term->term_id ) ) );
+                echo '<tr><td>' . esc_html( $term->name ) . '</td><td><a href="' . $edit_url . '">' . esc_html__( 'Bearbeiten', 'aorp' ) . '</a> ' . ( $del ? '| ' . $del : '' ) . '</td></tr>';
+                if ( isset( $_GET['edit_cat'] ) && intval( $_GET['edit_cat'] ) === $term->term_id ) {
+                    echo '<tr class="aorp-edit-row"><td colspan="2"><form method="post">';
+                    wp_nonce_field( 'aorp_update_cat' );
+                    echo '<input type="hidden" name="cat_id" value="' . esc_attr( $term->term_id ) . '" />';
+                    echo '<input type="text" name="cat_name" value="' . esc_attr( $term->name ) . '" required /> ';
+                    submit_button( __( 'Speichern', 'aorp' ), 'primary', 'update_cat', false );
+                    echo ' <a href="' . esc_url( remove_query_arg( 'edit_cat' ) ) . '" class="button">' . esc_html__( 'Abbrechen', 'aorp' ) . '</a>';
+                    echo '</form></td></tr>';
+                }
             }
-            echo '</ul>';
+            echo '</tbody></table>';
         }
     }
 
@@ -362,6 +376,15 @@ class AORP_Admin_Pages {
             }
         }
 
+        if ( isset( $_POST['update_ing'] ) && check_admin_referer( 'aorp_update_ing' ) ) {
+            $id = intval( $_POST['ing_id'] );
+            wp_update_post( array(
+                'ID'         => $id,
+                'post_title' => sanitize_text_field( wp_unslash( $_POST['ing_name'] ) ),
+            ) );
+            update_post_meta( $id, '_aorp_ing_code', sanitize_text_field( wp_unslash( $_POST['ing_code'] ) ) );
+        }
+
         if ( isset( $_GET['delete_ing'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'aorp_delete_ing_' . intval( $_GET['delete_ing'] ) ) ) {
             wp_delete_post( intval( $_GET['delete_ing'] ), true );
         }
@@ -373,13 +396,23 @@ class AORP_Admin_Pages {
         submit_button( __( 'Hinzufügen', 'aorp' ), 'primary', 'submit', false );
         echo '</p></form>';
         if ( $ings ) {
-            echo '<ul>';
+            echo '<table class="widefat" id="aorp-ing-table"><thead><tr><th>' . esc_html__( 'Name', 'aorp' ) . '</th><th>' . esc_html__( 'Code', 'aorp' ) . '</th><th>' . esc_html__( 'Aktionen', 'aorp' ) . '</th></tr></thead><tbody>';
             foreach ( $ings as $ing ) {
                 $code     = get_post_meta( $ing->ID, '_aorp_ing_code', true );
                 $del_link = wp_nonce_url( add_query_arg( array( 'delete_ing' => $ing->ID ) ), 'aorp_delete_ing_' . $ing->ID );
-                echo '<li>' . esc_html( $ing->post_title . ( $code ? ' (' . $code . ')' : '' ) ) . ' <a href="' . esc_url( $del_link ) . '">x</a></li>';
+                $edit_url = esc_url( add_query_arg( array( 'edit_ing' => $ing->ID ) ) );
+                echo '<tr><td>' . esc_html( $ing->post_title ) . '</td><td>' . esc_html( $code ) . '</td><td><a href="' . $edit_url . '">' . esc_html__( 'Bearbeiten', 'aorp' ) . '</a> | <a href="' . esc_url( $del_link ) . '">x</a></td></tr>';
+                if ( isset( $_GET['edit_ing'] ) && intval( $_GET['edit_ing'] ) === $ing->ID ) {
+                    echo '<tr class="aorp-edit-row"><td colspan="3"><form method="post">';
+                    wp_nonce_field( 'aorp_update_ing' );
+                    echo '<input type="hidden" name="ing_id" value="' . esc_attr( $ing->ID ) . '" />';
+                    echo '<p><input type="text" name="ing_name" value="' . esc_attr( $ing->post_title ) . '" required /> <input type="text" name="ing_code" value="' . esc_attr( $code ) . '" /></p>';
+                    submit_button( __( 'Speichern', 'aorp' ), 'primary', 'update_ing', false );
+                    echo ' <a href="' . esc_url( remove_query_arg( 'edit_ing' ) ) . '" class="button">' . esc_html__( 'Abbrechen', 'aorp' ) . '</a>';
+                    echo '</form></td></tr>';
+                }
             }
-            echo '</ul>';
+            echo '</tbody></table>';
         }
     }
 }
