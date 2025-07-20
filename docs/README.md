@@ -37,6 +37,10 @@ visible shortcodes are `[speisekarte]`, `[getraenkekarte]`,
 The number of columns displayed by the food and drink menus can be configured
 from the plugin settings page located under the "AIO-Restaurant" menu in the WordPress administration.
 
+Grid layouts used by the overlay shortcode can be managed from the
+"Einstellungen & Layouts" page. Each template has a label, optional description
+and flexible row/column layout.
+
 ## Translations and Samples
 
 Translations are managed with `languages/aorp.pot`. Example import files for CSV,

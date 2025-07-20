@@ -103,7 +103,6 @@ class AORP_Admin_Pages {
             remove_submenu_page( 'aio-restaurant', $slug );
         }
         remove_submenu_page( 'wpgmo-templates', 'wpgmo-overview' );
-        remove_menu_page( 'aio_leaflet_map' );
     }
 
     public function render_drink_page(): void {
