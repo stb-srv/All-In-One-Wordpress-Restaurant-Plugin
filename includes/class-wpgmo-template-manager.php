@@ -61,35 +61,41 @@ class WPGMO_Template_Manager {
  */
     public function enqueue( $hook ) {
         if ( $hook === $this->page_hook ) {
-            wp_enqueue_style( 'wpgmo-gb-css', plugin_dir_url( __FILE__ ) . '../assets/css/wpgmo-grid-builder.css' );
-            wp_enqueue_script( 'wpgmo-gb-js', plugin_dir_url( __FILE__ ) . '../assets/js/admin/wpgmo-grid-builder.js', array( 'jquery' ), false, true );
-            $network_templates = get_site_option( 'wpgmo_templates_network', array() );
-            $templates = is_network_admin()
-                ? $network_templates
-                : array_merge( $network_templates, get_option( 'wpgmo_templates', array() ) );
-            $default = is_network_admin() ? get_site_option( 'wpgmo_default_template_network', '' ) : get_option( 'wpgmo_default_template', '' );
-            wp_localize_script( 'wpgmo-gb-js', 'WPGMO_GB', array(
-                'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
-                'nonce'        => wp_create_nonce( is_network_admin() ? 'wpgmo_gb_network' : 'wpgmo_gb' ),
-                'templates'    => $templates,
-                'networkSlugs' => array_keys( $network_templates ),
-                'isNetwork'    => is_network_admin() ? 1 : 0,
-                'setDefault'   => __( 'Als Standard setzen', 'aorp' ),
-                'duplicate'    => __( 'Duplizieren', 'aorp' ),
-                'edit'         => __( 'Bearbeiten', 'aorp' ),
-                'del'          => __( 'Löschen', 'aorp' ),
-                'new'          => __( 'Neue Vorlage', 'aorp' ),
-                'save'         => __( 'Vorlage speichern', 'aorp' ),
-                'cancel'       => __( 'Abbrechen', 'aorp' ),
-                'slug'         => __( 'Slug', 'aorp' ),
-                'label'        => __( 'Bezeichnung', 'aorp' ),
-                'actions'      => __( 'Aktionen', 'aorp' ),
-                'description'  => __( 'Beschreibung', 'aorp' ),
-                'shortcode'    => __( 'Shortcode', 'aorp' ),
-                'confirm'      => __( 'Vorlage löschen?', 'aorp' ),
-                'removeRow'    => __( 'Zeile entfernen', 'aorp' ),
-                'default'      => $default,
-            ) );
+            $tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'templates';
+            if ( 'contents' === $tab ) {
+                wp_enqueue_style( 'wp-grid-menu-overlay', plugin_dir_url( __FILE__ ) . '../assets/css/wp-grid-menu-overlay.css' );
+                wp_enqueue_editor();
+            } else {
+                wp_enqueue_style( 'wpgmo-gb-css', plugin_dir_url( __FILE__ ) . '../assets/css/wpgmo-grid-builder.css' );
+                wp_enqueue_script( 'wpgmo-gb-js', plugin_dir_url( __FILE__ ) . '../assets/js/admin/wpgmo-grid-builder.js', array( 'jquery' ), false, true );
+                $network_templates = get_site_option( 'wpgmo_templates_network', array() );
+                $templates = is_network_admin()
+                    ? $network_templates
+                    : array_merge( $network_templates, get_option( 'wpgmo_templates', array() ) );
+                $default = is_network_admin() ? get_site_option( 'wpgmo_default_template_network', '' ) : get_option( 'wpgmo_default_template', '' );
+                wp_localize_script( 'wpgmo-gb-js', 'WPGMO_GB', array(
+                    'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+                    'nonce'        => wp_create_nonce( is_network_admin() ? 'wpgmo_gb_network' : 'wpgmo_gb' ),
+                    'templates'    => $templates,
+                    'networkSlugs' => array_keys( $network_templates ),
+                    'isNetwork'    => is_network_admin() ? 1 : 0,
+                    'setDefault'   => __( 'Als Standard setzen', 'aorp' ),
+                    'duplicate'    => __( 'Duplizieren', 'aorp' ),
+                    'edit'         => __( 'Bearbeiten', 'aorp' ),
+                    'del'          => __( 'Löschen', 'aorp' ),
+                    'new'          => __( 'Neue Vorlage', 'aorp' ),
+                    'save'         => __( 'Vorlage speichern', 'aorp' ),
+                    'cancel'       => __( 'Abbrechen', 'aorp' ),
+                    'slug'         => __( 'Slug', 'aorp' ),
+                    'label'        => __( 'Bezeichnung', 'aorp' ),
+                    'actions'      => __( 'Aktionen', 'aorp' ),
+                    'description'  => __( 'Beschreibung', 'aorp' ),
+                    'shortcode'    => __( 'Shortcode', 'aorp' ),
+                    'confirm'      => __( 'Vorlage löschen?', 'aorp' ),
+                    'removeRow'    => __( 'Zeile entfernen', 'aorp' ),
+                    'default'      => $default,
+                ) );
+            }
         } elseif ( $hook === $this->overview_hook ) {
             wp_enqueue_style( 'wp-grid-menu-overlay', plugin_dir_url( __FILE__ ) . '../assets/css/wp-grid-menu-overlay.css' );
             wp_enqueue_editor();
@@ -108,12 +114,25 @@ class WPGMO_Template_Manager {
         if ( ! current_user_can( is_network_admin() ? 'manage_network_options' : 'manage_options' ) ) {
             return;
         }
+        $tab        = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'templates';
         $is_network = is_network_admin();
         $default    = $is_network ? get_site_option( 'wpgmo_default_template_network', '' ) : get_option( 'wpgmo_default_template', '' );
         ?>
         <div class="wrap">
             <h1><?php _e('AIO-Grid Templates','aorp'); ?></h1>
-            <div id="wpgmo-template-manager" data-network="<?php echo $is_network ? 1 : 0; ?>" data-default="<?php echo esc_attr( $default ); ?>"></div>
+            <h2 class="nav-tab-wrapper">
+                <?php
+                $url_templates = add_query_arg( array( 'page' => 'wpgmo-templates', 'tab' => 'templates' ), menu_page_url( 'wpgmo-templates', false ) );
+                $url_contents  = add_query_arg( array( 'page' => 'wpgmo-templates', 'tab' => 'contents' ), menu_page_url( 'wpgmo-templates', false ) );
+                ?>
+                <a href="<?php echo esc_url( $url_templates ); ?>" class="nav-tab<?php echo ( 'templates' === $tab ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Vorlagen', 'aorp' ); ?></a>
+                <a href="<?php echo esc_url( $url_contents ); ?>" class="nav-tab<?php echo ( 'contents' === $tab ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Inhalte', 'aorp' ); ?></a>
+            </h2>
+            <?php if ( 'contents' === $tab ) : ?>
+                <?php $this->render_overview_page( true ); ?>
+            <?php else : ?>
+                <div id="wpgmo-template-manager" data-network="<?php echo $is_network ? 1 : 0; ?>" data-default="<?php echo esc_attr( $default ); ?>"></div>
+            <?php endif; ?>
         </div>
         <?php
     }
@@ -124,7 +143,7 @@ class WPGMO_Template_Manager {
  *
  * @return void
  */
-    public function render_overview_page() {
+    public function render_overview_page( $embedded = false ) {
         if ( ! current_user_can( is_network_admin() ? 'manage_network_options' : 'manage_options' ) ) {
             return;
         }
@@ -144,8 +163,10 @@ class WPGMO_Template_Manager {
             echo '<div class="updated"><p>' . esc_html__( 'Inhalte gespeichert', 'aorp' ) . '</p></div>';
         }
         ?>
+        <?php if ( ! $embedded ) : ?>
         <div class="wrap">
             <h1><?php _e('AIO-Grid-Inhalte','aorp'); ?></h1>
+        <?php endif; ?>
             <form method="post">
                 <?php wp_nonce_field( 'wpgmo_save_content' ); ?>
                 <?php foreach ( $templates as $slug => $tpl ) : ?>
@@ -169,7 +190,9 @@ class WPGMO_Template_Manager {
                 <?php endforeach; ?>
                 <p><input type="submit" name="wpgmo_save_content" class="button button-primary" value="<?php esc_attr_e( 'Inhalte speichern', 'aorp' ); ?>" /></p>
             </form>
+        <?php if ( ! $embedded ) : ?>
         </div>
+        <?php endif; ?>
         <?php
     }
 

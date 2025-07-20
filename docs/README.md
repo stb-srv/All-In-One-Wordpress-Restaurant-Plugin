@@ -40,6 +40,7 @@ from the plugin settings page located under the "AIO-Restaurant" menu in the Wor
 Grid layouts used by the overlay shortcode can be managed from the
 "Einstellungen & Layouts" page. Each template has a label, optional description
 and flexible row/column layout.
+The grid contents can be edited from a dedicated tab within the templates page.
 
 ## Translations and Samples
 

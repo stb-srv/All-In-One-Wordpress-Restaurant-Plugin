@@ -36,3 +36,6 @@ Die Hauptfunktionen befinden sich im Verzeichnis `includes/`. Jede Komponente is
 
 ### 2.1.0
 * Grid-Vorlagen listen nun den zugehörigen Shortcode auf
+
+### 2.2.0
+* Grid-Inhalte lassen sich nun über einen Tab der Vorlagen-Seite bearbeiten
