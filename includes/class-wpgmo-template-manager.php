@@ -83,6 +83,7 @@ class WPGMO_Template_Manager {
                 'slug'         => __( 'Slug', 'aorp' ),
                 'label'        => __( 'Bezeichnung', 'aorp' ),
                 'actions'      => __( 'Aktionen', 'aorp' ),
+                'description'  => __( 'Beschreibung', 'aorp' ),
                 'confirm'      => __( 'Vorlage löschen?', 'aorp' ),
                 'removeRow'    => __( 'Zeile entfernen', 'aorp' ),
                 'default'      => $default,
@@ -179,6 +180,7 @@ class WPGMO_Template_Manager {
     private function sanitize_template( $data ) {
         $out = array();
         $out['label']  = sanitize_text_field( $data['label'] );
+        $out['desc']   = isset( $data['desc'] ) ? sanitize_text_field( $data['desc'] ) : '';
         $out['layout'] = isset( $data['layout'] ) && is_array( $data['layout'] ) ? $data['layout'] : array();
         return $out;
     }

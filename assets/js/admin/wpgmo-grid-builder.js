@@ -33,23 +33,24 @@ jQuery(function($){
 
     function renderList(){
         var addBtn = $('<button class="button button-primary"/>').text(WPGMO_GB.new).on('click',function(){
-            state = {slug:'',label:'',layout:[]};
+            state = {slug:'',label:'',desc:'',layout:[]};
             nextId = 1;
             editing = false;
             render();
         });
         container.append(addBtn);
-        var table = $('<table class="widefat striped"><thead><tr><th>Slug</th><th>'+WPGMO_GB.label+'</th><th>'+WPGMO_GB.actions+'</th></tr></thead><tbody></tbody></table>');
+        var table = $('<table class="widefat striped"><thead><tr><th>Slug</th><th>'+WPGMO_GB.label+'</th><th>'+WPGMO_GB.description+'</th><th>'+WPGMO_GB.actions+'</th></tr></thead><tbody></tbody></table>');
         $.each(templates,function(slug,tpl){
             var tr = $('<tr/>');
             var slugCell = $('<td/>').text(slug);
             if(slug === WPGMO_GB.default){ slugCell.append(' *'); }
             tr.append(slugCell);
             tr.append($('<td/>').text(tpl.label));
+            tr.append($('<td/>').text(tpl.desc || ''));
             var actions = $('<td/>');
             var editB = $('<button class="button"/>').text(WPGMO_GB.edit).on('click',function(){
                 if(isReadOnly(slug)) return;
-                state = {slug:slug,label:tpl.label,layout:tpl.layout||[]};
+                state = {slug:slug,label:tpl.label,desc:tpl.desc||'',layout:tpl.layout||[]};
                 nextId = getNextId(state.layout);
                 editing = true;
                 render();
@@ -75,6 +76,7 @@ jQuery(function($){
         var wrap = $('<div class="wpgmo-editor"/>');
         wrap.append('<p><label>'+WPGMO_GB.slug+'</label><br><input type="text" id="wpgmo-slug" '+(editing?'readonly':'')+' value="'+state.slug+'"></p>');
         wrap.append('<p><label>'+WPGMO_GB.label+'</label><br><input type="text" id="wpgmo-label" value="'+state.label+'"></p>');
+        wrap.append('<p><label>'+WPGMO_GB.description+'</label><br><textarea id="wpgmo-desc" rows="3">'+state.desc+'</textarea></p>');
         var layoutDiv = $('<div id="wpgmo-layout"/>');
         $.each(state.layout,function(i,row){
             var rdiv = $('<div class="wpgmo-row"/>');
@@ -128,9 +130,10 @@ jQuery(function($){
     function saveTemplate(){
         state.slug = $('#wpgmo-slug').val().trim();
         state.label = $('#wpgmo-label').val().trim();
-        $.post(WPGMO_GB.ajaxUrl,{action:'wpgmo_save_template',nonce:WPGMO_GB.nonce,slug:state.slug,template:{label:state.label,layout:state.layout}},function(resp){
+        state.desc = $('#wpgmo-desc').val().trim();
+        $.post(WPGMO_GB.ajaxUrl,{action:'wpgmo_save_template',nonce:WPGMO_GB.nonce,slug:state.slug,template:{label:state.label,desc:state.desc,layout:state.layout}},function(resp){
             if(resp.success){
-                templates[state.slug] = {label:state.label,layout:state.layout};
+                templates[state.slug] = {label:state.label,desc:state.desc,layout:state.layout};
                 state = null;
                 render();
             }
