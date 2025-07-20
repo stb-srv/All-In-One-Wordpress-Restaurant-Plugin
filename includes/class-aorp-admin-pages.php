@@ -184,13 +184,7 @@ class AORP_Admin_Pages {
     }
 
     public function render_dashboard(): void {
-        $foods  = wp_count_posts( 'aorp_menu_item' );
-        $drinks = wp_count_posts( 'aorp_drink_item' );
-        $ings   = wp_count_posts( 'aorp_ingredient' );
-        echo '<div class="wrap">';
-        echo '<h1>AIO-Restaurant</h1>';
-        echo '<p>' . sprintf( __( 'Es gibt %1$d Speisen, %2$d Getränke und %3$d Inhaltsstoffe.', 'aorp' ), $foods->publish, $drinks->publish, $ings->publish ) . '</p>';
-        echo '</div>';
+        aio_render_dashboard();
     }
 
     public function render_import_export_page(): void {
