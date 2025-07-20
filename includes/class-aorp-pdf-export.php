@@ -83,12 +83,17 @@ class AORP_PDF_Export {
         $objects[] = "<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /MediaBox [0 0 595 842] /Contents 5 0 R >>";
         $objects[] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
 
-        $text = "BT\n/F1 12 Tf\n";
+        $text = "BT\n";
         $y    = 800;
         foreach ( $lines as $line ) {
-            $safe  = str_replace( array( '(', ')' ), array( '\\(', '\\)' ), $line );
-            $text .= "72 $y Td ($safe) Tj\n";
-            $y    -= 14;
+            $safe = str_replace( array( '(', ')' ), array( '\\(', '\\)' ), $line );
+            if ( in_array( $line, array( 'Speisekarte', 'Getränkekarte' ), true ) ) {
+                $text .= "/F1 16 Tf\n72 $y Td ($safe) Tj\n/F1 12 Tf\n";
+                $y    -= 20;
+            } else {
+                $text .= "/F1 12 Tf\n72 $y Td ($safe) Tj\n";
+                $y    -= 14;
+            }
         }
         $text .= "ET";
         $objects[] = "<< /Length " . strlen( $text ) . " >>\nstream\n" . $text . "\nendstream";

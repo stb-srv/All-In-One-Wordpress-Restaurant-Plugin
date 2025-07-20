@@ -44,5 +44,6 @@ and flexible row/column layout.
 ## Translations and Samples
 
 Translations are managed with `languages/aorp.pot`. Example import files for CSV,
-JSON and YAML are stored in `samples/`. They can be used as a template for bulk
-imports.
+JSON and YAML are stored in `samples/`. They can be used as templates for bulk
+imports. The admin page "Import/Export" allows uploading these files and also
+offers CSV and PDF exports of all menu entries.
