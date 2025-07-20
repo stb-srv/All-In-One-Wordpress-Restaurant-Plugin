@@ -11,6 +11,7 @@ Dieses Plugin bietet eine moderne Verwaltung von Speise- und Getränkekarten fü
 - CSV-Import sowie CSV- und PDF-Export
 - Darkmode Umschalter
 - Standortkarten über die Seite "AIO-Karten"
+- Grid-Vorlagen mit Shortcode-Ausgabe
 
 ## Installation
 
@@ -30,3 +31,8 @@ Die Anzahl der Spalten für Speise- und Getränkekarte lässt sich nun in den Pl
 ## Entwicklerhinweise
 
 Die Hauptfunktionen befinden sich im Verzeichnis `includes/`. Jede Komponente ist über Filter und Actions erweiterbar. Ein einfacher Autoloader lädt alle Klassen automatisch.
+
+## Changelog
+
+### 2.1.0
+* Grid-Vorlagen listen nun den zugehörigen Shortcode auf

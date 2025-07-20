@@ -85,6 +85,7 @@ class WPGMO_Template_Manager {
                 'label'        => __( 'Bezeichnung', 'aorp' ),
                 'actions'      => __( 'Aktionen', 'aorp' ),
                 'description'  => __( 'Beschreibung', 'aorp' ),
+                'shortcode'    => __( 'Shortcode', 'aorp' ),
                 'confirm'      => __( 'Vorlage löschen?', 'aorp' ),
                 'removeRow'    => __( 'Zeile entfernen', 'aorp' ),
                 'default'      => $default,
