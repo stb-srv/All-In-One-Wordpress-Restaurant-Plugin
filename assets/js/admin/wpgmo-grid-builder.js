@@ -39,7 +39,7 @@ jQuery(function($){
             render();
         });
         container.append(addBtn);
-        var table = $('<table class="widefat striped"><thead><tr><th>Slug</th><th>'+WPGMO_GB.label+'</th><th>'+WPGMO_GB.description+'</th><th>'+WPGMO_GB.actions+'</th></tr></thead><tbody></tbody></table>');
+        var table = $('<table class="widefat striped"><thead><tr><th>Slug</th><th>'+WPGMO_GB.label+'</th><th>'+WPGMO_GB.description+'</th><th>'+WPGMO_GB.shortcode+'</th><th>'+WPGMO_GB.actions+'</th></tr></thead><tbody></tbody></table>');
         $.each(templates,function(slug,tpl){
             var tr = $('<tr/>');
             var slugCell = $('<td/>').text(slug);
@@ -47,6 +47,7 @@ jQuery(function($){
             tr.append(slugCell);
             tr.append($('<td/>').text(tpl.label));
             tr.append($('<td/>').text(tpl.desc || ''));
+            var scCell = $('<td/>').text('[wp_grid_menu_overlay id="'+slug+'"]');
             var actions = $('<td/>');
             var editB = $('<button class="button"/>').text(WPGMO_GB.edit).on('click',function(){
                 if(isReadOnly(slug)) return;
@@ -66,7 +67,7 @@ jQuery(function($){
                 delB.prop('disabled',true);
             }
             actions.append(editB).append(' ').append(dupB).append(' ').append(delB).append(' ').append(defB);
-            tr.append(actions);
+            tr.append(scCell).append(actions);
             table.find('tbody').append(tr);
         });
         container.append(table);
