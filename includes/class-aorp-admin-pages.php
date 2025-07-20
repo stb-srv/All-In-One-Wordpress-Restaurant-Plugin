@@ -133,9 +133,10 @@ class AORP_Admin_Pages {
         echo '<h1>' . esc_html__( 'Einstellungen & Layouts', 'aorp' ) . '</h1>';
         echo '<h2 class="nav-tab-wrapper">';
         $tabs = array(
-            'settings' => __( 'Allgemeine Einstellungen', 'aorp' ),
-            'import'   => __( 'Import/Export', 'aorp' ),
-            'layouts'  => __( 'AIO-Karten Layouts', 'aorp' ),
+            'settings'      => __( 'Allgemeine Einstellungen', 'aorp' ),
+            'import'        => __( 'Import/Export', 'aorp' ),
+            'layouts'       => __( 'AIO-Karten Layouts', 'aorp' ),
+            'grid-contents' => __( 'AIO-Grid Inhalte', 'aorp' ),
         );
         foreach ( $tabs as $key => $label ) {
             $url = add_query_arg( array( 'page' => 'aio-settings-layouts', 'tab' => $key ) );
@@ -146,6 +147,14 @@ class AORP_Admin_Pages {
 
         if ( 'import' === $tab ) {
             $this->render_import_export_page();
+        } elseif ( 'grid-contents' === $tab ) {
+            wp_enqueue_style( 'wp-grid-menu-overlay', plugin_dir_url( __FILE__ ) . '../assets/css/wp-grid-menu-overlay.css' );
+            wp_enqueue_editor();
+            if ( class_exists( 'WPGMO_Template_Manager' ) ) {
+                ob_start();
+                \WPGMO_Template_Manager::instance()->render_overview_page();
+                echo ob_get_clean();
+            }
         } else {
             // layouts
             wp_enqueue_style( 'wpgmo-gb-css', plugin_dir_url( __FILE__ ) . '../assets/css/wpgmo-grid-builder.css' );
