@@ -109,6 +109,9 @@ class AORP_Admin_Pages {
         foreach ( $old as $slug ) {
             remove_submenu_page( 'aio-restaurant', $slug );
         }
+        // Hide obsolete grid template menu entries
+        remove_submenu_page( 'aio-restaurant', 'wpgmo-templates' );
+        remove_submenu_page( 'wpgmo-templates', 'wpgmo-overview' );
     }
 
     public function render_drink_page(): void {
