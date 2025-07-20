@@ -105,12 +105,10 @@ class AORP_Admin_Pages {
             'aio-settings',
             'aio-darkmode',
             'aio-features',
-            'wpgmo-templates',
         );
         foreach ( $old as $slug ) {
             remove_submenu_page( 'aio-restaurant', $slug );
         }
-        remove_submenu_page( 'wpgmo-templates', 'wpgmo-overview' );
     }
 
     public function render_drink_page(): void {
