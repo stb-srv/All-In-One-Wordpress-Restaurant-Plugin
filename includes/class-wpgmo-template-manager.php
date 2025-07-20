@@ -27,8 +27,9 @@ class WPGMO_Template_Manager {
  * @return void
  */
     private function __construct() {
-        add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-        add_action( 'network_admin_menu', array( $this, 'admin_menu' ) );
+        // Run late so grid templates appear at the end of the submenu
+        add_action( 'admin_menu', array( $this, 'admin_menu' ), 60 );
+        add_action( 'network_admin_menu', array( $this, 'admin_menu' ), 60 );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
         add_action( 'wp_ajax_wpgmo_save_template', array( $this, 'save_template' ) );
         add_action( 'wp_ajax_wpgmo_delete_template', array( $this, 'delete_template' ) );
