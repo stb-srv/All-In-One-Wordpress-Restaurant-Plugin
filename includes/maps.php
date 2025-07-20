@@ -17,7 +17,8 @@ class AIO_Leaflet_Map {
  * @return void
  */
     public function __construct() {
-        add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+        // Register menu late so the parent from AORP_Admin_Pages exists.
+        add_action( 'admin_menu', array( $this, 'admin_menu' ), 60 );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_assets' ) );
         add_shortcode( 'aio_leaflet_map', array( $this, 'render_shortcode' ) );
@@ -52,7 +53,11 @@ class AIO_Leaflet_Map {
  * @return void
  */
     public function admin_enqueue_assets( $hook ) {
-        if ( 'toplevel_page_aio_leaflet_map' !== $hook ) {
+        $allowed = array(
+            'toplevel_page_aio_leaflet_map',
+            'aio-restaurant_page_aio_leaflet_map',
+        );
+        if ( ! in_array( $hook, $allowed, true ) ) {
             return;
         }
         $plugin_url = plugin_dir_url( __FILE__ );
@@ -69,7 +74,14 @@ class AIO_Leaflet_Map {
  * @return void
  */
     public function admin_menu() {
-        add_menu_page( 'AIO-Karten', 'AIO-Karten', 'manage_options', 'aio_leaflet_map', array( $this, 'settings_page' ), 'dashicons-location-alt' );
+        add_submenu_page(
+            'aio-restaurant',
+            'AIO-Karten',
+            'AIO-Karten',
+            'manage_options',
+            'aio_leaflet_map',
+            array( $this, 'settings_page' )
+        );
     }
 
 

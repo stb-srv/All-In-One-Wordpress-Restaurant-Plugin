@@ -10,12 +10,14 @@ Dieses Plugin bietet eine moderne Verwaltung von Speise- und Getränkekarten fü
 - Einstellungsseite mit übersichtlichen Untertabs
 - CSV-Import sowie CSV- und PDF-Export
 - Darkmode Umschalter
+- Standortkarten über die Seite "AIO-Karten"
 
 ## Installation
 
 1. Plugin in den Ordner `wp-content/plugins` kopieren
 2. Im Backend aktivieren
 3. Die Administration erfolgt über den neuen Menüpunkt "AIO-Restaurant"
+4. Dort befinden sich auch Import/Export sowie die Seite "AIO-Karten"
 
 ## Shortcodes
 

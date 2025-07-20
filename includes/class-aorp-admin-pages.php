@@ -82,6 +82,15 @@ class AORP_Admin_Pages {
             array( $this, 'render_settings_layouts_page' )
         );
 
+        add_submenu_page(
+            'aio-restaurant',
+            __( 'Import/Export', 'aorp' ),
+            __( 'Import/Export', 'aorp' ),
+            'manage_options',
+            'aio-import-export',
+            array( $this, 'render_import_export_page' )
+        );
+
         // Remove old duplicate or unused submenus from legacy versions
         $old = array(
             'aio-add-dish',
@@ -91,7 +100,6 @@ class AORP_Admin_Pages {
             'aio-grid-templates',
             'aio-overlay-builder',
             'aio-layout-preview',
-            'aio-import-export',
             'aio-pdf-export',
             'aio-rest-api',
             'aio-settings',
