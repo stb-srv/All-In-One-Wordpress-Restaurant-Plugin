@@ -39,3 +39,6 @@ Die Hauptfunktionen befinden sich im Verzeichnis `includes/`. Jede Komponente is
 
 ### 2.2.0
 * Grid-Inhalte lassen sich nun über einen Tab der Vorlagen-Seite bearbeiten
+
+### 2.3.0
+* Verwaltung von Kontaktnachrichten mit Löschfunktion

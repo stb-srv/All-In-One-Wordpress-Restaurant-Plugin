@@ -2,7 +2,7 @@
 /**
  * Plugin Name: All-In-One WordPress Restaurant Plugin
  * Description: Moderne Speisekartenverwaltung mit REST-API und Darkmode.
- * Version: 2.1.0
+ * Version: 2.3.0
  * Author: stb-srv
  * Text Domain: aorp
  */
