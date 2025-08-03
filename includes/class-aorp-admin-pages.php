@@ -91,6 +91,15 @@ class AORP_Admin_Pages {
             array( $this, 'render_import_export_page' )
         );
 
+        add_submenu_page(
+            'aio-restaurant',
+            __( 'Kontaktnachrichten', 'aorp' ),
+            __( 'Kontaktnachrichten', 'aorp' ),
+            'manage_options',
+            'aio-contact-messages',
+            array( $this, 'render_contact_messages_page' )
+        );
+
         // Remove old duplicate or unused submenus from legacy versions
         $old = array(
             'aio-add-dish',
@@ -218,6 +227,10 @@ class AORP_Admin_Pages {
             </form>
             <p><button class="button button-primary" disabled>YAML Export</button> <button class="button button-primary" disabled>JSON Export</button></p>
         <?php
+    }
+
+    public function render_contact_messages_page(): void {
+        include dirname( __DIR__ ) . '/admin/contact-messages.php';
     }
 
     public function render_grid_templates_page(): void {

@@ -25,6 +25,7 @@ class AORP_Post_Types {
         add_action( 'init', array( $this, 'register_food_post_type' ) );
         add_action( 'init', array( $this, 'register_drink_post_type' ) );
         add_action( 'init', array( $this, 'register_ingredient_post_type' ) );
+        add_action( 'init', array( $this, 'register_contact_post_type' ) );
         add_action( 'init', array( $this, 'register_taxonomies' ) );
     }
 
@@ -81,6 +82,24 @@ class AORP_Post_Types {
                 'public'   => false,
                 'show_ui'  => false,
                 'supports' => array( 'title' ),
+            )
+        );
+    }
+
+    /**
+     * Contact message post type.
+     */
+    public function register_contact_post_type(): void {
+        register_post_type(
+            'aorp_contact_message',
+            array(
+                'labels'   => array(
+                    'name'          => __( 'Kontaktnachrichten', 'aorp' ),
+                    'singular_name' => __( 'Kontaktnachricht', 'aorp' ),
+                ),
+                'public'   => false,
+                'show_ui'  => false,
+                'supports' => array( 'title', 'editor' ),
             )
         );
     }

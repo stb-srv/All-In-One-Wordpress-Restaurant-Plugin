@@ -51,6 +51,7 @@ use AIO_Restaurant_Plugin\AORP_CSV_Handler;
 use AIO_Restaurant_Plugin\AORP_PDF_Export;
 use AIO_Restaurant_Plugin\AORP_Settings;
 use AIO_Restaurant_Plugin\AORP_REST_API;
+use AIO_Restaurant_Plugin\AORP_Contact_Messages;
 
 /**
  * Initialize plugin components.
@@ -76,6 +77,9 @@ function aorp_init_plugin(): void {
 
     $rest = new AORP_REST_API();
     $rest->register();
+
+    $contact = new AORP_Contact_Messages();
+    $contact->register();
 
     if ( class_exists( 'WP_Grid_Menu_Overlay' ) ) {
         WP_Grid_Menu_Overlay::instance();
