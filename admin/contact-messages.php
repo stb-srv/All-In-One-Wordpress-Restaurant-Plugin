@@ -3,8 +3,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-if ( isset( $_GET['delete_msg'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'aorp_delete_msg_' . intval( $_GET['delete_msg'] ) ) ) {
-    wp_delete_post( intval( $_GET['delete_msg'] ), true );
+if (
+    isset( $_GET['delete_msg'], $_GET['_wpnonce'] ) &&
+    wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'aorp_delete_msg_' . absint( $_GET['delete_msg'] ) )
+) {
+    wp_delete_post( absint( $_GET['delete_msg'] ), true );
     echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Nachricht gelöscht.', 'aorp' ) . '</p></div>';
 }
 
