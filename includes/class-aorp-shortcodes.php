@@ -40,11 +40,9 @@ class AORP_Shortcodes {
             $categories = array();
         }
         ob_start();
-        echo '<div class="aorp-search-wrapper"><input type="text" id="aorp-search-input" placeholder="Suche..." /><button id="aorp-close-cats" class="aorp-close-cats">Kategorien schließen</button><div id="aorp-search-results"></div></div>';
-        echo '<p class="aorp-note">Bitte klicken Sie auf die Kategorien, um die Speisen zu sehen.</p>';
         echo '<div class="aorp-menu' . esc_attr( $columns_class ) . '">';
         foreach ( $categories as $cat ) {
-            echo '<div class="aorp-category">' . esc_html( $cat->name ) . '</div>';
+            echo '<div class="aorp-category" data-cat="' . esc_attr( $cat->term_id ) . '">' . esc_html( $cat->name ) . '</div>';
             echo '<div class="aorp-items">';
             $items = get_posts( array( 'post_type' => 'aorp_menu_item', 'numberposts' => -1, 'tax_query' => array( array( 'taxonomy' => 'aorp_menu_category', 'terms' => $cat->term_id ) ) ) );
             foreach ( $items as $food ) {
@@ -102,11 +100,9 @@ class AORP_Shortcodes {
             $categories = array();
         }
         ob_start();
-        echo '<div class="aorp-search-wrapper"><input type="text" id="aorp-search-input" placeholder="Suche..." /><button id="aorp-close-cats" class="aorp-close-cats">Kategorien schließen</button><div id="aorp-search-results"></div></div>';
-        echo '<p class="aorp-note">Bitte klicken Sie auf die Kategorien, um die Speisen zu sehen.</p>';
         echo '<div class="aorp-menu' . esc_attr( $columns_class ) . '">';
         foreach ( $categories as $cat ) {
-            echo '<div class="aorp-category">' . esc_html( $cat->name ) . '</div>';
+            echo '<div class="aorp-category" data-cat="' . esc_attr( $cat->term_id ) . '">' . esc_html( $cat->name ) . '</div>';
             echo '<div class="aorp-items">';
             $items = get_posts( array( 'post_type' => 'aorp_drink_item', 'numberposts' => -1, 'tax_query' => array( array( 'taxonomy' => 'aorp_drink_category', 'terms' => $cat->term_id ) ) ) );
             foreach ( $items as $drink ) {

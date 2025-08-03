@@ -21,6 +21,10 @@ require_once __DIR__ . '/includes/class-wp-grid-menu-overlay.php';
 require_once __DIR__ . '/includes/class-wpgmo-meta-box.php';
 require_once __DIR__ . '/includes/class-wpgmo-template-manager.php';
 require_once __DIR__ . '/includes/maps.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/settings.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/import-export.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/shortcode-generator.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/frontend-search.php';
 
 if ( ! function_exists( 'aorp_wp_kses_post_iframe' ) ) {
     /**
