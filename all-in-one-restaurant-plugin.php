@@ -126,3 +126,14 @@ function aorp_toggle_dark_callback() {
 }
 add_action( 'wp_ajax_aorp_toggle_dark', 'aorp_toggle_dark_callback' );
 add_action( 'wp_ajax_nopriv_aorp_toggle_dark', 'aorp_toggle_dark_callback' );
+
+/**
+ * Redirect legacy admin slug with a typo to the correct dashboard.
+ */
+function aorp_fix_legacy_menu_slug(): void {
+    if ( isset( $_GET['page'] ) && 'aio-resturant' === $_GET['page'] ) {
+        wp_safe_redirect( admin_url( 'admin.php?page=aio-restaurant' ) );
+        exit;
+    }
+}
+add_action( 'admin_init', 'aorp_fix_legacy_menu_slug' );
