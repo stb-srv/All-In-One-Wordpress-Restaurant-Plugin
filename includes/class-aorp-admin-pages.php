@@ -35,8 +35,6 @@ class AORP_Admin_Pages {
             26
         );
 
-        // Replace automatic submenu with a dedicated Dashboard entry
-        remove_submenu_page( 'aio-restaurant', 'aio-restaurant' );
         add_submenu_page(
             'aio-restaurant',
             __( 'Dashboard', 'aorp' ),
@@ -100,6 +98,17 @@ class AORP_Admin_Pages {
             array( $this, 'render_contact_messages_page' )
         );
 
+        add_submenu_page(
+            'aio-restaurant',
+            __( 'Shortcode-Generator', 'aorp' ),
+            __( 'Shortcode-Generator', 'aorp' ),
+            'manage_options',
+            'aio-shortcode-generator',
+            'aio_render_shortcode_generator_page'
+        );
+
+        remove_submenu_page( 'aio-restaurant', 'aio-restaurant' );
+
         // Remove old duplicate or unused submenus from legacy versions
         $old = array(
             'aio-add-dish',
@@ -112,6 +121,8 @@ class AORP_Admin_Pages {
             'aio-pdf-export',
             'aio-rest-api',
             'aio-settings',
+            'aio-restaurant-settings',
+            'aio-import-export-settings',
             'aio-darkmode',
             'aio-features',
         );

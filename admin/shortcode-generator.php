@@ -3,18 +3,6 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-function aio_shortcode_generator_menu_page() {
-    add_submenu_page(
-        'aio-restaurant',
-        __( 'Shortcode-Generator', 'aorp' ),
-        __( 'Shortcode-Generator', 'aorp' ),
-        'manage_options',
-        'aio-shortcode-generator',
-        'aio_render_shortcode_generator_page'
-    );
-}
-add_action( 'admin_menu', 'aio_shortcode_generator_menu_page' );
-
 function aio_render_shortcode_generator_page() {
     ?>
     <div class="wrap">
