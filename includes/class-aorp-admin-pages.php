@@ -148,7 +148,13 @@ class AORP_Admin_Pages {
             'grid-contents' => __( 'AIO-Grid Inhalte', 'aorp' ),
         );
         foreach ( $tabs as $key => $label ) {
-            $url = add_query_arg( array( 'page' => 'aio-settings-layouts', 'tab' => $key ) );
+            $url    = add_query_arg(
+                array(
+                    'page' => 'aio-settings-layouts',
+                    'tab'  => $key,
+                ),
+                admin_url( 'admin.php' )
+            );
             $active = ( $tab === $key ) ? ' nav-tab-active' : '';
             echo '<a href="' . esc_url( $url ) . '" class="nav-tab' . $active . '">' . esc_html( $label ) . '</a>';
         }
