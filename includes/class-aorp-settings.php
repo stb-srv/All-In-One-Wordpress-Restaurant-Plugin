@@ -25,11 +25,13 @@ class AORP_Settings {
      */
     public function settings_init(): void {
         register_setting( 'aorp_settings_general', 'aorp_options' );
+        register_setting( 'aorp_settings_general', 'aio_enable_search_filter' );
         /* Design and license settings removed */
 
         add_settings_section( 'aorp_general', __( 'Allgemein', 'aorp' ), '__return_false', 'aorp_settings_general' );
         add_settings_field( 'food_columns', __( 'Spalten Speisekarte', 'aorp' ), array( $this, 'field_food_columns' ), 'aorp_settings_general', 'aorp_general' );
         add_settings_field( 'drink_columns', __( 'Spalten Getränkekarte', 'aorp' ), array( $this, 'field_drink_columns' ), 'aorp_settings_general', 'aorp_general' );
+        add_settings_field( 'enable_search_filter', __( 'Such- & Filterfunktion im Frontend aktivieren', 'aorp' ), array( $this, 'field_enable_search_filter' ), 'aorp_settings_general', 'aorp_general' );
 
         /* Design and license sections removed */
     }
@@ -58,6 +60,14 @@ class AORP_Settings {
             printf( '<option value="%1$d" %2$s>%1$d</option>', $col, selected( $value, $col, false ) );
         }
         echo '</select>';
+    }
+
+    /**
+     * Render search filter checkbox.
+     */
+    public function field_enable_search_filter(): void {
+        $value = get_option( 'aio_enable_search_filter' );
+        echo '<input type="checkbox" name="aio_enable_search_filter" value="1" ' . checked( $value, '1', false ) . ' />';
     }
 
     /* Design and license field renderers removed */
