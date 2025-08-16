@@ -25,7 +25,7 @@ class AORP_Settings {
      */
     public function settings_init(): void {
         register_setting( 'aorp_settings_general', 'aorp_options' );
-        register_setting( 'aorp_settings_general', 'aio_enable_search_filter' );
+        register_setting( 'aorp_settings_general', 'aio_enable_search_filter', array( 'default' => '1' ) );
         /* Design and license settings removed */
 
         add_settings_section( 'aorp_general', __( 'Allgemein', 'aorp' ), '__return_false', 'aorp_settings_general' );
@@ -66,7 +66,7 @@ class AORP_Settings {
      * Render search filter checkbox.
      */
     public function field_enable_search_filter(): void {
-        $value = get_option( 'aio_enable_search_filter' );
+        $value = get_option( 'aio_enable_search_filter', '1' );
         echo '<input type="checkbox" name="aio_enable_search_filter" value="1" ' . checked( $value, '1', false ) . ' />';
     }
 

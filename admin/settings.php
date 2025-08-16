@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function aio_register_general_settings() {
-    register_setting( 'aio_settings_group', 'aio_enable_search_filter' );
+    register_setting( 'aio_settings_group', 'aio_enable_search_filter', array( 'default' => '1' ) );
 }
 add_action( 'admin_init', 'aio_register_general_settings' );
 
@@ -34,7 +34,7 @@ function aio_render_settings_page() {
                         <label for="aio_enable_search_filter"><?php esc_html_e( 'Such- & Filterfunktion im Frontend aktivieren', 'aorp' ); ?></label>
                     </th>
                     <td>
-                        <input type="checkbox" id="aio_enable_search_filter" name="aio_enable_search_filter" value="1" <?php checked( get_option( 'aio_enable_search_filter' ), '1' ); ?> />
+                        <input type="checkbox" id="aio_enable_search_filter" name="aio_enable_search_filter" value="1" <?php checked( get_option( 'aio_enable_search_filter', '1' ), '1' ); ?> />
                     </td>
                 </tr>
             </table>

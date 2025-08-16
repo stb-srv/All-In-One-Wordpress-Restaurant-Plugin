@@ -4,7 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 function aio_frontend_search_filter( $output, $tag, $attr ) {
-    if ( get_option( 'aio_enable_search_filter' ) !== '1' ) {
+    // Enable search filter by default; option allows opt-out.
+    if ( '1' !== get_option( 'aio_enable_search_filter', '1' ) ) {
         return $output;
     }
 
@@ -30,7 +31,8 @@ function aio_frontend_search_filter( $output, $tag, $attr ) {
 add_filter( 'do_shortcode_tag', 'aio_frontend_search_filter', 10, 3 );
 
 function aio_frontend_search_filter_script() {
-    if ( ! get_option( 'aio_enable_search_filter' ) ) {
+    // Skip script if feature explicitly disabled.
+    if ( '1' !== get_option( 'aio_enable_search_filter', '1' ) ) {
         return;
     }
     ?>
