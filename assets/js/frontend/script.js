@@ -8,8 +8,10 @@ jQuery(document).ready(function($){
     function performSearch(val){
         val = val.toLowerCase();
         var list = $('#aorp-search-results');
+        var overlay = $('#aorp-search-overlay');
         list.empty();
         if(val === ''){
+            overlay.hide();
             return;
         }
         $('.aorp-item').each(function(){
@@ -17,10 +19,25 @@ jQuery(document).ready(function($){
                 list.append($(this).clone());
             }
         });
+        overlay.show();
     }
 
     $('#aorp-search-input').on('input', function(){
         performSearch($(this).val());
+    });
+
+    $('#aorp-search-overlay').on('click', function(e){
+        if(e.target.id==='aorp-search-overlay'){
+            $(this).hide();
+            $('#aorp-search-input').val('');
+        }
+    });
+
+    $(document).on('keydown', function(e){
+        if(e.key==='Escape'){
+            $('#aorp-search-overlay').hide();
+            $('#aorp-search-input').val('');
+        }
     });
 
     $('#aorp-close-cats').on('click', function(){
