@@ -18,12 +18,12 @@ function aio_frontend_search_filter( $output, $tag, $attr ) {
     }
 
     $terms = get_terms( $taxonomy, array( 'hide_empty' => false, 'orderby' => 'name', 'order' => 'ASC' ) );
-    $dropdown = '<select class="aio-category-filter"><option value="">' . esc_html__( 'Alle Kategorien', 'aorp' ) . '</option>';
+    $dropdown = '<select id="mini-category" class="aio-category-filter"><option value="">' . esc_html__( 'Alle Kategorien', 'aorp' ) . '</option>';
     foreach ( $terms as $term ) {
         $dropdown .= '<option value="' . esc_attr( $term->term_id ) . '">' . esc_html( $term->name ) . '</option>';
     }
     $dropdown .= '</select>';
-    $search = '<input type="text" class="aio-search-field" placeholder="' . esc_attr__( 'Suche', 'aorp' ) . '" />';
+    $search = '<input type="text" id="mini-search" class="aio-search-field" placeholder="' . esc_attr__( 'Suche', 'aorp' ) . '" />';
     $ui = '<div class="aio-search-filter-container">' . $search . ' ' . $dropdown . '</div>';
 
     return $ui . $output;
