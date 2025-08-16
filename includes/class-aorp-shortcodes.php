@@ -9,6 +9,24 @@ use function AIO_Restaurant_Plugin\ingredient_labels;
 
 class AORP_Shortcodes {
     /**
+     * Track if the search UI has been printed.
+     *
+     * @var bool
+     */
+    private static $search_rendered = false;
+
+    /**
+     * Render search input and overlay once.
+     */
+    private function render_search_ui(): void {
+        if ( self::$search_rendered ) {
+            return;
+        }
+        self::$search_rendered = true;
+        echo '<div class="aorp-search-wrapper"><input type="text" id="aorp-search-input" placeholder="' . esc_attr__( 'Suche...', 'aorp' ) . '" /></div>';
+        echo '<div id="aorp-search-overlay"><div id="aorp-search-results"></div></div>';
+    }
+    /**
      * Register shortcodes.
      */
     public function register(): void {
@@ -40,6 +58,7 @@ class AORP_Shortcodes {
             $categories = array();
         }
         ob_start();
+        $this->render_search_ui();
         echo '<div class="aorp-menu' . esc_attr( $columns_class ) . '">';
         foreach ( $categories as $cat ) {
             echo '<div class="aorp-category" data-cat="' . esc_attr( $cat->term_id ) . '">' . esc_html( $cat->name ) . '</div>';
@@ -100,6 +119,7 @@ class AORP_Shortcodes {
             $categories = array();
         }
         ob_start();
+        $this->render_search_ui();
         echo '<div class="aorp-menu' . esc_attr( $columns_class ) . '">';
         foreach ( $categories as $cat ) {
             echo '<div class="aorp-category" data-cat="' . esc_attr( $cat->term_id ) . '">' . esc_html( $cat->name ) . '</div>';
