@@ -23,8 +23,8 @@ class AORP_Shortcodes {
             return;
         }
         self::$search_rendered = true;
-        echo '<div class="aorp-search-wrapper"><input type="text" id="aorp-search-input" placeholder="' . esc_attr__( 'Suche...', 'aorp' ) . '" /></div>';
-        echo '<div id="aorp-search-overlay"><div id="aorp-search-results"></div></div>';
+        echo '<div class="main-search-wrap"><input type="text" id="main-search" placeholder="' . esc_attr__( 'Suche...', 'aorp' ) . '" /></div>';
+        echo '<div id="search-dim" aria-hidden="true"></div>';
     }
     /**
      * Register shortcodes.
