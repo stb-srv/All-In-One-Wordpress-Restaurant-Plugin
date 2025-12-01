@@ -1,8 +1,126 @@
 /***** Frontend menu and dark mode styles */
 .aorp-menu{margin:1em 0}
 .aorp-note{margin-bottom:0.5em;font-weight:bold}
-#main-search{width:50%;max-width:400px;padding:0.5em 1em;border-radius:4px;border:1px solid #ccc;font-size:1rem;margin:0 auto;display:block;background:#fff;color:#000}
-.main-search-wrap{text-align:center;position:relative;margin:2rem 0;z-index:10000}
+
+/* ===== FULLSCREEN SEARCH OVERLAY ===== */
+.main-search-wrap {
+    text-align: center;
+    position: relative;
+    margin: 2rem 0;
+    z-index: 10;
+}
+
+/* Search Overlay Background */
+#search-dim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 9998;
+}
+
+#search-dim.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Search Container - Desktop Fullscreen */
+.main-search-wrap.active {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    width: 90%;
+    max-width: 800px;
+    margin: 0;
+}
+
+/* Search Input - Desktop */
+#main-search {
+    width: 100%;
+    max-width: 100%;
+    padding: 1.2em 1.5em;
+    border-radius: 12px;
+    border: 2px solid #ddd;
+    font-size: 1.3rem;
+    background: #fff;
+    color: #000;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+#main-search:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(74, 144, 226, 0.1);
+}
+
+/* Close Button */
+.search-close-btn {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 1;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.main-search-wrap.active .search-close-btn {
+    display: block;
+}
+
+.search-close-btn:hover {
+    background: #fff;
+    transform: scale(1.1);
+}
+
+/* Search Helper Text */
+.search-helper {
+    margin-top: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.main-search-wrap.active .search-helper {
+    opacity: 1;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .main-search-wrap.active {
+        width: 95%;
+        max-width: 95%;
+    }
+    
+    #main-search {
+        font-size: 1.1rem;
+        padding: 1em;
+    }
+    
+    .search-close-btn {
+        top: -45px;
+        width: 36px;
+        height: 36px;
+        font-size: 20px;
+    }
+}
+
+/* ===== REST OF THE STYLES ===== */
 .aorp-close-cats{padding:0.5em 1em;background:#eee;color:#000;border:1px solid #ccc;border-radius:6px;cursor:pointer}
 body.aorp-dark .aorp-close-cats{background:#444;color:#fff;border-color:#666}
 .aorp-category{cursor:pointer;background:#eee;padding:0.5em;margin-bottom:0.5em;display:flex;align-items:center;min-height:40px;height:60px;line-height:1.2;box-sizing:border-box;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,0.1)}
@@ -28,8 +146,26 @@ body.aorp-dark .aorp-close-cats{background:#444;color:#fff;border-color:#666}
 .columns-3 .aorp-category{width:31%;float:left;margin-right:1%}
 .columns-2 .aorp-items,.columns-3 .aorp-items{width:100%;float:none;clear:both;margin-right:0}
 .aorp-menu::after{content:"";display:block;clear:both}
+
+/* ===== DARK MODE ===== */
 body.aorp-dark{background:#222;color:#eee}
 body.aorp-dark .aorp-category{background:#333;color:#fff}
+body.aorp-dark #main-search{
+    background:#2a2a2a;
+    color:#fff;
+    border-color:#444;
+}
+body.aorp-dark #main-search:focus {
+    border-color: #5ba3f5;
+}
+body.aorp-dark .search-close-btn {
+    background: rgba(50, 50, 50, 0.95);
+    color: #fff;
+}
+body.aorp-dark .search-close-btn:hover {
+    background: #333;
+}
+
 #aorp-toggle{position:fixed;bottom:20px;right:20px;cursor:pointer;padding:0.5em;background:#000;color:#fff;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;z-index:9999}
 .aorp-selected{margin-bottom:.5em}
 .aorp-ing-chip{background:#eee;padding:2px 5px;margin-right:4px;display:inline-block;border-radius:3px}
@@ -39,6 +175,18 @@ body.aorp-dark .aorp-category{background:#333;color:#fff}
 .aorp-ingredients-legend ul{list-style:none;margin:0;padding:0}
 .aorp-ingredients-legend li{margin:0 0 .2em 0}
 body.aorp-dark .aorp-ingredients-legend{background:#555;color:#fff;border-color:#d9a400}
+
+/* No results message */
+.no-results {
+    text-align: center;
+    padding: 2em;
+    font-size: 1.1em;
+    color: #666;
+}
+
+body.aorp-dark .no-results {
+    color: #999;
+}
 
 @media (max-width:600px){
     .columns-2 .aorp-category,
@@ -57,20 +205,33 @@ body.aorp-dark .aorp-ingredients-legend{background:#555;color:#fff;border-color:
     }
 }
 
-#mini-search, #mini-category { display: none !important; }
-
-#main-search:focus {
-  outline: 3px solid rgba(0,0,0,.25);
-  box-shadow: 0 0 0 6px rgba(0,0,0,.08);
+/* Hide mini search elements */
+#mini-search, #mini-category { 
+    display: none !important; 
 }
-.main-search-wrap.active { z-index: 1001; position: relative; }
-#search-dim {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.35);
-  opacity: 0; pointer-events: none;
-  transition: opacity .2s ease;
-  z-index: 1000;
-}
-#search-dim.active { opacity: 1; pointer-events: auto; }
 
-body.aorp-dark #main-search{background:#333;color:#fff;border-color:#555}
+/* AIO Search Filter Container (Category Dropdown) */
+.aio-search-filter-container {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.aio-category-filter {
+    padding: 0.6em 1em;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    background: #fff;
+    color: #000;
+    min-width: 200px;
+}
+
+body.aorp-dark .aio-category-filter {
+    background: #333;
+    color: #fff;
+    border-color: #555;
+}
+
+.aio-search-field {
+    display: none; /* Hide as we use main-search */
+}
