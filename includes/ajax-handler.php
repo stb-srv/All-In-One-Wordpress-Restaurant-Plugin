@@ -262,19 +262,16 @@ class AORP_Ajax_Handler {
             'post_content'=> sanitize_textarea_field( $_POST['item_description'] )
         ) );
         if ( $post_id ) {
-                // Loop through volume fields and build meta string
             if ( ! empty( $_POST['item_category'] ) ) {
                 wp_set_object_terms( $post_id, intval( $_POST['item_category'] ), 'aorp_drink_category' );
             }
-            if ( isset( $_POST['item_sizes'] ) && is_array( $_POST['item_sizes'] ) ) {
-                $lines = array();
-                foreach ( $_POST['item_sizes'] as $vol => $price ) {
-                    $price = trim( $price );
-                    if ( $price !== '' ) {
-                        $lines[] = $vol . '=' . $price;
-                    }
-                }
-                update_post_meta( $post_id, '_aorp_drink_sizes', implode( "\n", $lines ) );
+            // Handle drink_sizes as string from form (format: "0.3L=2.50\n0.5L=3.50")
+            if ( isset( $_POST['drink_sizes'] ) && ! empty( $_POST['drink_sizes'] ) ) {
+                $sizes_string = sanitize_textarea_field( $_POST['drink_sizes'] );
+                update_post_meta( $post_id, '_aorp_drink_sizes', $sizes_string );
+            }
+            if ( ! empty( $_POST['item_image_id'] ) ) {
+                set_post_thumbnail( $post_id, intval( $_POST['item_image_id'] ) );
             }
             if ( isset( $_POST['item_ingredients'] ) ) {
                 $ings = array_filter( array_map( 'sanitize_text_field', explode( ',', $_POST['item_ingredients'] ) ) );
@@ -310,15 +307,13 @@ class AORP_Ajax_Handler {
         if ( ! empty( $_POST['item_category'] ) ) {
             wp_set_object_terms( $post_id, intval( $_POST['item_category'] ), 'aorp_drink_category' );
         }
-        if ( isset( $_POST['item_sizes'] ) && is_array( $_POST['item_sizes'] ) ) {
-            $lines = array();
-            foreach ( $_POST['item_sizes'] as $vol => $price ) {
-                $price = trim( $price );
-                if ( $price !== '' ) {
-                    $lines[] = $vol . '=' . $price;
-                }
-            }
-            update_post_meta( $post_id, '_aorp_drink_sizes', implode( "\n", $lines ) );
+        // Handle drink_sizes as string from form (format: "0.3L=2.50\n0.5L=3.50")
+        if ( isset( $_POST['drink_sizes'] ) ) {
+            $sizes_string = sanitize_textarea_field( $_POST['drink_sizes'] );
+            update_post_meta( $post_id, '_aorp_drink_sizes', $sizes_string );
+        }
+        if ( ! empty( $_POST['item_image_id'] ) ) {
+            set_post_thumbnail( $post_id, intval( $_POST['item_image_id'] ) );
         }
         if ( isset( $_POST['item_ingredients'] ) ) {
             $ings = array_filter( array_map( 'sanitize_text_field', explode( ',', $_POST['item_ingredients'] ) ) );
