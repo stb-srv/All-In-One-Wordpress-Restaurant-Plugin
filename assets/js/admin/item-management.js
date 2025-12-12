@@ -1,170 +1,270 @@
 jQuery(function($){
     var ingOptions = $('.aorp-ing-select:first').html() || '';
     bindImageUpload($('.aorp-add-form'));
-    function showToast(text){
-        var toast = $('<div class="aorp-toast" />').text(text);
+
+    function showToast(text, type = 'success') {
+        var bgClass = type === 'success' ? 'aorp-toast-success' : 'aorp-toast-error';
+        var toast = $('<div class="aorp-toast ' + bgClass + '" />').text(text);
         $('body').append(toast);
-        setTimeout(function(){ toast.fadeOut(400,function(){ $(this).remove(); }); },3000);
+        setTimeout(function(){ 
+            toast.fadeOut(400, function(){ $(this).remove(); });
+        }, 3000);
     }
-    function ajaxForm(form, action){
+
+    function ajaxForm(form, action) {
         var spinner = $('<span class="aorp-spinner is-active" />');
-        form.find('button[type=submit]').after(spinner);
-        $.post(aorp_admin.ajax_url, form.serialize()+"&action="+action, function(resp){
+        form.find('button[type=submit]').prop('disabled', true).after(spinner);
+        
+        $.post(aorp_admin.ajax_url, form.serialize() + "&action=" + action, function(resp){
             spinner.remove();
-            if(resp.success){
-                if(resp.data.row){
-                    if(form.hasClass('aorp-add-form')){
-                        $('#aorp-items-table tbody').append(resp.data.row);
+            form.find('button[type=submit]').prop('disabled', false);
+            
+            if (resp.success) {
+                if (resp.data.row) {
+                    if (form.hasClass('aorp-add-form')) {
+                        $('#aorp-items-table tbody').prepend(resp.data.row);
                         form[0].reset();
                         form.find('.aorp-selected').empty();
                         form.find('.aorp-image-preview').empty();
-                    }else{
+                    } else {
                         form.closest('tr').replaceWith(resp.data.row);
-                        form.prev('tr').remove();
+                        form.closest('.aorp-edit-row').remove();
                     }
                 }
-                showToast('Gespeichert');
-            }else if(resp.data && resp.data.message){
-                alert(resp.data.message);
+                showToast(resp.data.message || 'Erfolgreich gespeichert!', 'success');
+            } else {
+                showToast(resp.data && resp.data.message ? resp.data.message : 'Fehler beim Speichern', 'error');
             }
+        }).fail(function() {
+            spinner.remove();
+            form.find('button[type=submit]').prop('disabled', false);
+            showToast('Netzwerkfehler', 'error');
         });
     }
 
-    function bindImageUpload(form){
-        form.find('.aorp-upload-image').off('click').on('click',function(e){
+    function bindImageUpload(form) {
+        form.find('.aorp-upload-image').off('click').on('click', function(e) {
             e.preventDefault();
             var btn = $(this);
-            var frame = wp.media({title:'Bild auswählen',button:{text:'Auswählen'},multiple:false});
-            frame.on('select',function(){
+            var frame = wp.media({
+                title: 'Bild auswählen',
+                button: { text: 'Auswählen' },
+                multiple: false
+            });
+            frame.on('select', function() {
                 var att = frame.state().get('selection').first().toJSON();
                 btn.siblings('.aorp-image-id').val(att.id);
-                btn.siblings('.aorp-image-preview').html('<img src="'+att.sizes.thumbnail.url+'" />');
+                var imgUrl = att.sizes && att.sizes.thumbnail ? att.sizes.thumbnail.url : att.url;
+                btn.siblings('.aorp-image-preview').html('<img src="' + imgUrl + '" />');
             });
             frame.open();
         });
     }
 
-    function updateIngInput(form){
+    function updateIngInput(form) {
         var list = [];
-        form.find('.aorp-ing-chip').each(function(){
+        form.find('.aorp-ing-chip').each(function() {
             list.push($(this).data('val'));
         });
         form.find('.aorp-ing-text').val(list.join(', '));
     }
 
-    function initIngredients(form){
+    function initIngredients(form) {
         var val = form.find('.aorp-ing-text').val();
-        if(val){
+        if (val) {
             var map = {};
-            form.find('.aorp-ing-select option').each(function(){
+            form.find('.aorp-ing-select option').each(function() {
                 map[$(this).val()] = $(this).text();
             });
-            val.split(',').forEach(function(i){
+            val.split(',').forEach(function(i) {
                 var ing = $.trim(i);
-                if(!ing) return;
+                if (!ing) return;
                 var label = map[ing] || ing;
-                form.find('.aorp-selected').append('<span class="aorp-ing-chip" data-val="'+ing+'" data-label="'+label+'">'+label+' <a href="#" class="aorp-remove-ing">x</a></span> ');
-                form.find('.aorp-ing-select option[value="'+ing+'"]').remove();
+                form.find('.aorp-selected').append('<span class="aorp-ing-chip" data-val="' + ing + '" data-label="' + label + '">' + label + ' <a href="#" class="aorp-remove-ing">×</a></span> ');
+                form.find('.aorp-ing-select option[value="' + ing + '"]').remove();
             });
         }
     }
 
-    $(document).on('submit','.aorp-add-form',function(e){
+    // Add item (food or drink)
+    $(document).on('submit', '.aorp-add-form', function(e) {
         e.preventDefault();
-        if($(this).find('.aorp-ing-text').val().length > 200){
-            alert('Zu viele Inhaltsstoffe');
+        if ($(this).find('.aorp-ing-text').val().length > 200) {
+            showToast('Zu viele Inhaltsstoffe', 'error');
             return;
         }
         ajaxForm($(this), $(this).data('action'));
     });
 
-    $(document).on('click','.aorp-edit',function(e){
+    // Edit food item
+    $(document).on('click', '.aorp-edit', function(e) {
         e.preventDefault();
         var row = $(this).closest('tr');
-        if(row.next().hasClass('aorp-edit-row')) return;
+        if (row.next().hasClass('aorp-edit-row')) return;
+        
         var data = row.data();
-        var cols = $('<tr class="aorp-edit-row"><td colspan="8"></td></tr>');
-        var form = $('<form class="aorp-inline-edit" />').append(
-            '<input type="hidden" name="action" value="aorp_update_item" />'+
-            '<input type="hidden" name="nonce" value="'+aorp_admin.nonce_edit+'" />'+
-            '<input type="hidden" name="item_id" value="'+data.id+'" />'+
-            '<p><input type="text" name="item_number" value="'+data.number+'" placeholder="Nummer" /></p>'+
-            '<p><input type="text" name="item_title" value="'+data.title+'" required /></p>'+
-            '<p><textarea name="item_description">'+data.description+'</textarea></p>'+
-            '<p><input type="text" name="item_price" value="'+data.price+'" /></p>'+
-            '<p><select class="aorp-ing-select">'+ingOptions+'</select></p>'+
-            '<div class="aorp-selected"></div>'+
-            '<input type="hidden" name="item_ingredients" class="aorp-ing-text" value="'+(data.ingredients||'')+'" />'+
-            '<p><button class="button aorp-upload-image">Bild auswählen</button> <input type="hidden" name="item_image_id" class="aorp-image-id" value="'+(data.imageid||'')+'" /> <span class="aorp-image-preview">'+(data.imageurl?'<img src="'+data.imageurl+'" />':'')+'</span></p>'+
-            '<button type="submit" class="button button-primary">Speichern</button> '+
-            '<button class="button aorp-cancel">Abbrechen</button>'
+        var editRow = $('<tr class="aorp-edit-row"><td colspan="8"></td></tr>');
+        var form = $('<form class="aorp-inline-edit" />').html(
+            '<input type="hidden" name="action" value="aorp_update_item" />' +
+            '<input type="hidden" name="nonce" value="' + aorp_admin.nonce_edit + '" />' +
+            '<input type="hidden" name="item_id" value="' + data.id + '" />' +
+            '<p><label>Nummer</label><input type="text" name="item_number" value="' + (data.number || '') + '" placeholder="Nummer" /></p>' +
+            '<p><label>Name</label><input type="text" name="item_title" value="' + (data.title || '') + '" required /></p>' +
+            '<p><label>Beschreibung</label><textarea name="item_description">' + (data.description || '') + '</textarea></p>' +
+            '<p><label>Preis</label><input type="text" name="item_price" value="' + (data.price || '') + '" placeholder="0.00" /></p>' +
+            '<p><label>Inhaltsstoffe</label><select class="aorp-ing-select">' + ingOptions + '</select></p>' +
+            '<div class="aorp-selected"></div>' +
+            '<input type="hidden" name="item_ingredients" class="aorp-ing-text" value="' + (data.ingredients || '') + '" />' +
+            '<p><button class="button aorp-upload-image">Bild auswählen</button> ' +
+            '<input type="hidden" name="item_image_id" class="aorp-image-id" value="' + (data.imageid || '') + '" /> ' +
+            '<span class="aorp-image-preview">' + (data.imageurl ? '<img src="' + data.imageurl + '" />' : '') + '</span></p>' +
+            '<p><button type="submit" class="button button-primary">💾 Speichern</button> ' +
+            '<button type="button" class="button aorp-cancel">Abbrechen</button></p>'
         );
-        cols.find('td').append(form);
-        row.after(cols); row.hide();
+        
+        editRow.find('td').append(form);
+        row.after(editRow);
+        row.hide();
         initIngredients(form);
         bindImageUpload(form);
     });
 
-    $(document).on('change','.aorp-ing-select',function(){
+    // Edit drink item
+    $(document).on('click', '.aorp-edit-drink', function(e) {
+        e.preventDefault();
+        var row = $(this).closest('tr');
+        if (row.next().hasClass('aorp-edit-row')) return;
+        
+        var data = row.data();
+        var editRow = $('<tr class="aorp-edit-row"><td colspan="8"></td></tr>');
+        var form = $('<form class="aorp-inline-edit" />').html(
+            '<input type="hidden" name="action" value="aorp_update_drink_item" />' +
+            '<input type="hidden" name="nonce" value="' + aorp_admin.nonce_edit_drink + '" />' +
+            '<input type="hidden" name="item_id" value="' + data.id + '" />' +
+            '<p><label>Name</label><input type="text" name="item_title" value="' + (data.title || '') + '" required /></p>' +
+            '<p><label>Beschreibung</label><textarea name="item_description">' + (data.description || '') + '</textarea></p>' +
+            '<p><label>Größen/Preise <small>(Format: 0.3L = 2.50)</small></label><textarea name="item_sizes" placeholder="0.3L = 2.50\n0.5L = 3.50">' + (data.sizes || '') + '</textarea></p>' +
+            '<p><label>Inhaltsstoffe</label><select class="aorp-ing-select">' + ingOptions + '</select></p>' +
+            '<div class="aorp-selected"></div>' +
+            '<input type="hidden" name="item_ingredients" class="aorp-ing-text" value="' + (data.ingredients || '') + '" />' +
+            '<p><button class="button aorp-upload-image">Bild auswählen</button> ' +
+            '<input type="hidden" name="item_image_id" class="aorp-image-id" value="' + (data.imageid || '') + '" /> ' +
+            '<span class="aorp-image-preview">' + (data.imageurl ? '<img src="' + data.imageurl + '" />' : '') + '</span></p>' +
+            '<p><button type="submit" class="button button-primary">💾 Speichern</button> ' +
+            '<button type="button" class="button aorp-cancel">Abbrechen</button></p>'
+        );
+        
+        editRow.find('td').append(form);
+        row.after(editRow);
+        row.hide();
+        initIngredients(form);
+        bindImageUpload(form);
+    });
+
+    // Ingredient selection
+    $(document).on('change', '.aorp-ing-select', function() {
         var ing = $(this).val();
         var label = $(this).find('option:selected').text();
-        if(ing){
+        if (ing) {
             var form = $(this).closest('form');
-            form.find('.aorp-selected').append('<span class="aorp-ing-chip" data-val="'+ing+'" data-label="'+label+'">'+label+' <a href="#" class="aorp-remove-ing">x</a></span> ');
+            form.find('.aorp-selected').append('<span class="aorp-ing-chip" data-val="' + ing + '" data-label="' + label + '">' + label + ' <a href="#" class="aorp-remove-ing">×</a></span> ');
             $(this).find('option:selected').remove();
             $(this).val('');
             updateIngInput(form);
         }
     });
 
-    $(document).on('click','.aorp-remove-ing',function(e){
+    // Remove ingredient
+    $(document).on('click', '.aorp-remove-ing', function(e) {
         e.preventDefault();
         var chip = $(this).closest('.aorp-ing-chip');
         var ing = chip.data('val');
         var label = chip.data('label');
         var form = chip.closest('form');
-        form.find('.aorp-ing-select').append('<option value="'+ing+'">'+label+'</option>');
+        form.find('.aorp-ing-select').append('<option value="' + ing + '">' + label + '</option>');
         chip.remove();
         updateIngInput(form);
     });
 
-    $(document).on('click','.aorp-cancel',function(e){
+    // Cancel editing
+    $(document).on('click', '.aorp-cancel', function(e) {
         e.preventDefault();
         var editRow = $(this).closest('tr.aorp-edit-row');
         editRow.prev('tr').show();
         editRow.remove();
     });
 
-    $(document).on('submit','.aorp-inline-edit',function(e){
+    // Submit inline edit
+    $(document).on('submit', '.aorp-inline-edit', function(e) {
         e.preventDefault();
-        if($(this).find('.aorp-ing-text').val().length > 200){
-            alert('Zu viele Inhaltsstoffe');
+        if ($(this).find('.aorp-ing-text').val().length > 200) {
+            showToast('Zu viele Inhaltsstoffe', 'error');
             return;
         }
-        ajaxForm($(this), 'aorp_update_item');
+        var action = $(this).find('input[name="action"]').val();
+        ajaxForm($(this), action);
     });
 
-    $(document).on('click','.aorp-delete',function(e){
+    // Delete food item
+    $(document).on('click', '.aorp-delete', function(e) {
         e.preventDefault();
+        if (!confirm('Wirklich löschen?')) return;
+        
         var id = $(this).data('id');
         var nonce = $(this).data('nonce');
         var row = $(this).closest('tr');
-        $.post(aorp_admin.ajax_url,{action:'aorp_delete_item',item_id:id,nonce:nonce},function(resp){
-            if(resp.success){
-                row.hide();
-                var undo = $('<div class="aorp-toast">Eintrag gelöscht. <a href="#">Rückgängig</a></div>');
-                $('body').append(undo);
-                undo.find('a').on('click',function(ev){
-                    ev.preventDefault();
-                    $.post(aorp_admin.ajax_url,{action:'aorp_undo_delete_item',item_id:id,nonce:resp.data.undo_nonce},function(r){
-                        if(r.success&&r.data.row){
-                            row.replaceWith(r.data.row);
-                        }
-                        undo.remove();
-                    });
-                });
-                setTimeout(function(){ undo.fadeOut(400,function(){ $(this).remove(); }); },5000);
+        
+        $.post(aorp_admin.ajax_url, {
+            action: 'aorp_delete_item',
+            item_id: id,
+            nonce: nonce
+        }, function(resp) {
+            if (resp.success) {
+                row.fadeOut(300, function() { $(this).remove(); });
+                showToast('✓ Eintrag gelöscht', 'success');
+            } else {
+                showToast(resp.data && resp.data.message ? resp.data.message : 'Fehler beim Löschen', 'error');
             }
         });
+    });
+
+    // Delete drink item
+    $(document).on('click', '.aorp-delete-drink', function(e) {
+        e.preventDefault();
+        if (!confirm('Wirklich löschen?')) return;
+        
+        var id = $(this).data('id');
+        var nonce = $(this).data('nonce');
+        var row = $(this).closest('tr');
+        
+        $.post(aorp_admin.ajax_url, {
+            action: 'aorp_delete_drink_item',
+            item_id: id,
+            nonce: nonce
+        }, function(resp) {
+            if (resp.success) {
+                row.fadeOut(300, function() { $(this).remove(); });
+                showToast('✓ Getränk gelöscht', 'success');
+            } else {
+                showToast(resp.data && resp.data.message ? resp.data.message : 'Fehler beim Löschen', 'error');
+            }
+        });
+    });
+
+    // Live search filter
+    $('#aorp-item-filter').on('keyup', function() {
+        var value = $(this).val().toLowerCase();
+        $('#aorp-items-table tbody tr').filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+        });
+    });
+
+    // Select/Unselect all checkboxes
+    $('.aorp-select-all').on('click', function() {
+        $($(this).data('target')).prop('checked', true);
+    });
+
+    $('.aorp-unselect-all').on('click', function() {
+        $($(this).data('target')).prop('checked', false);
     });
 });
