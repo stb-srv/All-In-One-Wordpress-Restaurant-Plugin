@@ -1,6 +1,8 @@
 jQuery(function($){
     var ingOptions = $('.aorp-ing-select:first').html() || '';
     bindImageUpload($('.aorp-add-form'));
+    
+    console.log('AORP Admin JS loaded', aorp_admin);
 
     function showToast(text, type = 'success') {
         var bgClass = type === 'success' ? 'aorp-toast-success' : 'aorp-toast-error';
@@ -15,7 +17,10 @@ jQuery(function($){
         var spinner = $('<span class="aorp-spinner is-active" />');
         form.find('button[type=submit]').prop('disabled', true).after(spinner);
         
+        console.log('Submitting form', action, form.serialize());
+        
         $.post(aorp_admin.ajax_url, form.serialize() + "&action=" + action, function(resp){
+            console.log('Response:', resp);
             spinner.remove();
             form.find('button[type=submit]').prop('disabled', false);
             
@@ -27,18 +32,21 @@ jQuery(function($){
                         form.find('.aorp-selected').empty();
                         form.find('.aorp-image-preview').empty();
                     } else {
-                        form.closest('tr').replaceWith(resp.data.row);
-                        form.closest('.aorp-edit-row').remove();
+                        var oldRow = form.closest('tr.aorp-edit-row').prev('tr');
+                        $(resp.data.row).insertAfter(form.closest('tr.aorp-edit-row'));
+                        oldRow.remove();
+                        form.closest('tr.aorp-edit-row').remove();
                     }
                 }
-                showToast(resp.data.message || 'Erfolgreich gespeichert!', 'success');
+                showToast(resp.data.message || '✅ Erfolgreich gespeichert!', 'success');
             } else {
-                showToast(resp.data && resp.data.message ? resp.data.message : 'Fehler beim Speichern', 'error');
+                showToast(resp.data && resp.data.message ? resp.data.message : '❌ Fehler beim Speichern', 'error');
             }
-        }).fail(function() {
+        }).fail(function(xhr, status, error) {
+            console.error('AJAX Error:', status, error, xhr.responseText);
             spinner.remove();
             form.find('button[type=submit]').prop('disabled', false);
-            showToast('Netzwerkfehler', 'error');
+            showToast('❌ Netzwerkfehler', 'error');
         });
     }
 
@@ -90,7 +98,7 @@ jQuery(function($){
     $(document).on('submit', '.aorp-add-form', function(e) {
         e.preventDefault();
         if ($(this).find('.aorp-ing-text').val().length > 200) {
-            showToast('Zu viele Inhaltsstoffe', 'error');
+            showToast('❌ Zu viele Inhaltsstoffe', 'error');
             return;
         }
         ajaxForm($(this), $(this).data('action'));
@@ -99,19 +107,27 @@ jQuery(function($){
     // Edit food item
     $(document).on('click', '.aorp-edit', function(e) {
         e.preventDefault();
+        if ($(this).hasClass('aorp-edit-drink')) return; // Let drink handler do it
+        
         var row = $(this).closest('tr');
         if (row.next().hasClass('aorp-edit-row')) return;
         
         var data = row.data();
+        console.log('Edit food data:', data);
+        
+        // Build category select
+        var catSelect = '<select name="item_category">' + aorp_admin.food_categories + '</select>';
+        catSelect = catSelect.replace('value="' + data.category + '"', 'value="' + data.category + '" selected');
+        
         var editRow = $('<tr class="aorp-edit-row"><td colspan="8"></td></tr>');
         var form = $('<form class="aorp-inline-edit" />').html(
-            '<input type="hidden" name="action" value="aorp_update_item" />' +
             '<input type="hidden" name="nonce" value="' + aorp_admin.nonce_edit + '" />' +
             '<input type="hidden" name="item_id" value="' + data.id + '" />' +
-            '<p><label>Nummer</label><input type="text" name="item_number" value="' + (data.number || '') + '" placeholder="Nummer" /></p>' +
+            '<p><label>Nummer</label><input type="text" name="item_number" value="' + (data.number || '') + '" /></p>' +
             '<p><label>Name</label><input type="text" name="item_title" value="' + (data.title || '') + '" required /></p>' +
             '<p><label>Beschreibung</label><textarea name="item_description">' + (data.description || '') + '</textarea></p>' +
-            '<p><label>Preis</label><input type="text" name="item_price" value="' + (data.price || '') + '" placeholder="0.00" /></p>' +
+            '<p><label>Preis</label><input type="text" name="item_price" value="' + (data.price || '') + '" /></p>' +
+            '<p><label>Kategorie</label>' + catSelect + '</p>' +
             '<p><label>Inhaltsstoffe</label><select class="aorp-ing-select">' + ingOptions + '</select></p>' +
             '<div class="aorp-selected"></div>' +
             '<input type="hidden" name="item_ingredients" class="aorp-ing-text" value="' + (data.ingredients || '') + '" />' +
@@ -136,14 +152,20 @@ jQuery(function($){
         if (row.next().hasClass('aorp-edit-row')) return;
         
         var data = row.data();
+        console.log('Edit drink data:', data);
+        
+        // Build category select
+        var catSelect = '<select name="item_category">' + aorp_admin.drink_categories + '</select>';
+        catSelect = catSelect.replace('value="' + data.category + '"', 'value="' + data.category + '" selected');
+        
         var editRow = $('<tr class="aorp-edit-row"><td colspan="8"></td></tr>');
         var form = $('<form class="aorp-inline-edit" />').html(
-            '<input type="hidden" name="action" value="aorp_update_drink_item" />' +
             '<input type="hidden" name="nonce" value="' + aorp_admin.nonce_edit_drink + '" />' +
             '<input type="hidden" name="item_id" value="' + data.id + '" />' +
             '<p><label>Name</label><input type="text" name="item_title" value="' + (data.title || '') + '" required /></p>' +
             '<p><label>Beschreibung</label><textarea name="item_description">' + (data.description || '') + '</textarea></p>' +
             '<p><label>Größen/Preise <small>(Format: 0.3L = 2.50)</small></label><textarea name="item_sizes" placeholder="0.3L = 2.50\n0.5L = 3.50">' + (data.sizes || '') + '</textarea></p>' +
+            '<p><label>Kategorie</label>' + catSelect + '</p>' +
             '<p><label>Inhaltsstoffe</label><select class="aorp-ing-select">' + ingOptions + '</select></p>' +
             '<div class="aorp-selected"></div>' +
             '<input type="hidden" name="item_ingredients" class="aorp-ing-text" value="' + (data.ingredients || '') + '" />' +
@@ -198,33 +220,44 @@ jQuery(function($){
     $(document).on('submit', '.aorp-inline-edit', function(e) {
         e.preventDefault();
         if ($(this).find('.aorp-ing-text').val().length > 200) {
-            showToast('Zu viele Inhaltsstoffe', 'error');
+            showToast('❌ Zu viele Inhaltsstoffe', 'error');
             return;
         }
-        var action = $(this).find('input[name="action"]').val();
+        var action = $(this).find('input[name="nonce"]').val() === aorp_admin.nonce_edit_drink 
+            ? 'aorp_update_drink_item' 
+            : 'aorp_update_item';
+        console.log('Submitting inline edit with action:', action);
         ajaxForm($(this), action);
     });
 
     // Delete food item
     $(document).on('click', '.aorp-delete', function(e) {
         e.preventDefault();
+        if ($(this).hasClass('aorp-delete-drink')) return; // Let drink handler do it
+        
         if (!confirm('Wirklich löschen?')) return;
         
         var id = $(this).data('id');
         var nonce = $(this).data('nonce');
         var row = $(this).closest('tr');
         
+        console.log('Deleting food', id);
+        
         $.post(aorp_admin.ajax_url, {
             action: 'aorp_delete_item',
             item_id: id,
             nonce: nonce
         }, function(resp) {
+            console.log('Delete response:', resp);
             if (resp.success) {
                 row.fadeOut(300, function() { $(this).remove(); });
                 showToast('✓ Eintrag gelöscht', 'success');
             } else {
-                showToast(resp.data && resp.data.message ? resp.data.message : 'Fehler beim Löschen', 'error');
+                showToast(resp.data && resp.data.message ? resp.data.message : '❌ Fehler beim Löschen', 'error');
             }
+        }).fail(function(xhr, status, error) {
+            console.error('Delete error:', status, error);
+            showToast('❌ Fehler beim Löschen', 'error');
         });
     });
 
@@ -237,17 +270,23 @@ jQuery(function($){
         var nonce = $(this).data('nonce');
         var row = $(this).closest('tr');
         
+        console.log('Deleting drink', id, nonce);
+        
         $.post(aorp_admin.ajax_url, {
             action: 'aorp_delete_drink_item',
             item_id: id,
             nonce: nonce
         }, function(resp) {
+            console.log('Delete drink response:', resp);
             if (resp.success) {
                 row.fadeOut(300, function() { $(this).remove(); });
                 showToast('✓ Getränk gelöscht', 'success');
             } else {
-                showToast(resp.data && resp.data.message ? resp.data.message : 'Fehler beim Löschen', 'error');
+                showToast(resp.data && resp.data.message ? resp.data.message : '❌ Fehler beim Löschen', 'error');
             }
+        }).fail(function(xhr, status, error) {
+            console.error('Delete drink error:', status, error, xhr.responseText);
+            showToast('❌ Fehler beim Löschen', 'error');
         });
     });
 
