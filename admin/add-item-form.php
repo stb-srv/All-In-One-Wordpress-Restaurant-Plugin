@@ -1,7 +1,7 @@
 <?php
 /**
  * Modern Add Item Form Template
- * v2.8.1 - Fixed AJAX submission
+ * v2.8.1 - Fixed AJAX submission with inline handler
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -35,7 +35,8 @@ $ings = get_posts( array( 'post_type' => 'aorp_ingredient', 'numberposts' => -1 
         
         <form class="aorp-add-form aorp-modern-form" 
               method="post"
-              action="javascript:void(0);"
+              action=""
+              onsubmit="return false;"
               data-action="<?php echo esc_attr( $action ); ?>" 
               data-type="<?php echo esc_attr( $mode ); ?>">
             
