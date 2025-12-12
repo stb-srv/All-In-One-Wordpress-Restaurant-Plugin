@@ -104,22 +104,16 @@ add_action( 'plugins_loaded', 'aorp_init_plugin' );
 
 function aorp_has_shortcodes(): bool {
     global $post;
-    if ( ! is_a( $post, 'WP_Post' ) ) {
-        return false;
-    }
+    if ( ! is_a( $post, 'WP_Post' ) ) return false;
     $shortcodes = array( 'speisekarte', 'getraenkekarte', 'restaurant_lightswitcher' );
     foreach ( $shortcodes as $shortcode ) {
-        if ( has_shortcode( $post->post_content, $shortcode ) ) {
-            return true;
-        }
+        if ( has_shortcode( $post->post_content, $shortcode ) ) return true;
     }
     return false;
 }
 
 function aorp_enqueue_assets(): void {
-    if ( ! aorp_has_shortcodes() && ! is_singular( array( 'aorp_menu_item', 'aorp_drink_item' ) ) ) {
-        return;
-    }
+    if ( ! aorp_has_shortcodes() && ! is_singular( array( 'aorp_menu_item', 'aorp_drink_item' ) ) ) return;
     wp_enqueue_style( 'aorp-frontend', AORP_PLUGIN_URL . 'assets/style.css', array(), AORP_VERSION );
     wp_enqueue_script( 'aorp-frontend', AORP_PLUGIN_URL . 'assets/js/frontend/script.js', array( 'jquery' ), AORP_VERSION, true );
     wp_localize_script( 'aorp-frontend', 'aorp_ajax', array(
@@ -134,19 +128,39 @@ add_action( 'wp_enqueue_scripts', 'aorp_enqueue_assets' );
 function aorp_admin_assets( string $hook_suffix ): void {
     $is_plugin_page = ( strpos( $hook_suffix, 'aio-' ) !== false ) ||
                       in_array( get_post_type(), array( 'aorp_menu_item', 'aorp_drink_item' ), true );
-    if ( ! $is_plugin_page ) {
-        return;
-    }
+    if ( ! $is_plugin_page ) return;
+    
     wp_enqueue_style( 'aorp-admin', AORP_PLUGIN_URL . 'assets/css/admin.css', array(), AORP_VERSION );
     wp_enqueue_script( 'aorp-admin-filters', AORP_PLUGIN_URL . 'assets/js/admin/filters.js', array( 'jquery' ), AORP_VERSION, true );
     wp_enqueue_script( 'aorp-admin-items', AORP_PLUGIN_URL . 'assets/js/admin/item-management.js', array( 'jquery' ), AORP_VERSION, true );
     wp_enqueue_media();
+    
+    // Get categories for both foods and drinks
+    $food_cats = get_terms( array( 'taxonomy' => 'aorp_menu_category', 'hide_empty' => false ) );
+    $drink_cats = get_terms( array( 'taxonomy' => 'aorp_drink_category', 'hide_empty' => false ) );
+    
+    $food_cat_options = '<option value="">Kategorie wählen</option>';
+    if ( $food_cats && ! is_wp_error( $food_cats ) ) {
+        foreach ( $food_cats as $cat ) {
+            $food_cat_options .= '<option value="' . esc_attr( $cat->term_id ) . '">' . esc_html( $cat->name ) . '</option>';
+        }
+    }
+    
+    $drink_cat_options = '<option value="">Kategorie wählen</option>';
+    if ( $drink_cats && ! is_wp_error( $drink_cats ) ) {
+        foreach ( $drink_cats as $cat ) {
+            $drink_cat_options .= '<option value="' . esc_attr( $cat->term_id ) . '">' . esc_html( $cat->name ) . '</option>';
+        }
+    }
+    
     wp_localize_script( 'aorp-admin-items', 'aorp_admin', array(
-        'ajax_url'         => admin_url( 'admin-ajax.php' ),
-        'nonce_edit'       => wp_create_nonce( 'aorp_edit_item' ),
-        'nonce_add'        => wp_create_nonce( 'aorp_add_item' ),
-        'nonce_add_drink'  => wp_create_nonce( 'aorp_add_drink_item' ),
-        'nonce_edit_drink' => wp_create_nonce( 'aorp_edit_drink_item' ),
+        'ajax_url'          => admin_url( 'admin-ajax.php' ),
+        'nonce_edit'        => wp_create_nonce( 'aorp_edit_item' ),
+        'nonce_add'         => wp_create_nonce( 'aorp_add_item' ),
+        'nonce_add_drink'   => wp_create_nonce( 'aorp_add_drink_item' ),
+        'nonce_edit_drink'  => wp_create_nonce( 'aorp_edit_drink_item' ),
+        'food_categories'   => $food_cat_options,
+        'drink_categories'  => $drink_cat_options,
     ) );
 }
 add_action( 'admin_enqueue_scripts', 'aorp_admin_assets' );
