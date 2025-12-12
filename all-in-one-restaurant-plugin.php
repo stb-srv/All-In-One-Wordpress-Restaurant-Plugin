@@ -2,7 +2,7 @@
 /**
  * Plugin Name: All-In-One WordPress Restaurant Plugin
  * Description: Moderne Speisekartenverwaltung mit REST-API und Darkmode.
- * Version: 2.6.0
+ * Version: 2.7.0
  * Author: stb-srv
  * Author URI: https://stb-srv.de
  * Text Domain: aorp
@@ -17,8 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Define plugin constants
-define( 'AORP_VERSION', '2.6.0' );
+define( 'AORP_VERSION', '2.7.0' );
 define( 'AORP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AORP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
@@ -36,12 +35,6 @@ require_once plugin_dir_path( __FILE__ ) . 'admin/shortcode-generator.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/frontend-search.php';
 
 if ( ! function_exists( 'aorp_wp_kses_post_iframe' ) ) {
-    /**
-     * Sanitize content but allow iframes from trusted sources only.
-     *
-     * @param string $content Content to sanitize.
-     * @return string Sanitized content.
-     */
     function aorp_wp_kses_post_iframe( string $content ): string {
         $allowed = wp_kses_allowed_html( 'post' );
         $allowed['iframe'] = array(
@@ -77,11 +70,6 @@ use AIO_Restaurant_Plugin\AORP_Settings;
 use AIO_Restaurant_Plugin\AORP_REST_API;
 use AIO_Restaurant_Plugin\AORP_Contact_Messages;
 
-/**
- * Initialize plugin components.
- *
- * @return void
- */
 function aorp_init_plugin(): void {
     try {
         $post_types = new AORP_Post_Types();
