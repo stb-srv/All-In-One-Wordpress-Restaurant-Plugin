@@ -1,1 +1,504 @@
-/* Admin styles */
+/**
+ * All-In-One Restaurant Plugin - Admin Styles
+ * Version: 2.7.1
+ * Modern card-based layout for food/drink management
+ */
+
+/* ==========================================================================
+   Variables & Base
+   ========================================================================== */
+:root {
+  --aorp-primary: #667eea;
+  --aorp-primary-dark: #5568d3;
+  --aorp-secondary: #764ba2;
+  --aorp-success: #48bb78;
+  --aorp-danger: #f56565;
+  --aorp-warning: #ed8936;
+  --aorp-info: #4299e1;
+  --aorp-light: #f7fafc;
+  --aorp-dark: #2d3748;
+  --aorp-gray: #718096;
+  --aorp-border: #e2e8f0;
+  --aorp-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --aorp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --aorp-radius: 12px;
+  --aorp-radius-sm: 8px;
+  --aorp-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   List Header
+   ========================================================================== */
+.aorp-list-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: var(--aorp-radius);
+  margin-bottom: 2rem;
+  box-shadow: var(--aorp-shadow-lg);
+}
+
+.aorp-list-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.aorp-count-badge {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.aorp-list-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ==========================================================================
+   Search Box
+   ========================================================================== */
+.aorp-search-box {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+  max-width: 400px;
+}
+
+.aorp-search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.25rem;
+  opacity: 0.7;
+}
+
+.aorp-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--aorp-radius-sm);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  font-size: 1rem;
+  transition: var(--aorp-transition);
+  color: var(--aorp-dark);
+}
+
+.aorp-search-input::placeholder {
+  color: var(--aorp-gray);
+}
+
+.aorp-search-input:focus {
+  outline: none;
+  border-color: white;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+.aorp-bulk-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.aorp-btn {
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: var(--aorp-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--aorp-transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  line-height: 1.5;
+}
+
+.aorp-btn-primary {
+  background: linear-gradient(135deg, var(--aorp-primary) 0%, var(--aorp-secondary) 100%);
+  color: white;
+  box-shadow: var(--aorp-shadow);
+}
+
+.aorp-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--aorp-shadow-lg);
+}
+
+.aorp-btn-secondary {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--aorp-primary);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.aorp-btn-secondary:hover {
+  background: white;
+  transform: translateY(-2px);
+}
+
+.aorp-btn-danger {
+  background: var(--aorp-danger);
+  color: white;
+}
+
+.aorp-btn-danger:hover {
+  background: #e53e3e;
+  transform: translateY(-2px);
+  box-shadow: var(--aorp-shadow);
+}
+
+.aorp-btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+}
+
+/* ==========================================================================
+   Card Grid
+   ========================================================================== */
+.aorp-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .aorp-items-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 1400px) {
+  .aorp-items-grid {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
+}
+
+/* ==========================================================================
+   Item Card
+   ========================================================================== */
+.aorp-item-card {
+  background: white;
+  border-radius: var(--aorp-radius);
+  box-shadow: var(--aorp-shadow);
+  overflow: hidden;
+  transition: var(--aorp-transition);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.aorp-item-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--aorp-shadow-lg);
+}
+
+/* Card Checkbox */
+.aorp-card-checkbox {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10;
+}
+
+.aorp-card-checkbox input[type="checkbox"] {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 2px solid white;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5px);
+  cursor: pointer;
+  transition: var(--aorp-transition);
+  position: relative;
+}
+
+.aorp-card-checkbox input[type="checkbox"]:checked {
+  background: var(--aorp-primary);
+  border-color: var(--aorp-primary);
+}
+
+.aorp-card-checkbox input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.aorp-card-checkbox label {
+  display: none;
+}
+
+/* Card Image */
+.aorp-card-image {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--aorp-light);
+  position: relative;
+}
+
+.aorp-card-image.aorp-no-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+}
+
+.aorp-placeholder-icon {
+  font-size: 4rem;
+  opacity: 0.5;
+}
+
+/* Card Body */
+.aorp-card-body {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.aorp-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.aorp-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--aorp-dark);
+  margin: 0;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.aorp-item-number {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--aorp-primary) 0%, var(--aorp-secondary) 100%);
+  color: white;
+  padding: 0.125rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 0.5rem;
+}
+
+.aorp-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--aorp-light);
+  color: var(--aorp-gray);
+  padding: 0.375rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid var(--aorp-border);
+}
+
+.aorp-category-icon {
+  font-size: 0.875rem;
+}
+
+.aorp-card-description {
+  color: var(--aorp-gray);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Card Meta */
+.aorp-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--aorp-border);
+  font-size: 0.875rem;
+}
+
+.aorp-card-meta strong {
+  color: var(--aorp-dark);
+  font-weight: 600;
+}
+
+.aorp-price-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.aorp-price {
+  background: linear-gradient(135deg, var(--aorp-success) 0%, #38a169 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.aorp-sizes-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.aorp-size-item {
+  background: var(--aorp-light);
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  border: 1px solid var(--aorp-border);
+}
+
+.aorp-ingredients {
+  color: var(--aorp-warning);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.aorp-ingredients strong {
+  color: var(--aorp-warning);
+}
+
+/* Card Actions */
+.aorp-card-actions {
+  padding: 1rem 1.5rem;
+  background: var(--aorp-light);
+  display: flex;
+  gap: 0.5rem;
+  border-top: 1px solid var(--aorp-border);
+}
+
+.aorp-card-actions .aorp-btn {
+  flex: 1;
+}
+
+/* ==========================================================================
+   Empty State
+   ========================================================================== */
+.aorp-empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: var(--aorp-radius);
+  box-shadow: var(--aorp-shadow);
+  margin-top: 2rem;
+}
+
+.aorp-empty-icon {
+  font-size: 5rem;
+  opacity: 0.3;
+  margin-bottom: 1rem;
+}
+
+.aorp-empty-state h3 {
+  font-size: 1.5rem;
+  color: var(--aorp-dark);
+  margin: 0 0 0.5rem 0;
+}
+
+.aorp-empty-state p {
+  color: var(--aorp-gray);
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Toast Notifications
+   ========================================================================== */
+.aorp-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: var(--aorp-radius-sm);
+  color: white;
+  font-weight: 600;
+  box-shadow: var(--aorp-shadow-lg);
+  z-index: 9999;
+  animation: slideInUp 0.3s ease-out;
+  max-width: 400px;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.aorp-toast-success {
+  background: var(--aorp-success);
+}
+
+.aorp-toast-error {
+  background: var(--aorp-danger);
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 640px) {
+  .aorp-list-header {
+    padding: 1.5rem;
+  }
+  
+  .aorp-list-title {
+    font-size: 1.5rem;
+  }
+  
+  .aorp-list-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .aorp-search-box {
+    max-width: 100%;
+  }
+  
+  .aorp-bulk-actions {
+    flex-direction: column;
+  }
+  
+  .aorp-card-actions {
+    flex-direction: column;
+  }
+  
+  .aorp-toast {
+    right: 1rem;
+    left: 1rem;
+    bottom: 1rem;
+  }
+}
