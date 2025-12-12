@@ -307,48 +307,10 @@ class AORP_Admin_Pages {
         }
         echo '</h2>';
 
-        $cats = get_terms(
-            ( 'drinks' === $tab ) ? 'aorp_drink_category' : 'aorp_menu_category',
-            array(
-                'hide_empty' => false,
-                'orderby'    => 'name',
-                'order'      => 'ASC',
-            )
-        );
-        $ings = get_posts( array( 'post_type' => 'aorp_ingredient', 'numberposts' => -1 ) );
-
         if ( 'add' === $view ) {
-            $nonce = wp_create_nonce( 'aorp_add_' . ( 'drinks' === $tab ? 'drink_item' : 'item' ) );
-            echo '<form class="aorp-add-form" data-action="aorp_add_' . ( 'drinks' === $tab ? 'drink_item' : 'item' ) . '">';
-            echo '<input type="hidden" name="nonce" value="' . esc_attr( $nonce ) . '" />';
-            echo '<p><input type="text" name="item_title" placeholder="Name" required /></p>';
-            echo '<p><textarea name="item_description" placeholder="Beschreibung"></textarea></p>';
-            if ( 'foods' === $tab ) {
-                echo '<p><input type="text" name="item_price" placeholder="Preis" /></p>';
-                echo '<p><input type="text" name="item_number" placeholder="Nummer" /></p>';
-            } else {
-                echo '<p><textarea name="item_sizes" placeholder="Größe=Preis pro Zeile"></textarea></p>';
-            }
-            if ( $cats ) {
-                echo '<p><select name="item_category"><option value="">Kategorie</option>';
-                foreach ( $cats as $cat ) {
-                    echo '<option value="' . esc_attr( $cat->term_id ) . '">' . esc_html( $cat->name ) . '</option>';
-                }
-                echo '</select></p>';
-            }
-            echo '<p><select class="aorp-ing-select"><option value="">Inhaltsstoff wählen</option>';
-            foreach ( $ings as $ing ) {
-                $code = get_post_meta( $ing->ID, '_aorp_ing_code', true );
-                echo '<option value="' . esc_attr( $code ) . '">' . esc_html( $ing->post_title ) . '</option>';
-            }
-            echo '</select></p>';
-            echo '<div class="aorp-selected"></div>';
-            echo '<input type="hidden" name="item_ingredients" class="aorp-ing-text" />';
-            echo '<p><button class="button aorp-upload-image">' . __( 'Bild auswählen', 'aorp' ) . '</button> ';
-            echo '<input type="hidden" name="item_image_id" class="aorp-image-id" />';
-            echo '<span class="aorp-image-preview"></span></p>';
-            echo '<p><button type="submit" class="button button-primary">' . __( 'Hinzufügen', 'aorp' ) . '</button></p>';
-            echo '</form>';
+            // Use modern add-item-form.php template
+            $mode = ( 'drinks' === $tab ) ? 'drink' : 'food';
+            include dirname( __DIR__ ) . '/admin/add-item-form.php';
             echo '</div>';
             return;
         }
@@ -462,4 +424,3 @@ class AORP_Admin_Pages {
         }
     }
 }
-
