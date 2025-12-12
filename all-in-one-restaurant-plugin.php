@@ -2,7 +2,7 @@
 /**
  * Plugin Name: All-In-One WordPress Restaurant Plugin
  * Description: Moderne Speisekartenverwaltung mit REST-API und Darkmode.
- * Version: 2.4.1
+ * Version: 2.5.0
  * Author: stb-srv
  * Author URI: https://stb-srv.de
  * Text Domain: aorp
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants
-define( 'AORP_VERSION', '2.4.1' );
+define( 'AORP_VERSION', '2.5.0' );
 define( 'AORP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AORP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
@@ -55,10 +55,8 @@ if ( ! function_exists( 'aorp_wp_kses_post_iframe' ) ) {
             'allow'           => true,
         );
         
-        // Validate iframe sources
         $content = wp_kses( $content, $allowed );
         
-        // Additional security: validate iframe src against whitelist
         $whitelist_domains = apply_filters( 'aorp_iframe_whitelist', array(
             'youtube.com',
             'youtube-nocookie.com',
@@ -127,11 +125,6 @@ function aorp_init_plugin(): void {
 }
 add_action( 'plugins_loaded', 'aorp_init_plugin' );
 
-/**
- * Check if we're on a page that uses plugin shortcodes.
- *
- * @return bool True if shortcodes are in use.
- */
 function aorp_has_shortcodes(): bool {
     global $post;
     
@@ -150,13 +143,7 @@ function aorp_has_shortcodes(): bool {
     return false;
 }
 
-/**
- * Enqueue frontend assets conditionally.
- *
- * @return void
- */
 function aorp_enqueue_assets(): void {
-    // Only load on pages with shortcodes or specific post types
     if ( ! aorp_has_shortcodes() && ! is_singular( array( 'aorp_menu_item', 'aorp_drink_item' ) ) ) {
         return;
     }
@@ -185,15 +172,7 @@ function aorp_enqueue_assets(): void {
 }
 add_action( 'wp_enqueue_scripts', 'aorp_enqueue_assets' );
 
-/**
- * Enqueue admin assets conditionally.
- *
- * @param string $hook_suffix Current admin page.
- * @return void
- */
 function aorp_admin_assets( string $hook_suffix ): void {
-    // HOTFIX: Load on all admin pages containing 'aio-' to ensure JavaScript is available
-    // This is more permissive but ensures functionality works
     $is_plugin_page = ( strpos( $hook_suffix, 'aio-' ) !== false ) ||
                       in_array( get_post_type(), array( 'aorp_menu_item', 'aorp_drink_item' ), true );
     
@@ -224,7 +203,6 @@ function aorp_admin_assets( string $hook_suffix ): void {
         true
     );
     
-    // Enqueue media library
     wp_enqueue_media();
     
     wp_localize_script( 'aorp-admin-items', 'aorp_admin', array(
@@ -237,20 +215,13 @@ function aorp_admin_assets( string $hook_suffix ): void {
 }
 add_action( 'admin_enqueue_scripts', 'aorp_admin_assets' );
 
-/**
- * Handle dark mode toggle with proper nonce verification.
- *
- * @return void
- */
 function aorp_toggle_dark_callback(): void {
-    // Verify nonce
     if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'aorp_toggle_dark' ) ) {
         wp_send_json_error( array( 'message' => __( 'Security check failed', 'aorp' ) ) );
     }
     
     $mode = ( isset( $_POST['mode'] ) && 'on' === $_POST['mode'] ) ? 'on' : 'off';
     
-    // Set secure cookie with SameSite attribute
     $secure = is_ssl();
     $cookie_options = array(
         'expires'  => time() + YEAR_IN_SECONDS,
@@ -268,11 +239,6 @@ function aorp_toggle_dark_callback(): void {
 add_action( 'wp_ajax_aorp_toggle_dark', 'aorp_toggle_dark_callback' );
 add_action( 'wp_ajax_nopriv_aorp_toggle_dark', 'aorp_toggle_dark_callback' );
 
-/**
- * Redirect legacy admin slug with a typo to the correct dashboard.
- *
- * @return void
- */
 function aorp_fix_legacy_menu_slug(): void {
     if ( isset( $_GET['page'] ) && 'aio-resturant' === $_GET['page'] ) {
         wp_safe_redirect( admin_url( 'admin.php?page=aio-restaurant' ) );
@@ -281,11 +247,6 @@ function aorp_fix_legacy_menu_slug(): void {
 }
 add_action( 'admin_init', 'aorp_fix_legacy_menu_slug' );
 
-/**
- * Load plugin textdomain for translations.
- *
- * @return void
- */
 function aorp_load_textdomain(): void {
     load_plugin_textdomain(
         'aorp',
@@ -295,16 +256,9 @@ function aorp_load_textdomain(): void {
 }
 add_action( 'plugins_loaded', 'aorp_load_textdomain' );
 
-/**
- * Activation hook.
- *
- * @return void
- */
 function aorp_activate(): void {
-    // Flush rewrite rules
     flush_rewrite_rules();
     
-    // Set default options if not exist
     if ( ! get_option( 'aorp_settings' ) ) {
         add_option( 'aorp_settings', array(
             'columns_food' => 2,
@@ -314,11 +268,6 @@ function aorp_activate(): void {
 }
 register_activation_hook( __FILE__, 'aorp_activate' );
 
-/**
- * Deactivation hook.
- *
- * @return void
- */
 function aorp_deactivate(): void {
     flush_rewrite_rules();
 }
