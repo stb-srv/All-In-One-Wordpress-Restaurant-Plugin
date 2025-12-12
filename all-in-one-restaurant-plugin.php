@@ -195,8 +195,13 @@ function aorp_admin_assets( string $hook_suffix ): void {
     // Only load on plugin admin pages
     $plugin_pages = array(
         'toplevel_page_aio-restaurant',
-        'aio-restaurant_page_aio-restaurant-drinks',
-        'aio-restaurant_page_aio-restaurant-import-export',
+        'aio-restaurant_page_aio-dishes',
+        'aio-restaurant_page_aio-drinks',
+        'aio-restaurant_page_aio-categories',
+        'aio-restaurant_page_aio-settings-layouts',
+        'aio-restaurant_page_aio-import-export',
+        'aio-restaurant_page_aio-contact-messages',
+        'aio-restaurant_page_aio-shortcode-generator',
     );
     
     if ( ! in_array( $hook_suffix, $plugin_pages, true ) && 
@@ -236,6 +241,8 @@ function aorp_admin_assets( string $hook_suffix ): void {
         'ajax_url'   => admin_url( 'admin-ajax.php' ),
         'nonce_edit' => wp_create_nonce( 'aorp_edit_item' ),
         'nonce_add'  => wp_create_nonce( 'aorp_add_item' ),
+        'nonce_add_drink' => wp_create_nonce( 'aorp_add_drink_item' ),
+        'nonce_edit_drink' => wp_create_nonce( 'aorp_edit_drink_item' ),
     ) );
 }
 add_action( 'admin_enqueue_scripts', 'aorp_admin_assets' );
