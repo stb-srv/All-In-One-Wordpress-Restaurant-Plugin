@@ -2,7 +2,7 @@
 /**
  * Plugin Name: All-In-One WordPress Restaurant Plugin
  * Description: Moderne Speisekartenverwaltung mit REST-API und Darkmode.
- * Version: 2.4.0
+ * Version: 2.4.1
  * Author: stb-srv
  * Author URI: https://stb-srv.de
  * Text Domain: aorp
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants
-define( 'AORP_VERSION', '2.4.0' );
+define( 'AORP_VERSION', '2.4.1' );
 define( 'AORP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AORP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
@@ -192,15 +192,12 @@ add_action( 'wp_enqueue_scripts', 'aorp_enqueue_assets' );
  * @return void
  */
 function aorp_admin_assets( string $hook_suffix ): void {
-    // Only load on plugin admin pages
-    $plugin_pages = array(
-        'toplevel_page_aio-restaurant',
-        'aio-restaurant_page_aio-restaurant-drinks',
-        'aio-restaurant_page_aio-restaurant-import-export',
-    );
+    // HOTFIX: Load on all admin pages containing 'aio-' to ensure JavaScript is available
+    // This is more permissive but ensures functionality works
+    $is_plugin_page = ( strpos( $hook_suffix, 'aio-' ) !== false ) ||
+                      in_array( get_post_type(), array( 'aorp_menu_item', 'aorp_drink_item' ), true );
     
-    if ( ! in_array( $hook_suffix, $plugin_pages, true ) && 
-         ! in_array( get_post_type(), array( 'aorp_menu_item', 'aorp_drink_item' ), true ) ) {
+    if ( ! $is_plugin_page ) {
         return;
     }
     
@@ -227,15 +224,15 @@ function aorp_admin_assets( string $hook_suffix ): void {
         true
     );
     
-    // Only enqueue media on pages that need it
-    if ( in_array( $hook_suffix, $plugin_pages, true ) ) {
-        wp_enqueue_media();
-    }
+    // Enqueue media library
+    wp_enqueue_media();
     
     wp_localize_script( 'aorp-admin-items', 'aorp_admin', array(
-        'ajax_url'   => admin_url( 'admin-ajax.php' ),
-        'nonce_edit' => wp_create_nonce( 'aorp_edit_item' ),
-        'nonce_add'  => wp_create_nonce( 'aorp_add_item' ),
+        'ajax_url'         => admin_url( 'admin-ajax.php' ),
+        'nonce_edit'       => wp_create_nonce( 'aorp_edit_item' ),
+        'nonce_add'        => wp_create_nonce( 'aorp_add_item' ),
+        'nonce_add_drink'  => wp_create_nonce( 'aorp_add_drink_item' ),
+        'nonce_edit_drink' => wp_create_nonce( 'aorp_edit_drink_item' ),
     ) );
 }
 add_action( 'admin_enqueue_scripts', 'aorp_admin_assets' );
