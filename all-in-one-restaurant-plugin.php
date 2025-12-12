@@ -2,7 +2,7 @@
 /**
  * Plugin Name: All-In-One WordPress Restaurant Plugin
  * Description: Moderne Speisekartenverwaltung mit REST-API und Darkmode.
- * Version: 2.7.1
+ * Version: 2.8.1
  * Author: stb-srv
  * Author URI: https://stb-srv.de
  * Text Domain: aorp
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'AORP_VERSION', '2.7.1' );
+define( 'AORP_VERSION', '2.8.1' );
 define( 'AORP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AORP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
